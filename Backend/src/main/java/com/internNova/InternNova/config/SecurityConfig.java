@@ -32,7 +32,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/talent/v1").permitAll()
-                        .requestMatchers("/talent/v1/**").hasAnyRole("TALENT", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/company/v1").permitAll()
+                        .requestMatchers("/talent/v1/**", "/company/v1/**").hasAnyRole("TALENT", "COMPANY", "ADMIN")
                         .requestMatchers("/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults());
