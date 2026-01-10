@@ -1,16 +1,41 @@
-# React + Vite
+# InternNova Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + Vite app styled with Tailwind CSS v4 for InternNova.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Company: Registration, Job Posting, Dashboard, Shortlisting
+- User: Internship Finder, Resume Builder, Mock Interview, Dashboard, Registration
+- Shared UI: Navbar, Button, Input, Card, Table
 
-## React Compiler
+## Quick Start
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Install dependencies and run the dev server:
 
-## Expanding the ESLint configuration
+```bash
+cd Frontend
+npm install
+npm run dev
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Then open the URL printed in the terminal (usually http://localhost:5173).
+
+## Routes
+
+- `/` Landing
+- `/login` Login (toggle User/Company)
+- `/signup` Signup (toggle User/Company)
+- `/company/register` Company Registration
+- `/company/post-job` Post Job
+- `/company/dashboard` Company Dashboard
+- `/company/shortlisting` Shortlisting
+- `/user/register` User Registration
+- `/user/internships` Internship Finder
+- `/user/resume-builder` Resume Builder
+- `/user/mock-interview` Mock Interview
+- `/user/dashboard` User Dashboard
+
+## Notes
+
+- Tailwind v4 is enabled via `@tailwindcss/vite` and `@import "tailwindcss"` in `src/index.css`.
+- Pages use local state and mock data only; wire to your backend when ready.
