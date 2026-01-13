@@ -1,9 +1,14 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import companies from "../data/companies";
+
+const midpoint = Math.ceil(companies.length / 2);
+const companiesRowOne = companies.slice(0, midpoint);
+const companiesRowTwo = companies.slice(midpoint);
 
 const Landing = () => {
   return (
-    <div className="min-h-screen bg-[linear-gradient(135deg,#1923c4_0%,#0a5bff_40%,#0c1b66_100%)] text-white px-[5vw] py-6 flex flex-col font-sans">
+    <div className="min-h-screen bg-[linear-gradient(135deg,#1923c4_0%,#0a5bff_40%,#0c1b66_100%)] text-white px-[5vw] py-6 flex flex-col font-sans overflow-x-hidden">
       {/* Navbar */}
       <header className="flex items-center justify-between gap-6">
         <div className="flex items-center gap-3">
@@ -35,12 +40,18 @@ const Landing = () => {
         </nav>
 
         <div className="flex gap-3">
-          <button className="hidden sm:block px-5 py-2 rounded-full text-sm font-medium hover:bg-[#0a16504d] transition-all">
+          <Link
+            to="/login"
+            className="hidden sm:inline-flex items-center justify-center px-5 py-2 rounded-full text-sm font-medium hover:bg-[#0a16504d] transition-all"
+          >
             Login
-          </button>
-          <button className="bg-white text-[#0a1f5b] px-5 py-2 rounded-full text-sm font-medium hover:bg-[#f2f4ff] hover:-translate-y-px transition-all">
+          </Link>
+          <Link
+            to="/login"
+            className="inline-flex items-center justify-center bg-white text-[#0a1f5b] px-5 py-2 rounded-full text-sm font-medium hover:bg-[#f2f4ff] hover:-translate-y-px transition-all"
+          >
             Get Started
-          </button>
+          </Link>
         </div>
       </header>
 
@@ -136,17 +147,12 @@ const Landing = () => {
 
       {/* Companies Section */}
       <section className="mt-16 -mx-[5vw]">
-        <p className="text-sm text-[#d1ddff] mb-6 text-center px-[5vw]">
-          Trusted by candidates hired at top companies
-        </p>
-
-        <div className="relative w-screen overflow-hidden py-16 pb-20">
-          {/* Infinite scrolling carousel */}
-          <div className="flex animate-scroll">
-            {/* First set of logos */}
-            {companies.map((company, idx) => (
+        <div className="relative w-full overflow-hidden py-16 pb-20 space-y-10">
+          {/* Top row: scroll left */}
+          <div className="flex animate-scroll-left w-max">
+            {companiesRowOne.map((company, idx) => (
               <a
-                key={`first-${idx}`}
+                key={`row1-first-${idx}`}
                 href={company.careersUrl}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -169,16 +175,14 @@ const Landing = () => {
                     }}
                   />
                 </div>
-                {/* Tooltip on hover */}
                 <span className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
                   {company.name}
                 </span>
               </a>
             ))}
-            {/* Duplicate set for seamless loop */}
-            {companies.map((company, idx) => (
+            {companiesRowOne.map((company, idx) => (
               <a
-                key={`second-${idx}`}
+                key={`row1-second-${idx}`}
                 href={company.careersUrl}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -201,19 +205,84 @@ const Landing = () => {
                     }}
                   />
                 </div>
-                {/* Tooltip on hover */}
                 <span className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
                   {company.name}
                 </span>
               </a>
             ))}
           </div>
+
+          {/* Bottom row: scroll right with remaining unique companies */}
+          {companiesRowTwo.length > 0 && (
+            <div className="flex animate-scroll-right w-max">
+              {companiesRowTwo.map((company, idx) => (
+                <a
+                  key={`row2-first-${idx}`}
+                  href={company.careersUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group relative flex items-center justify-center w-32 h-32 flex-shrink-0 mx-4 bg-white rounded-full shadow-lg hover:scale-110 hover:shadow-2xl transition-all duration-300"
+                  title={company.name}
+                >
+                  <div className="w-20 h-20 flex items-center justify-center p-2">
+                    <img
+                      src={company.logo}
+                      alt={`${company.name} logo`}
+                      className="max-w-full max-h-full object-contain"
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                        const fallback = document.createElement("span");
+                        fallback.className = "text-2xl font-bold text-gray-700";
+                        fallback.textContent = company.name
+                          .substring(0, 2)
+                          .toUpperCase();
+                        e.target.parentElement.appendChild(fallback);
+                      }}
+                    />
+                  </div>
+                  <span className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
+                    {company.name}
+                  </span>
+                </a>
+              ))}
+              {companiesRowTwo.map((company, idx) => (
+                <a
+                  key={`row2-second-${idx}`}
+                  href={company.careersUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group relative flex items-center justify-center w-32 h-32 flex-shrink-0 mx-4 bg-white rounded-full shadow-lg hover:scale-110 hover:shadow-2xl transition-all duration-300"
+                  title={company.name}
+                >
+                  <div className="w-20 h-20 flex items-center justify-center p-2">
+                    <img
+                      src={company.logo}
+                      alt={`${company.name} logo`}
+                      className="max-w-full max-h-full object-contain"
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                        const fallback = document.createElement("span");
+                        fallback.className = "text-2xl font-bold text-gray-700";
+                        fallback.textContent = company.name
+                          .substring(0, 2)
+                          .toUpperCase();
+                        e.target.parentElement.appendChild(fallback);
+                      }}
+                    />
+                  </div>
+                  <span className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
+                    {company.name}
+                  </span>
+                </a>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
       {/* Add infinite scroll animation styles */}
       <style>{`
-        @keyframes scroll {
+        @keyframes scroll-left {
           0% {
             transform: translateX(0);
           }
@@ -221,13 +290,22 @@ const Landing = () => {
             transform: translateX(-50%);
           }
         }
-        
-        .animate-scroll {
-          animation: scroll 40s linear infinite;
+
+        @keyframes scroll-right {
+          0% {
+            transform: translateX(-50%);
+          }
+          100% {
+            transform: translateX(0);
+          }
         }
         
-        .animate-scroll:hover {
-          animation-play-state: paused;
+        .animate-scroll-left {
+          animation: scroll-left 50s linear infinite;
+        }
+
+        .animate-scroll-right {
+          animation: scroll-right 50s linear infinite;
         }
       `}</style>
     </div>

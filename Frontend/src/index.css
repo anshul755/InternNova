@@ -1,1 +1,20 @@
 @import "tailwindcss";
+
+/* Custom scrollbar for Short bio textarea */
+.bio-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #38bdf8 transparent;
+}
+
+.bio-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.bio-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.bio-scroll::-webkit-scrollbar-thumb {
+  background-color: #38bdf8;
+  border-radius: 9999px;
+}

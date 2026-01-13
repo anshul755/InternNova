@@ -1,169 +1,170 @@
 const companies = [
   {
-    name: "Slack",
-    careersUrl: "https://slack.com/careers",
-    logo: "https://logo.clearbit.com/slack.com"
+    name: "Facebook",
+    careersUrl: "https://www.facebook.com/careers/jobs",
+    logo: "/logos/Facebook.png",
   },
   {
-    name: "Amazon",
-    careersUrl: "https://www.amazon.jobs/en",
-    logo: "https://logo.clearbit.com/amazon.com"
+    name: "Fender Guitars",
+    careersUrl: "https://www.fender.com/pages/careers",
+    logo: "/logos/Fender_Guitars.png",
   },
   {
-    name: "Google",
-    careersUrl: "https://careers.google.com/",
-    logo: "https://www.gstatic.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png"
-  },
-  {
-    name: "Nasdaq",
-    careersUrl: "https://www.nasdaq.com/about/careers",
-    logo: "https://logo.clearbit.com/nasdaq.com"
-  },
-  {
-    name: "Twitch",
-    careersUrl: "https://boards.greenhouse.io/twitch",
-    logo: "https://logo.clearbit.com/twitch.tv"
-  },
-  {
-    name: "Spotify",
-    careersUrl: "https://jobs.lever.co/spotify/",
-    logo: "https://logo.clearbit.com/spotify.com"
-  },
-  {
-    name: "DoorDash",
-    careersUrl: "https://www.doordash.com/careers/",
-    logo: "https://logo.clearbit.com/doordash.com"
-  },
-  {
-    name: "TaskRabbit",
-    careersUrl: "https://boards.greenhouse.io/taskrabbit/",
-    logo: "https://logo.clearbit.com/taskrabbit.com"
-  },
-  {
-    name: "Shopify",
-    careersUrl: "https://jobs.lever.co/shopify",
-    logo: "https://logo.clearbit.com/shopify.com"
-  },
-  {
-    name: "Zillow",
-    careersUrl: "https://www.zillow.com/careers/",
-    logo: "https://logo.clearbit.com/zillow.com"
-  },
-  {
-    name: "City of Boston",
-    careersUrl: "https://careercenter-boston.icims.com/jobs/search?ss=1&hashed=-435683065",
-    logo: "https://logo.clearbit.com/boston.gov"
-  },
-  {
-    name: "Expedia",
-    careersUrl: "https://lifeatexpediagroup.com/jobs",
-    logo: "https://logo.clearbit.com/expedia.com"
-  },
-  {
-    name: "Apple",
-    careersUrl: "https://jobs.apple.com/en-us/search?sort=relevance",
-    logo: "https://logo.clearbit.com/apple.com"
+    name: "OpenTable",
+    careersUrl: "https://www.opentable.com/careers/",
+    logo: "/logos/OpenTable.png",
   },
   {
     name: "TED",
     careersUrl: "https://tedconferencesllc.applytojob.com/apply",
-    logo: "https://logo.clearbit.com/ted.com"
+    logo: "/logos/TED.png",
   },
   {
-    name: "Lyft",
-    careersUrl: "https://www.lyft.com/careers",
-    logo: "https://logo.clearbit.com/lyft.com"
+    name: "Twitch",
+    careersUrl: "https://boards.greenhouse.io/twitch",
+    logo: "/logos/Twitch.png",
   },
   {
-    name: "Xero",
-    careersUrl: "https://www.xero.com/us/about/careers/openings/",
-    logo: "https://logo.clearbit.com/xero.com"
-  },
-  {
-    name: "Salesforce",
-    careersUrl: "https://salesforce.wd1.myworkdayjobs.com/External_Career_Site",
-    logo: "https://logo.clearbit.com/salesforce.com"
-  },
-  {
-    name: "Allianz",
-    careersUrl: "https://careers.allianz.com/en_US.html",
-    logo: "https://logo.clearbit.com/allianz.com"
-  },
-  {
-    name: "Reddit",
-    careersUrl: "https://www.redditinc.com/careers",
-    logo: "https://logo.clearbit.com/reddit.com"
-  },
-  {
-    name: "Zappos",
-    careersUrl: "https://jobs.jobvite.com/zappos",
-    logo: "https://logo.clearbit.com/zappos.com"
-  },
-  {
-    name: "The Guardian",
-    careersUrl: "https://gnm.taleo.net/careersection/ex/jobsearch.ftl",
-    logo: "https://logo.clearbit.com/theguardian.com"
-  },
-  {
-    name: "Uber",
-    careersUrl: "https://www.uber.com/us/en/careers/list/?query=",
-    logo: "https://logo.clearbit.com/uber.com"
-  },
-  {
-    name: "Indiegogo",
-    careersUrl: "https://www.indiegogo.com/careers#/openings",
-    logo: "https://logo.clearbit.com/indiegogo.com"
-  },
-  {
-    name: "WeTransfer",
-    careersUrl: "https://jobs.bywetransfer.com/",
-    logo: "https://logo.clearbit.com/wetransfer.com"
-  },
-  {
-    name: "Deliveroo",
-    careersUrl: "https://careers.deliveroo.co.uk/",
-    logo: "https://logo.clearbit.com/deliveroo.com"
-  },
-  {
-    name: "Bank of America",
-    careersUrl: "https://ghr.wd1.myworkdayjobs.com/Lateral-US/",
-    logo: "https://logo.clearbit.com/bankofamerica.com"
-  },
-  {
-    name: "Wish",
-    careersUrl: "https://www.wish.com/careers",
-    logo: "https://logo.clearbit.com/wish.com"
-  },
-  {
-    name: "TicketSwap",
-    careersUrl: "https://jobs.ticketswap.com/",
-    logo: "https://logo.clearbit.com/ticketswap.com"
-  },
-  {
-    name: "DiDi",
-    careersUrl: "https://boards.greenhouse.io/didi",
-    logo: "https://logo.clearbit.com/didiglobal.com"
+    name: "Zillow",
+    careersUrl: "https://www.zillow.com/careers/",
+    logo: "/logos/Zillow.png",
   },
   {
     name: "Fitbit",
     careersUrl: "https://www.fitbit.com/careers",
-    logo: "https://logo.clearbit.com/fitbit.com"
+    logo: "/logos/Fitbit.png",
   },
   {
     name: "Postmates",
     careersUrl: "https://careers.postmates.com/",
-    logo: "https://logo.clearbit.com/postmates.com"
+    logo: "/logos/Postmates.png",
+  },
+  {
+    name: "WeTransfer",
+    careersUrl: "https://jobs.bywetransfer.com/",
+    logo: "/logos/WeTransfer.png",
+  },
+  {
+    name: "Yelp",
+    careersUrl: "https://www.yelp.com/careers/home",
+    logo: "/logos/Yelp.png",
+  },
+  {
+    name: "Nasdaq",
+    careersUrl: "https://www.nasdaq.com/about/careers",
+    logo: "/logos/Nasdaq.png",
   },
   {
     name: "Pinterest",
     careersUrl: "https://www.pinterestcareers.com/jobs/search",
-    logo: "https://logo.clearbit.com/pinterest.com"
+    logo: "/logos/Pinterest.png",
+  },
+  {
+    name: "Nat Geo",
+    careersUrl: "https://www.nationalgeographic.org/careers/",
+    logo: "/logos/Nat_Geo.png",
+  },
+  {
+    name: "Apple",
+    careersUrl: "https://jobs.apple.com/en-us/search?sort=relevance",
+    logo: "/logos/Apple.png",
+  },
+  {
+    name: "Slack",
+    careersUrl: "https://slack.com/careers",
+    logo: "/logos/Slack.png",
+  },
+  {
+    name: "Wish",
+    careersUrl: "https://www.wish.com/careers",
+    logo: "/logos/Wish.png",
   },
   {
     name: "Blue Apron",
     careersUrl: "https://www.blueapron.com/pages/our-team",
-    logo: "https://logo.clearbit.com/blueapron.com"
-  }
+    logo: "/logos/Blue_Apron.png",
+  },
+  {
+    name: "City of Boston",
+    careersUrl:
+      "https://careercenter-boston.icims.com/jobs/search?ss=1&hashed=-435683065",
+    logo: "/logos/City_of_Boston.png",
+  },
+  {
+    name: "Xero",
+    careersUrl: "https://www.xero.com/us/about/careers/openings/",
+    logo: "/logos/Xero.png",
+  },
+  {
+    name: "TaskRabbit",
+    careersUrl: "https://boards.greenhouse.io/taskrabbit/",
+    logo: "/logos/TaskRabbit.png",
+  },
+  {
+    name: "Lyft",
+    careersUrl: "https://www.lyft.com/careers",
+    logo: "/logos/Lyft.png",
+  },
+  {
+    name: "Spotify",
+    careersUrl: "https://jobs.lever.co/spotify/",
+    logo: "/logos/Spotify.png",
+  },
+  {
+    name: "Target",
+    careersUrl: "https://target.wd5.myworkdayjobs.com/targetcareers",
+    logo: "/logos/Target.png",
+  },
+  {
+    name: "Reddit",
+    careersUrl: "https://www.redditinc.com/careers",
+    logo: "/logos/Reddit.png",
+  },
+  {
+    name: "Expedia",
+    careersUrl: "https://lifeatexpediagroup.com/jobs",
+    logo: "/logos/Expedia.png",
+  },
+  {
+    name: "Amazon",
+    careersUrl: "https://www.amazon.jobs/en",
+    logo: "/logos/Amazon.png",
+  },
+  {
+    name: "DiDi",
+    careersUrl: "https://boards.greenhouse.io/didi",
+    logo: "/logos/DiDi.png",
+  },
+  {
+    name: "Salesforce",
+    careersUrl: "https://salesforce.wd1.myworkdayjobs.com/External_Career_Site",
+    logo: "/logos/Salesforce.png",
+  },
+  {
+    name: "Allianz",
+    careersUrl: "https://careers.allianz.com/en_US.html",
+    logo: "/logos/Allianz.png",
+  },
+  {
+    name: "DoorDash",
+    careersUrl: "https://www.doordash.com/careers/",
+    logo: "/logos/DoorDash.png",
+  },
+  {
+    name: "Google",
+    careersUrl: "https://careers.google.com/",
+    logo: "/logos/Google.png",
+  },
+  {
+    name: "Kickstarter",
+    careersUrl: "https://www.kickstarter.com/jobs#job-openings",
+    logo: "/logos/Kickstarter.png",
+  },
+  {
+    name: "The Guardian",
+    careersUrl: "https://gnm.taleo.net/careersection/ex/jobsearch.ftl",
+    logo: "/logos/The_Guardian.png",
+  },
 ];
 
 export default companies;
