@@ -148,7 +148,7 @@ const Landing = () => {
       {/* Companies Section */}
       <section className="mt-16 -mx-[5vw]">
         <div className="relative w-full overflow-hidden py-16 pb-20 space-y-10">
-          {/* Top row: scroll left */}
+          {/* Top row: scroll left + floating bubbles */}
           <div className="flex animate-scroll-left w-max">
             {companiesRowOne.map((company, idx) => (
               <a
@@ -156,7 +156,11 @@ const Landing = () => {
                 href={company.careersUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative flex items-center justify-center w-32 h-32 flex-shrink-0 mx-4 bg-white rounded-full shadow-lg hover:scale-110 hover:shadow-2xl transition-all duration-300"
+                className="group relative flex items-center justify-center w-32 h-32 flex-shrink-0 mx-4 bg-white rounded-full shadow-lg hover:scale-110 hover:shadow-2xl transition-all duration-300 floating-bubble"
+                style={{
+                  animationDelay: `${idx * 0.4}s`,
+                  animationDuration: `${8 + (idx % 5)}s`,
+                }}
                 title={company.name}
               >
                 <div className="w-20 h-20 flex items-center justify-center p-2">
@@ -186,7 +190,13 @@ const Landing = () => {
                 href={company.careersUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative flex items-center justify-center w-32 h-32 flex-shrink-0 mx-4 bg-white rounded-full shadow-lg hover:scale-110 hover:shadow-2xl transition-all duration-300"
+                className="group relative flex items-center justify-center w-32 h-32 flex-shrink-0 mx-4 bg-white rounded-full shadow-lg hover:scale-110 hover:shadow-2xl transition-all duration-300 floating-bubble"
+                style={{
+                  animationDelay: `${(idx + companiesRowOne.length) * 0.4}s`,
+                  animationDuration: `${
+                    8 + ((idx + companiesRowOne.length) % 5)
+                  }s`,
+                }}
                 title={company.name}
               >
                 <div className="w-20 h-20 flex items-center justify-center p-2">
@@ -212,7 +222,7 @@ const Landing = () => {
             ))}
           </div>
 
-          {/* Bottom row: scroll right with remaining unique companies */}
+          {/* Bottom row: scroll right + floating bubbles */}
           {companiesRowTwo.length > 0 && (
             <div className="flex animate-scroll-right w-max">
               {companiesRowTwo.map((company, idx) => (
@@ -221,7 +231,11 @@ const Landing = () => {
                   href={company.careersUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group relative flex items-center justify-center w-32 h-32 flex-shrink-0 mx-4 bg-white rounded-full shadow-lg hover:scale-110 hover:shadow-2xl transition-all duration-300"
+                  className="group relative flex items-center justify-center w-32 h-32 flex-shrink-0 mx-4 bg-white rounded-full shadow-lg hover:scale-110 hover:shadow-2xl transition-all duration-300 floating-bubble"
+                  style={{
+                    animationDelay: `${idx * 0.4}s`,
+                    animationDuration: `${8 + (idx % 5)}s`,
+                  }}
                   title={company.name}
                 >
                   <div className="w-20 h-20 flex items-center justify-center p-2">
@@ -251,7 +265,13 @@ const Landing = () => {
                   href={company.careersUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group relative flex items-center justify-center w-32 h-32 flex-shrink-0 mx-4 bg-white rounded-full shadow-lg hover:scale-110 hover:shadow-2xl transition-all duration-300"
+                  className="group relative flex items-center justify-center w-32 h-32 flex-shrink-0 mx-4 bg-white rounded-full shadow-lg hover:scale-110 hover:shadow-2xl transition-all duration-300 floating-bubble"
+                  style={{
+                    animationDelay: `${(idx + companiesRowTwo.length) * 0.4}s`,
+                    animationDuration: `${
+                      8 + ((idx + companiesRowTwo.length) % 5)
+                    }s`,
+                  }}
                   title={company.name}
                 >
                   <div className="w-20 h-20 flex items-center justify-center p-2">
@@ -280,7 +300,7 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Add infinite scroll animation styles */}
+      {/* Combined scroll + floating styles */}
       <style>{`
         @keyframes scroll-left {
           0% {
@@ -299,13 +319,37 @@ const Landing = () => {
             transform: translateX(0);
           }
         }
-        
+
+        @keyframes float-bubble {
+          0% {
+            transform: translate3d(0, 0, 0) rotate(0deg);
+          }
+          25% {
+            transform: translate3d(8px, -10px, 0) rotate(2deg);
+          }
+          50% {
+            transform: translate3d(0, -20px, 0) rotate(0deg);
+          }
+          75% {
+            transform: translate3d(-8px, -10px, 0) rotate(-2deg);
+          }
+          100% {
+            transform: translate3d(0, 0, 0) rotate(0deg);
+          }
+        }
+
         .animate-scroll-left {
-          animation: scroll-left 50s linear infinite;
+          animation: scroll-left 55s linear infinite;
         }
 
         .animate-scroll-right {
-          animation: scroll-right 50s linear infinite;
+          animation: scroll-right 55s linear infinite;
+        }
+
+        .floating-bubble {
+          animation-name: float-bubble;
+          animation-timing-function: ease-in-out;
+          animation-iteration-count: infinite;
         }
       `}</style>
     </div>

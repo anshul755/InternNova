@@ -31,7 +31,9 @@ const baseSchema = z.object({
 
   // Step 3
   university: z.string().min(1, "University is required"),
-  major: z.string().min(1, "Major is required"),
+  degreeLevel: z.string().min(1, "Degree level is required"),
+  majorOption: z.string().min(1, "Major is required"),
+  majorOther: z.string().optional(),
   graduationYear: z
     .string()
     .min(4, "Enter a valid year")
@@ -51,8 +53,6 @@ const baseSchema = z.object({
   preferredIndustries: z.array(z.string()).optional(),
 
   // Step 5
-  avatarUrl: z.string().url("Enter a valid URL").optional().or(z.literal("")),
-  resumeUrl: z.string().url("Enter a valid URL").optional().or(z.literal("")),
   linkedinUrl: z.string().url("Enter a valid LinkedIn URL"),
   githubUrl: z.string().url("Enter a valid GitHub URL"),
   portfolioUrl: z
@@ -66,13 +66,22 @@ const baseSchema = z.object({
   resumeFile: z.any().optional(),
 });
 
-const schema = baseSchema.refine(
-  (data) => data.password === data.confirmPassword,
-  {
+const schema = baseSchema
+  .superRefine((data, ctx) => {
+    if (data.majorOption === "OTHER") {
+      if (!data.majorOther || data.majorOther.trim().length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["majorOther"],
+          message: "Please enter your major / program",
+        });
+      }
+    }
+  })
+  .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
-  }
-);
+  });
 
 const steps = [
   "Account Setup",
@@ -87,13 +96,13 @@ const steps = [
 const stepRequiredFields = [
   ["email", "password", "confirmPassword"], // Step 1
   ["name"], // Step 2
-  ["university", "major", "graduationYear", "cgpa"], // Step 3
+  ["university", "degreeLevel", "majorOption", "graduationYear", "cgpa"], // Step 3
   ["skills"], // Step 4
   ["linkedinUrl", "githubUrl"], // Step 5
   [], // Step 6 (Review has no own required fields)
 ];
 
-const TalentRegister = () => {
+const TalentRegister = ({ modal = false }) => {
   const [activeStep, setActiveStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -109,14 +118,14 @@ const TalentRegister = () => {
       bio: "",
       location: "",
       university: "",
-      major: "",
+      degreeLevel: "",
+      majorOption: "",
+      majorOther: "",
       graduationYear: "",
       cgpa: "",
       skills: [],
       preferredLocations: [],
       preferredIndustries: [],
-      avatarUrl: "",
-      resumeUrl: "",
       linkedinUrl: "",
       githubUrl: "",
       portfolioUrl: "",
@@ -139,7 +148,14 @@ const TalentRegister = () => {
     } else if (activeStep === 1) {
       fieldsToValidate = ["name", "bio", "location"]; // bio/location optional, but we keep for consistency
     } else if (activeStep === 2) {
-      fieldsToValidate = ["university", "major", "graduationYear", "cgpa"];
+      fieldsToValidate = [
+        "university",
+        "degreeLevel",
+        "majorOption",
+        "majorOther",
+        "graduationYear",
+        "cgpa",
+      ];
     } else if (activeStep === 3) {
       fieldsToValidate = [
         "skills",
@@ -147,13 +163,7 @@ const TalentRegister = () => {
         "preferredIndustries",
       ];
     } else if (activeStep === 4) {
-      fieldsToValidate = [
-        "avatarUrl",
-        "resumeUrl",
-        "linkedinUrl",
-        "githubUrl",
-        "portfolioUrl",
-      ];
+      fieldsToValidate = ["linkedinUrl", "githubUrl", "portfolioUrl"];
     }
 
     if (fieldsToValidate.length > 0) {
@@ -181,17 +191,20 @@ const TalentRegister = () => {
 
     try {
       // Build DTO according to backend TalentRegistrationDTO/TalentDTO
+      const resolvedMajor =
+        data.majorOption === "OTHER" ? data.majorOther : data.majorOption;
+
       const payload = {
         name: data.name,
         email: data.email,
         password: data.password,
         university: data.university,
-        major: data.major,
+        major: data.degreeLevel
+          ? `${data.degreeLevel} - ${resolvedMajor}`
+          : resolvedMajor,
         graduationYear: data.graduationYear,
         cgpa: Number(data.cgpa),
         skills: data.skills,
-        avatarUrl: data.avatarUrl || undefined,
-        resumeUrl: data.resumeUrl || undefined,
         linkedinUrl: data.linkedinUrl,
         githubUrl: data.githubUrl,
         portfolioUrl: data.portfolioUrl || undefined,
@@ -255,9 +268,13 @@ const TalentRegister = () => {
     }
   };
 
+  const containerClasses = modal
+    ? "w-full text-white flex items-center justify-center px-[2vw] py-4 font-sans"
+    : "min-h-screen bg-[linear-gradient(135deg,#1923c4_0%,#0a5bff_40%,#0c1b66_100%)] text-white flex items-center justify-center px-[5vw] py-8 font-sans";
+
   return (
-    <div className="min-h-screen bg-[linear-gradient(135deg,#1923c4_0%,#0a5bff_40%,#0c1b66_100%)] text-white flex items-center justify-center px-[5vw] py-8 font-sans">
-      <div className="w-full max-w-6xl rounded-3xl bg-slate-950/70 border border-slate-800 shadow-[0_22px_60px_rgba(15,23,42,0.9)] overflow-hidden flex flex-col">
+    <div className={containerClasses}>
+      <div className="w-full max-w-6xl rounded-3xl bg-slate-950/70 border border-transparent overflow-hidden flex flex-col">
         {/* Top row: Workday-style horizontal stepper */}
         <div className="px-6 pt-6 pb-4 sm:px-10 border-b border-slate-800/80 bg-slate-950/80">
           <ol className="flex flex-wrap lg:flex-nowrap gap-2 sm:gap-3 text-[0.7rem] sm:text-xs">
@@ -402,7 +419,6 @@ const TalentRegister = () => {
                 <h2 className="text-lg font-semibold">Application checklist</h2>
                 <p className="mt-2 text-slate-100/85 text-xs">
                   Complete each step carefully. Your profile helps companies
-                  quickly understand your strengths and preferences.
                 </p>
                 <ul className="space-y-2 mt-4 text-slate-100/85 list-disc list-inside text-xs">
                   <li>Use your university email if possible.</li>

@@ -20,58 +20,6 @@ const LinksUploadsStep = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <label
-            htmlFor="avatarUrl"
-            className="block text-xs font-medium text-slate-300"
-          >
-            Avatar URL
-          </label>
-          <input
-            id="avatarUrl"
-            type="url"
-            {...register("avatarUrl")}
-            className={`w-full rounded-lg bg-slate-950 border px-3 py-2 outline-none text-sm placeholder:text-slate-500 transition-colors ${
-              errors.avatarUrl
-                ? "border-rose-500/80 focus:border-rose-400"
-                : "border-slate-700 focus:border-sky-400"
-            }`}
-            placeholder="https://..."
-          />
-          {errors.avatarUrl && (
-            <p className="text-[0.7rem] text-rose-400 mt-1">
-              {errors.avatarUrl.message}
-            </p>
-          )}
-        </div>
-
-        <div className="space-y-1.5">
-          <label
-            htmlFor="resumeUrl"
-            className="block text-xs font-medium text-slate-300"
-          >
-            Resume URL
-          </label>
-          <input
-            id="resumeUrl"
-            type="url"
-            {...register("resumeUrl")}
-            className={`w-full rounded-lg bg-slate-950 border px-3 py-2 outline-none text-sm placeholder:text-slate-500 transition-colors ${
-              errors.resumeUrl
-                ? "border-rose-500/80 focus:border-rose-400"
-                : "border-slate-700 focus:border-sky-400"
-            }`}
-            placeholder="https://..."
-          />
-          {errors.resumeUrl && (
-            <p className="text-[0.7rem] text-rose-400 mt-1">
-              {errors.resumeUrl.message}
-            </p>
-          )}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-1.5">
-          <label
             htmlFor="linkedinUrl"
             className="block text-xs font-medium text-slate-300"
           >

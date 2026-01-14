@@ -3,11 +3,29 @@ import { useFormContext } from "react-hook-form";
 
 const years = Array.from({ length: 2100 - 1990 + 1 }, (_, i) => 1990 + i);
 
+const degreeLevels = ["Bachelor", "Master", "PhD", "Diploma", "Other"];
+
+const majors = [
+  "Computer Science / CSE",
+  "Information Technology",
+  "Electronics & Communication",
+  "Electrical Engineering",
+  "Mechanical Engineering",
+  "Civil Engineering",
+  "AI / Data Science / ML",
+  "Business / Management",
+  "Design / UI-UX",
+  "Other",
+];
+
 const EducationStep = () => {
   const {
     register,
+    watch,
     formState: { errors },
   } = useFormContext();
+
+  const selectedMajor = watch("majorOption");
 
   return (
     <div className="space-y-4">
@@ -45,28 +63,90 @@ const EducationStep = () => {
 
       <div className="space-y-1.5">
         <label
-          htmlFor="major"
+          htmlFor="degreeLevel"
+          className="block text-xs font-medium text-slate-300"
+        >
+          Degree level<span className="text-rose-400"> *</span>
+        </label>
+        <select
+          id="degreeLevel"
+          {...register("degreeLevel")}
+          className={`w-full rounded-lg bg-slate-950 border px-3 py-2 outline-none text-sm transition-colors ${
+            errors.degreeLevel
+              ? "border-rose-500/80 focus:border-rose-400 text-slate-100"
+              : "border-slate-700 focus:border-sky-400 text-slate-100"
+          }`}
+        >
+          <option value="">Select degree level</option>
+          {degreeLevels.map((level) => (
+            <option key={level} value={level}>
+              {level}
+            </option>
+          ))}
+        </select>
+        {errors.degreeLevel && (
+          <p className="text-[0.7rem] text-rose-400 mt-1">
+            {errors.degreeLevel.message}
+          </p>
+        )}
+      </div>
+
+      <div className="space-y-1.5">
+        <label
+          htmlFor="majorOption"
           className="block text-xs font-medium text-slate-300"
         >
           Major / Program<span className="text-rose-400"> *</span>
         </label>
-        <input
-          id="major"
-          type="text"
-          {...register("major")}
-          className={`w-full rounded-lg bg-slate-950 border px-3 py-2 outline-none text-sm placeholder:text-slate-500 transition-colors ${
-            errors.major
-              ? "border-rose-500/80 focus:border-rose-400"
-              : "border-slate-700 focus:border-sky-400"
+        <select
+          id="majorOption"
+          {...register("majorOption")}
+          className={`w-full rounded-lg bg-slate-950 border px-3 py-2 outline-none text-sm transition-colors ${
+            errors.majorOption
+              ? "border-rose-500/80 focus:border-rose-400 text-slate-100"
+              : "border-slate-700 focus:border-sky-400 text-slate-100"
           }`}
-          placeholder="B.Tech Computer Science"
-        />
-        {errors.major && (
+        >
+          <option value="">Select major / program</option>
+          {majors.map((major) => (
+            <option key={major} value={major === "Other" ? "OTHER" : major}>
+              {major}
+            </option>
+          ))}
+        </select>
+        {errors.majorOption && (
           <p className="text-[0.7rem] text-rose-400 mt-1">
-            {errors.major.message}
+            {errors.majorOption.message}
           </p>
         )}
       </div>
+
+      {selectedMajor === "OTHER" && (
+        <div className="space-y-1.5">
+          <label
+            htmlFor="majorOther"
+            className="block text-xs font-medium text-slate-300"
+          >
+            Other major / program<span className="text-rose-400"> *</span>
+          </label>
+          <input
+            id="majorOther"
+            type="text"
+            {...register("majorOther")}
+            className={`w-full rounded-lg bg-slate-950 border px-3 py-2 outline-none text-sm placeholder:text-slate-500 transition-colors ${
+              errors.majorOther
+                ? "border-rose-500/80 focus:border-rose-400"
+                : "border-slate-700 focus:border-sky-400"
+            }`}
+            placeholder="e.g. B.Sc Data Science"
+          />
+          {errors.majorOther && (
+            <p className="text-[0.7rem] text-rose-400 mt-1">
+              {errors.majorOther.message}
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">

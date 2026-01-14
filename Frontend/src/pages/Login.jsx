@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
-const Login = () => {
+const Login = ({ modal = false }) => {
   const [activeTab, setActiveTab] = useState("user");
   const [formValues, setFormValues] = useState({
     userEmail: "",
@@ -50,9 +50,13 @@ const Login = () => {
 
   const isUserActive = activeTab === "user";
 
+  const containerClasses = modal
+    ? "w-full text-white flex items-center justify-center px-[2vw] py-4 font-sans"
+    : "min-h-screen bg-[linear-gradient(135deg,#1923c4_0%,#0a5bff_40%,#0c1b66_100%)] text-white flex items-center justify-center px-[5vw] py-8 font-sans";
+
   return (
-    <div className="min-h-screen bg-[linear-gradient(135deg,#1923c4_0%,#0a5bff_40%,#0c1b66_100%)] text-white flex items-center justify-center px-[5vw] py-8 font-sans">
-      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-8 rounded-3xl bg-slate-950/70 border border-slate-800 shadow-[0_22px_60px_rgba(15,23,42,0.9)] overflow-hidden">
+    <div className={containerClasses}>
+      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-8 rounded-3xl bg-slate-950/70 border border-transparent overflow-hidden">
         {/* Left visuals / branding */}
         <section className="hidden lg:flex flex-col justify-between bg-[radial-gradient(circle_at_top,_#38bdf8_0,_transparent_55%),_radial-gradient(circle_at_bottom,_#a855f7_0,_transparent_55%)] p-10 text-slate-50">
           <div>

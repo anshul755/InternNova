@@ -1,51 +1,90 @@
 import React from "react";
 import { useFormContext } from "react-hook-form";
 
-const SKILL_OPTIONS = [
-  "JavaScript",
-  "TypeScript",
-  "React",
-  "Node.js",
-  "Java",
-  "Spring Boot",
-  "Python",
-  "Data Structures",
-  "Algorithms",
-  "UI/UX",
-];
+// Start with no predefined options for skills/industries; users will add their own.
+const SKILL_OPTIONS = [];
+const LOCATION_OPTIONS = [];
+const INDUSTRY_OPTIONS = [];
 
-const LOCATION_OPTIONS = [
-  "Remote",
+// Major Indian cities used for preferred location dropdown
+const INDIAN_CITIES = [
+  "Ahmedabad",
+  "Amritsar",
   "Bangalore",
-  "Hyderabad",
-  "Pune",
+  "Bhopal",
+  "Bhubaneswar",
+  "Chandigarh",
+  "Chennai",
+  "Coimbatore",
+  "Delhi",
   "Delhi NCR",
+  "Faridabad",
+  "Ghaziabad",
+  "Gurugram",
+  "Guwahati",
+  "Hyderabad",
+  "Indore",
+  "Jaipur",
+  "Jodhpur",
+  "Kanpur",
+  "Kochi",
+  "Kolkata",
+  "Lucknow",
+  "Ludhiana",
+  "Madurai",
   "Mumbai",
+  "Mysuru",
+  "Nagpur",
+  "Noida",
+  "Patna",
+  "Pune",
+  "Raipur",
+  "Ranchi",
+  "Surat",
+  "Thane",
+  "Vadodara",
+  "Varanasi",
+  "Visakhapatnam",
 ];
 
-const INDUSTRY_OPTIONS = [
-  "Software",
-  "FinTech",
-  "EdTech",
-  "Consulting",
-  "Design",
-  "AI/ML",
-];
-
-const MultiCheckboxGroup = ({ name, options, label }) => {
+const MultiCheckboxGroup = ({ name, options, label, placeholder }) => {
   const {
     register,
+    setValue,
     watch,
     formState: { errors },
   } = useFormContext();
 
   const selected = watch(name) || [];
 
+  const [customValue, setCustomValue] = React.useState("");
+
+  const handleAddCustom = () => {
+    const value = customValue.trim();
+    if (!value) return;
+    if (!selected.includes(value)) {
+      setValue(name, [...selected, value], { shouldValidate: true });
+    }
+    setCustomValue("");
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      handleAddCustom();
+    }
+  };
+
+  const allOptions = React.useMemo(() => {
+    const extra = selected.filter((v) => !options.includes(v));
+    return [...options, ...extra];
+  }, [options, selected]);
+
   return (
     <div className="space-y-1.5">
       <p className="block text-xs font-medium text-slate-300">{label}</p>
       <div className="flex flex-wrap gap-2 mt-1">
-        {options.map((option) => {
+        {allOptions.map((option) => {
           const id = `${name}-${option}`;
           const isSelected = selected.includes(option);
           return (
@@ -65,14 +104,137 @@ const MultiCheckboxGroup = ({ name, options, label }) => {
                 className="hidden"
                 {...register(name)}
               />
-              <span>{option}</span>
+              <span className="truncate">{option}</span>
+              {isSelected && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setValue(
+                      name,
+                      selected.filter((v) => v !== option),
+                      { shouldValidate: true }
+                    );
+                  }}
+                  className="text-sky-200 text-[0.6rem] hover:text-sky-100"
+                >
+                  ✕
+                </button>
+              )}
             </label>
           );
         })}
       </div>
+      {placeholder && (
+        <div className="mt-2 flex items-center gap-2">
+          <input
+            type="text"
+            value={customValue}
+            onChange={(e) => setCustomValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="flex-1 rounded-lg bg-slate-950 border border-slate-700 px-3 py-1.5 outline-none text-xs placeholder:text-slate-500 focus:border-sky-400"
+            placeholder={placeholder}
+          />
+          <button
+            type="button"
+            onClick={handleAddCustom}
+            className="rounded-lg bg-slate-800 text-slate-100 text-[0.7rem] px-3 py-1 hover:bg-slate-700 border border-slate-600"
+          >
+            Add
+          </button>
+        </div>
+      )}
       {errors[name] && (
         <p className="text-[0.7rem] text-rose-400 mt-1">
           {errors[name]?.message}
+        </p>
+      )}
+    </div>
+  );
+};
+
+const LocationMultiSelect = () => {
+  const {
+    setValue,
+    watch,
+    formState: { errors },
+  } = useFormContext();
+
+  const selected = watch("preferredLocations") || [];
+  const [open, setOpen] = React.useState(false);
+
+  const toggleCity = (city) => {
+    if (selected.includes(city)) {
+      setValue(
+        "preferredLocations",
+        selected.filter((c) => c !== city),
+        { shouldValidate: true }
+      );
+    } else {
+      setValue("preferredLocations", [...selected, city], {
+        shouldValidate: true,
+      });
+    }
+  };
+
+  const summaryText = "Choose preferred locations";
+
+  return (
+    <div className="space-y-1.5 relative">
+      <p className="block text-xs font-medium text-slate-300">
+        Preferred locations
+      </p>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="w-full inline-flex items-center justify-between rounded-lg bg-slate-950 border border-slate-700 px-3 py-1.5 text-xs sm:text-sm text-slate-100 hover:border-sky-400"
+      >
+        <span className="truncate text-left mr-2">{summaryText}</span>
+        <span className="text-slate-400 text-xs">▾</span>
+      </button>
+
+      {open && (
+        <ul className="absolute z-10 mt-1 max-h-52 w-full overflow-auto rounded-lg bg-slate-900 border border-slate-700 text-xs sm:text-sm text-slate-100 shadow-lg">
+          {INDIAN_CITIES.map((city) => {
+            const isSelected = selected.includes(city);
+            return (
+              <li
+                key={city}
+                className={`px-3 py-1.5 cursor-pointer hover:bg-slate-800 ${
+                  isSelected ? "bg-slate-800/80" : ""
+                }`}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  toggleCity(city);
+                }}
+              >
+                <span>{city}</span>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      {selected.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-2">
+          {selected.map((city) => (
+            <button
+              key={city}
+              type="button"
+              onClick={() => toggleCity(city)}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-[0.7rem] cursor-pointer transition-colors bg-sky-500/20 border-sky-400 text-sky-100 hover:bg-sky-500/30"
+            >
+              <span>{city}</span>
+              <span className="text-sky-200 text-[0.6rem]">✕</span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {errors.preferredLocations && (
+        <p className="text-[0.7rem] text-rose-400 mt-1">
+          {errors.preferredLocations.message}
         </p>
       )}
     </div>
@@ -102,18 +264,16 @@ const SkillsPreferencesStep = () => {
             Skills<span className="text-rose-400"> *</span>
           </>
         }
+        placeholder="Type a skill and press Enter to add"
       />
 
-      <MultiCheckboxGroup
-        name="preferredLocations"
-        options={LOCATION_OPTIONS}
-        label="Preferred locations"
-      />
+      <LocationMultiSelect />
 
       <MultiCheckboxGroup
         name="preferredIndustries"
         options={INDUSTRY_OPTIONS}
         label="Preferred industries"
+        placeholder="Type an industry and press Enter to add"
       />
 
       {errors.skills && (

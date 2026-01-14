@@ -9,6 +9,12 @@ const SummaryRow = ({ label, value }) => (
   </div>
 );
 
+const formatListSummary = (list) => {
+  if (!list || list.length === 0) return "—";
+  if (list.length === 1) return list[0];
+  return `${list[0]} + ${list.length - 1} more`;
+};
+
 const SummaryStep = ({ values }) => {
   return (
     <div className="space-y-4">
@@ -36,7 +42,15 @@ const SummaryStep = ({ values }) => {
             Education
           </p>
           <SummaryRow label="University" value={values.university} />
-          <SummaryRow label="Major" value={values.major} />
+          <SummaryRow label="Degree level" value={values.degreeLevel} />
+          <SummaryRow
+            label="Major"
+            value={
+              values.majorOption === "OTHER"
+                ? values.majorOther
+                : values.majorOption
+            }
+          />
           <SummaryRow label="Graduation year" value={values.graduationYear} />
           <SummaryRow label="CGPA" value={values.cgpa} />
         </div>
@@ -45,14 +59,14 @@ const SummaryStep = ({ values }) => {
           <p className="text-[0.7rem] font-semibold text-slate-200 mb-1">
             Skills & preferences
           </p>
-          <SummaryRow label="Skills" value={values.skills} />
+          <SummaryRow label="Skills" value={formatListSummary(values.skills)} />
           <SummaryRow
             label="Preferred locations"
-            value={values.preferredLocations}
+            value={formatListSummary(values.preferredLocations)}
           />
           <SummaryRow
             label="Preferred industries"
-            value={values.preferredIndustries}
+            value={formatListSummary(values.preferredIndustries)}
           />
         </div>
 
@@ -63,8 +77,6 @@ const SummaryStep = ({ values }) => {
           <SummaryRow label="LinkedIn" value={values.linkedinUrl} />
           <SummaryRow label="GitHub" value={values.githubUrl} />
           <SummaryRow label="Portfolio" value={values.portfolioUrl} />
-          <SummaryRow label="Avatar URL" value={values.avatarUrl} />
-          <SummaryRow label="Resume URL" value={values.resumeUrl} />
         </div>
       </div>
 
