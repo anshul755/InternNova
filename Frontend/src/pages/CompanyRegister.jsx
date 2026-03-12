@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useAuth } from "../lib/AuthContext.jsx";
 import CompanyAccountStep from "../components/company/CompanyAccountStep.jsx";
 import CompanyProfileStep from "../components/company/CompanyProfileStep.jsx";
 import CompanyDescriptionStep from "../components/company/CompanyDescriptionStep.jsx";
@@ -75,6 +76,8 @@ const stepRequiredFields = [
 ];
 
 const CompanyRegister = ({ modal = false }) => {
+  const { register: authRegister } = useAuth();
+  const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -143,10 +146,13 @@ const CompanyRegister = ({ modal = false }) => {
     setSubmitSuccess("");
 
     try {
-      const payload = {
+      // Step 1: Create auth account (email + password handled by Node service)
+      await authRegister(data.email, data.password, "Company");
+
+      // Step 2: Send company profile to Java backend (no credentials)
+      const profilePayload = {
+        user: "Company",
         companyName: data.companyName,
-        email: data.email,
-        password: data.password,
         companySize: data.companySize,
         companyDescription: data.companyDescription,
         foundedYear: Number(data.foundedYear),
@@ -158,13 +164,11 @@ const CompanyRegister = ({ modal = false }) => {
       const formData = new FormData();
       formData.append(
         "data",
-        new Blob([JSON.stringify(payload)], { type: "application/json" })
+        new Blob([JSON.stringify(profilePayload)], { type: "application/json" })
       );
 
       const logoFile = data.logoFile?.[0];
-      if (logoFile) {
-        formData.append("logo", logoFile);
-      }
+      if (logoFile) formData.append("logo", logoFile);
 
       const response = await fetch("http://localhost:8080/company/v1", {
         method: "POST",
@@ -173,10 +177,11 @@ const CompanyRegister = ({ modal = false }) => {
 
       if (!response.ok) {
         const errorBody = await response.text();
-        throw new Error(errorBody || "Registration failed");
+        throw new Error(errorBody || "Profile creation failed");
       }
 
-      setSubmitSuccess("Company profile created successfully");
+      // Step 3: Redirect to OTP verification
+      navigate("/verify-email", { state: { email: data.email } });
     } catch (err) {
       setSubmitError(err.message || "Something went wrong");
     } finally {

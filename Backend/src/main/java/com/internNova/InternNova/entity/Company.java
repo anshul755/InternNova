@@ -1,7 +1,7 @@
 package com.internNova.InternNova.entity;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
+
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.internNova.InternNova.enums.User;
@@ -17,10 +17,6 @@ public class Company {
     @Id
     private String id;
     private User user;
-
-    @Indexed(unique = true)
-    private String email;
-    private String password;
 
     private String companyName;
     private String companySize;

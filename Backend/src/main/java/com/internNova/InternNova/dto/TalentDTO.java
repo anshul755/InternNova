@@ -2,7 +2,7 @@ package com.internNova.InternNova.dto;
 
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Email;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
@@ -20,10 +20,6 @@ public class TalentDTO {
 
     @NotBlank
     private String name;
-
-    @Email
-    @NotBlank
-    private String email;
 
     @NotBlank
     private String university;

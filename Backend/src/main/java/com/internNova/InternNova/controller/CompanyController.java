@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
-import com.internNova.InternNova.dto.CompanyRegistrationDTO;
+import com.internNova.InternNova.dto.CompanyDTO;
 import com.internNova.InternNova.entity.Company;
 import com.internNova.InternNova.services.CompanyService;
 
@@ -28,10 +28,10 @@ public class CompanyController {
 
     @PostMapping
     public ResponseEntity<Company> createCompany(
-            @RequestPart("data") CompanyRegistrationDTO registrationDTO,
+            @RequestPart("data") CompanyDTO companyDTO,
             @RequestPart(value = "logo", required = false) MultipartFile logo) {
         try {
-            Company company = companyService.createCompany(registrationDTO, registrationDTO.getPassword(), logo);
+            Company company = companyService.createCompany(companyDTO, logo);
             return ResponseEntity.ok(company);
         } catch (IOException e) {
             return ResponseEntity.badRequest().build();
@@ -55,10 +55,10 @@ public class CompanyController {
     @PutMapping("/{id}")
     public ResponseEntity<Company> updateCompany(
             @PathVariable String id,
-            @RequestPart("data") CompanyRegistrationDTO registrationDTO,
+            @RequestPart("data") CompanyDTO companyDTO,
             @RequestPart(value = "logo", required = false) MultipartFile logo) {
         try {
-            Company company = companyService.updateCompany(id, registrationDTO, registrationDTO.getPassword(), logo);
+            Company company = companyService.updateCompany(id, companyDTO, logo);
             return ResponseEntity.ok(company);
         } catch (IOException e) {
             return ResponseEntity.badRequest().build();

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,28 +22,15 @@ public class CompanyService {
     @Autowired
     private CloudinaryService cloudinaryService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
     public List<Company> getAllCompanies() {
         return companyRepository.findByIsDeletedFalse();
     }
 
-    public Company createCompany(CompanyDTO companyDTO, String password, MultipartFile logo) throws IOException {
-
-        if (companyRepository.findByEmail(companyDTO.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already in use");
-        }
+    public Company createCompany(CompanyDTO companyDTO, MultipartFile logo) throws IOException {
 
         Company company = new Company();
         company.setUser(User.Company);
         updateCompanyFromDTO(companyDTO, company);
-
-        if (password != null && !password.isEmpty()) {
-            company.setPassword(passwordEncoder.encode(password));
-        } else {
-            throw new RuntimeException("Password is required");
-        }
 
         if (logo != null) {
             String logoUrl = cloudinaryService.uploadFile(logo);
@@ -67,7 +54,7 @@ public class CompanyService {
         companyRepository.save(company);
     }
 
-    public Company updateCompany(String id, CompanyDTO companyDTO, String password, MultipartFile logo)
+    public Company updateCompany(String id, CompanyDTO companyDTO, MultipartFile logo)
             throws IOException {
         Company company = getCompany(id);
         if (company.isDeleted()) {
@@ -84,18 +71,13 @@ public class CompanyService {
 
         updateCompanyFromDTO(companyDTO, company);
 
-        if (password != null && !password.isEmpty()) {
-            company.setPassword(passwordEncoder.encode(password));
-        }
-
         return companyRepository.save(company);
     }
 
     private void updateCompanyFromDTO(CompanyDTO companyDTO, Company company) {
         if (companyDTO.getCompanyName() != null)
             company.setCompanyName(companyDTO.getCompanyName());
-        if (companyDTO.getEmail() != null)
-            company.setEmail(companyDTO.getEmail());
+
         if (companyDTO.getUser() != null)
             company.setUser(companyDTO.getUser());
         if (companyDTO.getCompanySize() != null)

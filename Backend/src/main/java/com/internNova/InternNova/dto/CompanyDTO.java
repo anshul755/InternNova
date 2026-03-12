@@ -2,7 +2,6 @@ package com.internNova.InternNova.dto;
 
 import com.internNova.InternNova.enums.User;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -18,10 +17,6 @@ public class CompanyDTO {
 
     @NotBlank
     private String companyName;
-
-    @Email
-    @NotBlank
-    private String email;
 
     @NotBlank
     private String companySize;

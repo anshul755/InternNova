@@ -5,7 +5,7 @@ import com.internNova.InternNova.entity.Talent;
 import com.internNova.InternNova.enums.User;
 import com.internNova.InternNova.repository.TalentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,25 +20,12 @@ public class TalentService {
     @Autowired
     private CloudinaryService cloudinaryService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    public Talent createTalent(TalentDTO talentDTO, String password, MultipartFile resume, MultipartFile avatar)
+    public Talent createTalent(TalentDTO talentDTO, MultipartFile resume, MultipartFile avatar)
             throws IOException {
-
-        if (talentRepository.findByEmail(talentDTO.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already in use");
-        }
 
         Talent talent = new Talent();
         talent.setUser(User.Talent);
         updateTalentFromDTO(talent, talentDTO);
-
-        if (password != null && !password.isEmpty()) {
-            talent.setPassword(passwordEncoder.encode(password));
-        } else {
-            throw new IllegalArgumentException("Password is required");
-        }
 
         if (resume != null && !resume.isEmpty()) {
             String resumeUrl = cloudinaryService.uploadFile(resume);
@@ -61,7 +48,7 @@ public class TalentService {
         return talent;
     }
 
-    public Talent updateTalent(String id, TalentDTO talentDTO, String password, MultipartFile resume,
+    public Talent updateTalent(String id, TalentDTO talentDTO, MultipartFile resume,
             MultipartFile avatar)
             throws IOException {
         Talent talent = getTalent(id);
@@ -87,10 +74,6 @@ public class TalentService {
 
         updateTalentFromDTO(talent, talentDTO);
 
-        if (password != null && !password.isEmpty()) {
-            talent.setPassword(passwordEncoder.encode(password));
-        }
-
         return talentRepository.save(talent);
     }
 
@@ -103,8 +86,6 @@ public class TalentService {
     private void updateTalentFromDTO(Talent talent, TalentDTO dto) {
         if (dto.getName() != null)
             talent.setName(dto.getName());
-        if (dto.getEmail() != null)
-            talent.setEmail(dto.getEmail());
         if (dto.getUser() != null)
             talent.setUser(dto.getUser());
         if (dto.getUniversity() != null)

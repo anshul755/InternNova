@@ -1,7 +1,10 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../lib/AuthContext.jsx";
 
 const Login = ({ modal = false }) => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("user");
   const [formValues, setFormValues] = useState({
     userEmail: "",
@@ -10,6 +13,7 @@ const Login = ({ modal = false }) => {
     companyPassword: "",
   });
   const [errors, setErrors] = useState({ user: "", company: "" });
+  const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -21,31 +25,33 @@ const Login = ({ modal = false }) => {
     return /.+@.+\..+/.test(email);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (activeTab === "user") {
-      const { userEmail, userPassword } = formValues;
-      if (!validateEmail(userEmail) || userPassword.trim().length < 6) {
-        setErrors((prev) => ({
-          ...prev,
-          user: "Please enter a valid email and password (min 6 characters).",
-        }));
-        return;
-      }
-    } else {
-      const { companyEmail, companyPassword } = formValues;
-      if (!validateEmail(companyEmail) || companyPassword.trim().length < 6) {
-        setErrors((prev) => ({
-          ...prev,
-          company:
-            "Please enter a valid company email and password (min 6 characters).",
-        }));
-        return;
-      }
+    const email =
+      activeTab === "user" ? formValues.userEmail : formValues.companyEmail;
+    const password =
+      activeTab === "user" ? formValues.userPassword : formValues.companyPassword;
+    const errorKey = activeTab === "user" ? "user" : "company";
+
+    if (!validateEmail(email) || password.trim().length < 6) {
+      setErrors((prev) => ({
+        ...prev,
+        [errorKey]: "Please enter a valid email and password (min 6 characters).",
+      }));
+      return;
     }
 
-    // No backend logic implemented; this is just UI/UX.
+    setSubmitting(true);
+    setErrors({ user: "", company: "" });
+    try {
+      await login(email, password);
+      navigate("/dashboard", { replace: true });
+    } catch (err) {
+      setErrors((prev) => ({ ...prev, [errorKey]: err.message || "Login failed." }));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const isUserActive = activeTab === "user";
@@ -171,12 +177,12 @@ const Login = ({ modal = false }) => {
                     >
                       Password
                     </label>
-                    <a
-                      href="#"
+                    <Link
+                      to="/forgot-password"
                       className="text-[0.7rem] text-sky-400 hover:text-sky-300"
                     >
                       Forgot password?
-                    </a>
+                    </Link>
                   </div>
                   <input
                     id="userPassword"
@@ -235,12 +241,12 @@ const Login = ({ modal = false }) => {
                     >
                       Password
                     </label>
-                    <a
-                      href="#"
+                    <Link
+                      to="/forgot-password"
                       className="text-[0.7rem] text-emerald-400 hover:text-emerald-300"
                     >
                       Forgot password?
-                    </a>
+                    </Link>
                   </div>
                   <input
                     id="companyPassword"
@@ -269,9 +275,17 @@ const Login = ({ modal = false }) => {
 
             <button
               type="submit"
-              className="w-full mt-2 inline-flex items-center justify-center gap-2 rounded-lg bg-sky-400 text-slate-950 font-medium text-sm py-2.5 hover:bg-sky-300 transition-transform hover:-translate-y-[1px] shadow-[0_10px_30px_rgba(56,189,248,0.45)]"
+              disabled={submitting}
+              className="w-full mt-2 inline-flex items-center justify-center gap-2 rounded-lg bg-sky-400 text-slate-950 font-medium text-sm py-2.5 hover:bg-sky-300 disabled:opacity-60 disabled:cursor-not-allowed transition-transform hover:-translate-y-[1px] shadow-[0_10px_30px_rgba(56,189,248,0.45)]"
             >
-              Continue
+              {submitting ? (
+                <>
+                  <span className="h-4 w-4 rounded-full border-2 border-slate-950 border-t-transparent animate-spin" />
+                  Signing in…
+                </>
+              ) : (
+                "Continue"
+              )}
             </button>
           </form>
 

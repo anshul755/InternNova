@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useAuth } from "../lib/AuthContext.jsx";
 import AccountSetupStep from "../components/talent/AccountSetupStep.jsx";
 import PersonalInfoStep from "../components/talent/PersonalInfoStep.jsx";
 import EducationStep from "../components/talent/EducationStep.jsx";
@@ -103,6 +104,8 @@ const stepRequiredFields = [
 ];
 
 const TalentRegister = ({ modal = false }) => {
+  const { register: authRegister } = useAuth();
+  const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -190,14 +193,16 @@ const TalentRegister = ({ modal = false }) => {
     setSubmitSuccess("");
 
     try {
-      // Build DTO according to backend TalentRegistrationDTO/TalentDTO
+      // Step 1: Create auth account (email + password handled by Node service)
+      await authRegister(data.email, data.password, "Talent");
+
+      // Step 2: Send talent profile to Java backend (no credentials)
       const resolvedMajor =
         data.majorOption === "OTHER" ? data.majorOther : data.majorOption;
 
-      const payload = {
+      const profilePayload = {
+        user: "Talent",
         name: data.name,
-        email: data.email,
-        password: data.password,
         university: data.university,
         major: data.degreeLevel
           ? `${data.degreeLevel} - ${resolvedMajor}`
@@ -217,18 +222,13 @@ const TalentRegister = ({ modal = false }) => {
       const formData = new FormData();
       formData.append(
         "data",
-        new Blob([JSON.stringify(payload)], { type: "application/json" })
+        new Blob([JSON.stringify(profilePayload)], { type: "application/json" })
       );
 
       const avatarFile = data.avatarFile?.[0];
       const resumeFile = data.resumeFile?.[0];
-
-      if (avatarFile) {
-        formData.append("avatar", avatarFile);
-      }
-      if (resumeFile) {
-        formData.append("resume", resumeFile);
-      }
+      if (avatarFile) formData.append("avatar", avatarFile);
+      if (resumeFile) formData.append("resume", resumeFile);
 
       const response = await fetch("http://localhost:8080/talent/v1", {
         method: "POST",
@@ -237,10 +237,11 @@ const TalentRegister = ({ modal = false }) => {
 
       if (!response.ok) {
         const errorBody = await response.text();
-        throw new Error(errorBody || "Registration failed");
+        throw new Error(errorBody || "Profile creation failed");
       }
 
-      setSubmitSuccess("Account created successfully");
+      // Step 3: Redirect to OTP verification
+      navigate("/verify-email", { state: { email: data.email } });
     } catch (err) {
       setSubmitError(err.message || "Something went wrong");
     } finally {

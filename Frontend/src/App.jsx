@@ -1,12 +1,17 @@
 import { useEffect } from "react";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { IoClose } from "react-icons/io5";
-import { useLocation, useNavigate } from "react-router-dom";
 import Landing from "./pages/Landing.jsx";
 import Login from "./pages/Login.jsx";
 import CompanyRegister from "./pages/CompanyRegister.jsx";
 import TalentRegister from "./pages/TalentRegister.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
+import VerifyEmail from "./pages/VerifyEmail.jsx";
+import ForgotPassword from "./pages/ForgotPassword.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
-function App() {
+// Landing page with login/register modals overlaid
+function ModalLayout() {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -58,6 +63,24 @@ function App() {
         </div>
       )}
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/verify-email" element={<VerifyEmail />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/*" element={<ModalLayout />} />
+    </Routes>
   );
 }
 

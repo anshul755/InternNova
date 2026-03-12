@@ -1,6 +1,6 @@
 package com.internNova.InternNova.controller;
 
-import com.internNova.InternNova.dto.TalentRegistrationDTO;
+import com.internNova.InternNova.dto.TalentDTO;
 import com.internNova.InternNova.entity.Talent;
 import com.internNova.InternNova.services.TalentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +19,11 @@ public class TalentController {
 
     @PostMapping
     public ResponseEntity<Talent> createTalent(
-            @RequestPart("data") TalentRegistrationDTO registrationDTO,
+            @RequestPart("data") TalentDTO talentDTO,
             @RequestPart(value = "resume", required = false) MultipartFile resume,
             @RequestPart(value = "avatar", required = false) MultipartFile avatar) {
         try {
-            Talent talent = talentService.createTalent(registrationDTO, registrationDTO.getPassword(), resume, avatar);
+            Talent talent = talentService.createTalent(talentDTO, resume, avatar);
             return ResponseEntity.ok(talent);
         } catch (IOException e) {
             return ResponseEntity.badRequest().build();
@@ -43,11 +43,11 @@ public class TalentController {
     @PutMapping("/{id}")
     public ResponseEntity<Talent> updateTalent(
             @PathVariable String id,
-            @RequestPart("data") TalentRegistrationDTO registrationDTO,
+            @RequestPart("data") TalentDTO talentDTO,
             @RequestPart(value = "resume", required = false) MultipartFile resume,
             @RequestPart(value = "avatar", required = false) MultipartFile avatar) {
         try {
-            Talent updatedTalent = talentService.updateTalent(id, registrationDTO, registrationDTO.getPassword(),
+            Talent updatedTalent = talentService.updateTalent(id, talentDTO,
                     resume, avatar);
             return ResponseEntity.ok(updatedTalent);
         } catch (IOException e) {

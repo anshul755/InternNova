@@ -3,7 +3,7 @@ package com.internNova.InternNova.entity;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
+
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.internNova.InternNova.enums.User;
@@ -21,10 +21,6 @@ public class Talent {
     private User user;
     private String name;
 
-    @Indexed(unique = true)
-    private String email;
-
-    private String password;
     private boolean isDeleted = false;
     private String university;
     private String major;
