@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * Validates all required environment variables at startup.
  * Throws immediately if any required variable is missing.

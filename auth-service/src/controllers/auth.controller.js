@@ -2,7 +2,7 @@ const authService = require('../services/auth.service');
 const { sendSuccess, sendError } = require('../utils/response');
 const logger = require('../utils/logger');
 
-// ── POST /auth/v1/register ────────────────────────────────────────────────────
+
 async function register(req, res, next) {
   try {
     const { email, password, role } = req.body;
@@ -41,7 +41,7 @@ async function resendOTP(req, res, next) {
   }
 }
 
-// ── POST /auth/v1/login ───────────────────────────────────────────────────────
+
 async function login(req, res, next) {
   try {
     const { email, password } = req.body;
@@ -65,7 +65,7 @@ async function login(req, res, next) {
   }
 }
 
-// ── POST /auth/v1/refresh ─────────────────────────────────────────────────────
+
 async function refresh(req, res, next) {
   try {
     // Accept from cookie (web) or body (mobile)

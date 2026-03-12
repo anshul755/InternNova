@@ -1,4 +1,3 @@
-'use strict';
 
 const rateLimit = require('express-rate-limit');
 const { sendError } = require('../utils/response');

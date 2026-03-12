@@ -1,5 +1,3 @@
-'use strict';
-
 const { verifyAccessToken } = require('../utils/jwt');
 const { sendError } = require('../utils/response');
 

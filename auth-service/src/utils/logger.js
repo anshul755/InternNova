@@ -1,5 +1,3 @@
-'use strict';
-
 const winston = require('winston');
 const DailyRotateFile = require('winston-daily-rotate-file');
 const path = require('path');
@@ -8,7 +6,7 @@ const { combine, timestamp, errors, json, colorize, printf } = winston.format;
 
 const IS_PROD = process.env.NODE_ENV === 'production';
 
-// Simple human-readable format for development
+// Development format with colors and timestamps
 const devFormat = combine(
   colorize(),
   timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),

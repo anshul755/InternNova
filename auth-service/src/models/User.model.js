@@ -52,7 +52,6 @@ const UserSchema = new mongoose.Schema(
     lastLoginAt: {
       type: Date,
     },
-    // Tracks active password-reset session (non-secret, just a UUID)
     passwordResetSessionId: {
       type: String,
       select: false,

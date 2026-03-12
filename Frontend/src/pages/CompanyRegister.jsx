@@ -19,12 +19,10 @@ const passwordSchema = z
   .regex(/(?=.*[@#$%^&+=!_])/, "Must contain a special character");
 
 const baseSchema = z.object({
-  // Step 1
   email: z.string().email("Enter a valid email"),
   password: passwordSchema,
   confirmPassword: z.string(),
 
-  // Step 2
   companyName: z.string().min(1, "Company name is required"),
   companySize: z.string().min(1, "Company size is required"),
   companyType: z.string().min(1, "Company type is required"),
@@ -36,13 +34,11 @@ const baseSchema = z.object({
       return year >= 1800 && year <= 2100;
     }, "Founded year must be between 1800 and 2100"),
 
-  // Step 3
   companyDescription: z
     .string()
     .min(10, "Please add at least a short description"),
   websiteUrl: z.string().url("Enter a valid website URL"),
 
-  // Step 4
   logoUrl: z
     .string()
     .url("Enter a valid logo URL")
@@ -146,10 +142,7 @@ const CompanyRegister = ({ modal = false }) => {
     setSubmitSuccess("");
 
     try {
-      // Step 1: Create auth account (email + password handled by Node service)
       await authRegister(data.email, data.password, "Company");
-
-      // Step 2: Send company profile to Java backend (no credentials)
       const profilePayload = {
         user: "Company",
         companyName: data.companyName,
@@ -180,7 +173,6 @@ const CompanyRegister = ({ modal = false }) => {
         throw new Error(errorBody || "Profile creation failed");
       }
 
-      // Step 3: Redirect to OTP verification
       navigate("/verify-email", { state: { email: data.email } });
     } catch (err) {
       setSubmitError(err.message || "Something went wrong");

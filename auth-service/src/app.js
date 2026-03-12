@@ -1,5 +1,3 @@
-'use strict';
-
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
@@ -12,10 +10,8 @@ const authRoutes = require('./routes/auth.routes');
 
 const app = express();
 
-// ── Security headers ──────────────────────────────────────────────────────────
 app.use(helmet());
 
-// ── CORS ──────────────────────────────────────────────────────────────────────
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
   .split(',')
   .map((o) => o.trim())
@@ -24,7 +20,6 @@ const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
 app.use(
   cors({
     origin: (origin, cb) => {
-      // Allow server-to-server requests (no origin) in non-production, or whitelisted
       if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
       cb(new Error(`CORS: origin ${origin} not allowed`));
     },
@@ -34,13 +29,13 @@ app.use(
   })
 );
 
-// ── Request ID ────────────────────────────────────────────────────────────────
+
 app.use((req, _res, next) => {
   req.id = req.headers['x-request-id'] || uuidv4();
   next();
 });
 
-// ── Body parsing ──────────────────────────────────────────────────────────────
+
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: false, limit: '10kb' }));
 
@@ -67,7 +62,7 @@ app.use((req, res) => {
   sendError(res, 404, 'Route not found');
 });
 
-// ── Global error handler ──────────────────────────────────────────────────────
+
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, _next) => {
   // CORS errors
@@ -75,7 +70,6 @@ app.use((err, req, res, _next) => {
     return sendError(res, 403, err.message);
   }
 
-  // JSON parse errors
   if (err.type === 'entity.parse.failed') {
     return sendError(res, 400, 'Invalid JSON payload');
   }

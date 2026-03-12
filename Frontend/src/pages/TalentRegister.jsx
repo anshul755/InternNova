@@ -20,17 +20,14 @@ const passwordSchema = z
   .regex(/(?=.*[@#$%^&+=!_])/, "Must contain a special character");
 
 const baseSchema = z.object({
-  // Step 1
   email: z.string().email("Enter a valid email"),
   password: passwordSchema,
   confirmPassword: z.string(),
 
-  // Step 2
   name: z.string().min(1, "Name is required"),
   bio: z.string().optional(),
   location: z.string().optional(),
 
-  // Step 3
   university: z.string().min(1, "University is required"),
   degreeLevel: z.string().min(1, "Degree level is required"),
   majorOption: z.string().min(1, "Major is required"),
@@ -48,12 +45,10 @@ const baseSchema = z.object({
     return !Number.isNaN(num) && num >= 0 && num <= 10;
   }, "CGPA must be between 0.0 and 10.0"),
 
-  // Step 4
   skills: z.array(z.string()).min(1, "Select at least one skill"),
   preferredLocations: z.array(z.string()).optional(),
   preferredIndustries: z.array(z.string()).optional(),
 
-  // Step 5
   linkedinUrl: z.string().url("Enter a valid LinkedIn URL"),
   githubUrl: z.string().url("Enter a valid GitHub URL"),
   portfolioUrl: z
@@ -62,7 +57,6 @@ const baseSchema = z.object({
     .optional()
     .or(z.literal("")),
 
-  // File uploads (optional)
   avatarFile: z.any().optional(),
   resumeFile: z.any().optional(),
 });
@@ -93,14 +87,13 @@ const steps = [
   "Review",
 ];
 
-// Required fields that determine completion/error state for each step
 const stepRequiredFields = [
-  ["email", "password", "confirmPassword"], // Step 1
-  ["name"], // Step 2
-  ["university", "degreeLevel", "majorOption", "graduationYear", "cgpa"], // Step 3
-  ["skills"], // Step 4
-  ["linkedinUrl", "githubUrl"], // Step 5
-  [], // Step 6 (Review has no own required fields)
+  ["email", "password", "confirmPassword"],
+  ["name"],
+  ["university", "degreeLevel", "majorOption", "graduationYear", "cgpa"],
+  ["skills"],
+  ["linkedinUrl", "githubUrl"],
+  [],
 ];
 
 const TalentRegister = ({ modal = false }) => {
@@ -193,10 +186,7 @@ const TalentRegister = ({ modal = false }) => {
     setSubmitSuccess("");
 
     try {
-      // Step 1: Create auth account (email + password handled by Node service)
       await authRegister(data.email, data.password, "Talent");
-
-      // Step 2: Send talent profile to Java backend (no credentials)
       const resolvedMajor =
         data.majorOption === "OTHER" ? data.majorOther : data.majorOption;
 
@@ -240,7 +230,6 @@ const TalentRegister = ({ modal = false }) => {
         throw new Error(errorBody || "Profile creation failed");
       }
 
-      // Step 3: Redirect to OTP verification
       navigate("/verify-email", { state: { email: data.email } });
     } catch (err) {
       setSubmitError(err.message || "Something went wrong");

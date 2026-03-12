@@ -1,5 +1,3 @@
-'use strict';
-
 const jwt = require('jsonwebtoken');
 
 const ACCESS_TOKEN_TTL = process.env.JWT_ACCESS_TTL || '15m';

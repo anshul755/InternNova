@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * Standardised API response helpers.
  * All responses follow the shape: { success, message, data?, meta? }

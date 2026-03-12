@@ -28,14 +28,12 @@ const OTPSchema = new mongoose.Schema(
     expiresAt: {
       type: Date,
       required: true,
-      // MongoDB TTL index — auto-deletes expired documents
       index: { expires: 0 },
     },
   },
   { timestamps: true }
 );
 
-// Compound index to quickly fetch the latest OTP for an email+type
 OTPSchema.index({ email: 1, type: 1 });
 
 OTPSchema.virtual('isExpired').get(function () {

@@ -1,5 +1,3 @@
-'use strict';
-
 const { validationResult, body } = require('express-validator');
 const { sendError } = require('../utils/response');
 
