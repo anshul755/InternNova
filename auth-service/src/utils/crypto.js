@@ -1,11 +1,7 @@
 const crypto = require('crypto');
 
-const OTP_LENGTH = 6; // digits
+const OTP_LENGTH = 6;
 
-/**
- * Generates a cryptographically-secure numeric OTP.
- * Uses crypto.randomInt to avoid biased results.
- */
 function generateOTP() {
   const min = Math.pow(10, OTP_LENGTH - 1);
   const max = Math.pow(10, OTP_LENGTH);

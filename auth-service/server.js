@@ -29,7 +29,7 @@ async function bootstrap() {
   });
 }
 
-// ── Graceful shutdown ──────────────────────────────────────────────────────────
+
 function shutdown(signal, exitCode = 0) {
   if (isShuttingDown) {
     logger.info(`Shutdown already in progress (${signal})`);

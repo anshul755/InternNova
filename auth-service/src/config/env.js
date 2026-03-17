@@ -1,8 +1,3 @@
-/**
- * Validates all required environment variables at startup.
- * Throws immediately if any required variable is missing.
- */
-
 const REQUIRED = [
   'MONGODB_URI',
   'JWT_ACCESS_SECRET',
@@ -23,7 +18,6 @@ function validateEnv() {
     );
   }
 
-  // Validate JWT secrets are strong enough (≥ 32 chars)
   const secrets = ['JWT_ACCESS_SECRET', 'JWT_REFRESH_SECRET'];
   for (const key of secrets) {
     if (process.env[key].length < 32) {

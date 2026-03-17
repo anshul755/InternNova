@@ -18,7 +18,7 @@ async function register(req, res, next) {
   }
 }
 
-// ── POST /auth/v1/verify-email ────────────────────────────────────────────────
+
 async function verifyEmail(req, res, next) {
   try {
     const { email, otp } = req.body;
@@ -29,7 +29,6 @@ async function verifyEmail(req, res, next) {
   }
 }
 
-// ── POST /auth/v1/resend-otp ──────────────────────────────────────────────────
 async function resendOTP(req, res, next) {
   try {
     const { email, type } = req.body;
@@ -47,7 +46,7 @@ async function login(req, res, next) {
     const { email, password } = req.body;
     const { accessToken, refreshToken, user } = await authService.login({ email, password });
 
-    // Send refresh token as HttpOnly cookie
+
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -68,10 +67,10 @@ async function login(req, res, next) {
 
 async function refresh(req, res, next) {
   try {
-    // Accept from cookie (web) or body (mobile)
+
     const incomingToken = req.cookies?.refreshToken || req.body?.refreshToken;
     if (!incomingToken) {
-      return sendError(res, 400, 'Refresh token is required.');
+      return sendError(res, 401, 'No refresh token. Please log in.');
     }
 
     const { accessToken, refreshToken: newRefreshToken } = await authService.refreshTokens(
@@ -92,7 +91,6 @@ async function refresh(req, res, next) {
   }
 }
 
-// ── POST /auth/v1/logout ──────────────────────────────────────────────────────
 async function logout(req, res, next) {
   try {
     const refreshToken = req.cookies?.refreshToken || req.body?.refreshToken;
@@ -107,12 +105,11 @@ async function logout(req, res, next) {
   }
 }
 
-// ── POST /auth/v1/forgot-password ─────────────────────────────────────────────
 async function forgotPassword(req, res, next) {
   try {
     const { email } = req.body;
     await authService.forgotPassword(email);
-    // Always return 200 — do not leak whether the email exists
+
     sendSuccess(
       res,
       200,
@@ -123,7 +120,6 @@ async function forgotPassword(req, res, next) {
   }
 }
 
-// ── POST /auth/v1/verify-reset-otp ───────────────────────────────────────────
 async function verifyResetOTP(req, res, next) {
   try {
     const { email, otp } = req.body;
@@ -134,7 +130,6 @@ async function verifyResetOTP(req, res, next) {
   }
 }
 
-// ── POST /auth/v1/reset-password ──────────────────────────────────────────────
 async function resetPassword(req, res, next) {
   try {
     const { email, resetSessionId, newPassword } = req.body;

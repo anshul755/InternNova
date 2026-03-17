@@ -4,18 +4,13 @@ const { OTP, OTP_TTL_SECONDS, MAX_OTP_ATTEMPTS } = require('../models/OTP.model'
 const { generateOTP } = require('../utils/crypto');
 const logger = require('../utils/logger');
 
-const SALT_ROUNDS = 10; // Lower than password — OTPs are short-lived
+const SALT_ROUNDS = 10;
 
-/**
- * Creates (or replaces) an OTP for the given email and type, then sends it.
- * Any existing OTP for the same email+type is deleted first.
- */
 async function createAndSendOTP(email, type) {
   const otp = generateOTP();
   const otpHash = await bcrypt.hash(otp, SALT_ROUNDS);
   const expiresAt = new Date(Date.now() + OTP_TTL_SECONDS * 1000);
 
-  // Atomic replace: delete old, insert new
   await OTP.deleteMany({ email, type });
   await OTP.create({ email, otpHash, type, expiresAt });
 
@@ -23,10 +18,6 @@ async function createAndSendOTP(email, type) {
   logger.info('OTP created and sent', { email, type });
 }
 
-/**
- * Verifies an OTP. On success, deletes the OTP document.
- * Returns true on success; throws a descriptive Error on failure.
- */
 async function verifyOTP(email, plainOTP, type) {
   const record = await OTP.findOne({ email, type }).sort({ createdAt: -1 });
 
@@ -67,13 +58,10 @@ async function verifyOTP(email, plainOTP, type) {
     );
   }
 
-  // OTP is correct — consume it immediately
   await record.deleteOne();
   logger.info('OTP verified successfully', { email, type });
   return true;
 }
-
-// ── Email templates ───────────────────────────────────────────────────────────
 
 async function sendOTPEmail(email, otp, type) {
   const isReset = type === 'PASSWORD_RESET';

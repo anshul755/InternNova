@@ -6,7 +6,6 @@ const { combine, timestamp, errors, json, colorize, printf } = winston.format;
 
 const IS_PROD = process.env.NODE_ENV === 'production';
 
-// Development format with colors and timestamps
 const devFormat = combine(
   colorize(),
   timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
@@ -17,7 +16,6 @@ const devFormat = combine(
   })
 );
 
-// Structured JSON format for production
 const prodFormat = combine(
   timestamp(),
   errors({ stack: true }),
@@ -58,7 +56,6 @@ const logger = winston.createLogger({
   exitOnError: false,
 });
 
-// Provide an http stream for morgan
 logger.http = (message) => logger.verbose(message);
 
 module.exports = logger;

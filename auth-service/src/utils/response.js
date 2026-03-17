@@ -1,8 +1,3 @@
-/**
- * Standardised API response helpers.
- * All responses follow the shape: { success, message, data?, meta? }
- */
-
 function sendSuccess(res, statusCode, message, data = null, meta = undefined) {
   const body = { success: true, message };
   if (data !== null) body.data = data;

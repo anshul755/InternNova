@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 
 const SALT_ROUNDS = 12;
 const MAX_LOGIN_ATTEMPTS = 5;
-const LOCK_TIME_MS = 30 * 60 * 1000; // 30 minutes
+const LOCK_TIME_MS = 30 * 60 * 1000;
 
 const UserSchema = new mongoose.Schema(
   {
@@ -19,7 +19,7 @@ const UserSchema = new mongoose.Schema(
     passwordHash: {
       type: String,
       required: true,
-      select: false, // Never returned by default
+      select: false,
     },
     role: {
       type: String,
@@ -34,7 +34,6 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    // Stores hashed refresh tokens (supports multiple devices)
     refreshTokens: {
       type: [String],
       select: false,
@@ -72,13 +71,10 @@ const UserSchema = new mongoose.Schema(
   }
 );
 
-// ── Virtual: is account locked? ───────────────────────────────────────────────
 UserSchema.virtual('isLocked').get(function () {
   return !!(this.lockUntil && this.lockUntil > Date.now());
 });
 
-// ── Instance: hash password (call manually — not a pre-save hook to avoid ────
-//    re-hashing on every save)                                                 ─
 UserSchema.methods.setPassword = async function (plainPassword) {
   this.passwordHash = await bcrypt.hash(plainPassword, SALT_ROUNDS);
 };
@@ -87,9 +83,7 @@ UserSchema.methods.comparePassword = async function (plainPassword) {
   return bcrypt.compare(plainPassword, this.passwordHash);
 };
 
-// ── Instance: record a failed login attempt ───────────────────────────────────
 UserSchema.methods.incLoginAttempts = async function () {
-  // Reset lock if it has expired
   if (this.lockUntil && this.lockUntil < Date.now()) {
     return this.updateOne({
       $set: { loginAttempts: 1 },
@@ -104,7 +98,6 @@ UserSchema.methods.incLoginAttempts = async function () {
   return this.updateOne(updates);
 };
 
-// ── Instance: record a successful login ───────────────────────────────────────
 UserSchema.methods.resetLoginAttempts = function () {
   return this.updateOne({
     $set: { loginAttempts: 0, lastLoginAt: new Date() },

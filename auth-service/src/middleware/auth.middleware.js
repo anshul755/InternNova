@@ -1,10 +1,6 @@
 const { verifyAccessToken } = require('../utils/jwt');
 const { sendError } = require('../utils/response');
 
-/**
- * Middleware: verifies the Bearer access token.
- * Attaches decoded payload to req.user on success.
- */
 function authenticate(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -23,10 +19,6 @@ function authenticate(req, res, next) {
   }
 }
 
-/**
- * Middleware factory: restricts access to specific roles.
- * Must be used after authenticate().
- */
 function authorize(...roles) {
   return (req, res, next) => {
     if (!req.user || !roles.includes(req.user.role)) {

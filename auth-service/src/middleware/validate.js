@@ -1,9 +1,6 @@
 const { validationResult, body } = require('express-validator');
 const { sendError } = require('../utils/response');
 
-/**
- * Runs after express-validator chain — collects errors and short-circuits.
- */
 function handleValidation(req, res, next) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -12,8 +9,6 @@ function handleValidation(req, res, next) {
   }
   next();
 }
-
-// ── Shared reusable rules ──────────────────────────────────────────────────────
 
 const emailRule = () =>
   body('email')
@@ -38,8 +33,6 @@ const otpRule = () =>
     .notEmpty().withMessage('OTP is required.')
     .isLength({ min: 6, max: 6 }).withMessage('OTP must be exactly 6 digits.')
     .isNumeric().withMessage('OTP must contain only digits.');
-
-// ── Validation chains per endpoint ────────────────────────────────────────────
 
 const validateRegister = [
   emailRule(),

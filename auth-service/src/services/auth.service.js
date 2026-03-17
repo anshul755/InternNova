@@ -8,8 +8,6 @@ const logger = require('../utils/logger');
 
 const REFRESH_TOKEN_SALT = 10;
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
 function buildTokenPair(user) {
   const payload = { sub: user._id.toString(), email: user.email, role: user.role };
   return {
@@ -24,15 +22,10 @@ function AppError(message, statusCode) {
   return err;
 }
 
-// ── Auth operations ───────────────────────────────────────────────────────────
-
-/**
- * Registers a new user. Sends an email-verification OTP.
- */
 async function register({ email, password, role }) {
   const existing = await User.findOne({ email });
   if (existing) {
-    // Always return the same message to prevent user enumeration
+
     throw AppError('An account with this email already exists.', 409);
   }
 
@@ -46,9 +39,6 @@ async function register({ email, password, role }) {
   return { userId: user._id, email: user.email, role: user.role };
 }
 
-/**
- * Verifies email with OTP. Issues token pair on success.
- */
 async function verifyEmail({ email, otp }) {
   await verifyOTP(email, otp, 'EMAIL_VERIFICATION');
 
@@ -64,11 +54,7 @@ async function verifyEmail({ email, otp }) {
   return user;
 }
 
-/**
- * Authenticates a user. Returns token pair on success.
- */
 async function login({ email, password }) {
-  // Fetch password hash and lockout fields explicitly (select: false)
   const user = await User.findOne({ email }).select(
     '+passwordHash +loginAttempts +lockUntil +refreshTokens'
   );
@@ -100,7 +86,6 @@ async function login({ email, password }) {
 
   const { accessToken, refreshToken } = buildTokenPair(user);
 
-  // Store hashed refresh token (supports multi-device)
   const hashedRefresh = await bcrypt.hash(refreshToken, REFRESH_TOKEN_SALT);
   await User.updateOne(
     { _id: user._id },
@@ -111,9 +96,6 @@ async function login({ email, password }) {
   return { accessToken, refreshToken, user };
 }
 
-/**
- * Rotates refresh tokens — issues new pair, invalidates old token.
- */
 async function refreshTokens(incomingRefreshToken) {
   let payload;
   try {
@@ -127,7 +109,6 @@ async function refreshTokens(incomingRefreshToken) {
     throw AppError('User not found or deactivated.', 401);
   }
 
-  // Verify the token is in the stored set
   let tokenIndex = -1;
   for (let i = 0; i < user.refreshTokens.length; i++) {
     const match = await bcrypt.compare(incomingRefreshToken, user.refreshTokens[i]);
@@ -135,7 +116,6 @@ async function refreshTokens(incomingRefreshToken) {
   }
 
   if (tokenIndex === -1) {
-    // Possible token reuse attack — invalidate all tokens for this user
     await User.updateOne({ _id: user._id }, { $set: { refreshTokens: [] } });
     logger.warn('Refresh token reuse detected — all sessions invalidated', { userId: user._id });
     throw AppError('Refresh token reuse detected. Please log in again.', 401);
@@ -144,7 +124,6 @@ async function refreshTokens(incomingRefreshToken) {
   const { accessToken, refreshToken: newRefreshToken } = buildTokenPair(user);
   const hashedNew = await bcrypt.hash(newRefreshToken, REFRESH_TOKEN_SALT);
 
-  // Swap old token for new one
   const updatedTokens = [...user.refreshTokens];
   updatedTokens[tokenIndex] = hashedNew;
   await User.updateOne({ _id: user._id }, { $set: { refreshTokens: updatedTokens } });
@@ -152,9 +131,6 @@ async function refreshTokens(incomingRefreshToken) {
   return { accessToken, refreshToken: newRefreshToken };
 }
 
-/**
- * Logs out a single session by removing the refresh token.
- */
 async function logout(userId, refreshToken) {
   const user = await User.findById(userId).select('+refreshTokens');
   if (!user) return;
@@ -169,22 +145,14 @@ async function logout(userId, refreshToken) {
   logger.info('User logged out (session removed)', { userId });
 }
 
-/**
- * Sends a password-reset OTP. Always returns 200 to prevent user enumeration.
- */
 async function forgotPassword(email) {
   const user = await User.findOne({ email });
   if (user && user.isActive && user.isEmailVerified) {
     await createAndSendOTP(email, 'PASSWORD_RESET');
   }
-  // Silently succeed even if user doesn't exist
   logger.info('Forgot-password requested', { email });
 }
 
-/**
- * Verifies the password-reset OTP. On success, issues a short-lived session
- * token (UUID) that must be presented when calling resetPassword.
- */
 async function verifyPasswordResetOTP({ email, otp }) {
   await verifyOTP(email, otp, 'PASSWORD_RESET');
 
@@ -195,9 +163,6 @@ async function verifyPasswordResetOTP({ email, otp }) {
   return { resetSessionId: sessionId };
 }
 
-/**
- * Resets the password using the session token from verifyPasswordResetOTP.
- */
 async function resetPassword({ email, resetSessionId, newPassword }) {
   const user = await User.findOne({ email }).select('+passwordResetSessionId');
   if (!user || user.passwordResetSessionId !== resetSessionId) {
@@ -206,7 +171,6 @@ async function resetPassword({ email, resetSessionId, newPassword }) {
 
   await user.setPassword(newPassword);
   user.passwordResetSessionId = undefined;
-  // Invalidate all existing sessions on password change
   user.refreshTokens = [];
   await user.save();
 
