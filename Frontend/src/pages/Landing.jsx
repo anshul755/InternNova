@@ -9,7 +9,6 @@ const companiesRowTwo = companies.slice(midpoint);
 const Landing = () => {
   return (
     <div className="min-h-screen bg-[linear-gradient(135deg,#1923c4_0%,#0a5bff_40%,#0c1b66_100%)] text-white px-[5vw] py-6 flex flex-col font-sans overflow-x-hidden">
-      {/* Navbar */}
       <header className="flex items-center justify-between gap-6">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#36e4ff] to-[#02c39a] flex items-center justify-center font-bold">
@@ -54,10 +53,7 @@ const Landing = () => {
           </Link>
         </div>
       </header>
-
-      {/* Hero Section */}
       <main className="grid grid-cols-1 lg:grid-cols-[1.2fr_1.1fr] gap-12 items-center pt-16">
-        {/* Hero Visual (Top on mobile) */}
         <section
           className="flex justify-center order-first lg:order-last"
           aria-hidden="true"
@@ -70,7 +66,6 @@ const Landing = () => {
             </div>
 
             <div className="grid grid-cols-[1.1fr_0.9fr] p-5 gap-4">
-              {/* Resume Card */}
               <div className="bg-white rounded-2xl p-4 shadow-sm">
                 <div className="h-[7px] w-[70%] bg-[#c7d2ff] rounded-full mb-2"></div>
                 <div className="h-[7px] bg-[#e3e8ff] rounded-full mb-2"></div>
@@ -80,8 +75,6 @@ const Landing = () => {
                 <div className="h-[7px] bg-[#e3e8ff] rounded-full mb-2"></div>
                 <div className="h-[7px] bg-[#e3e8ff] rounded-full mb-2"></div>
               </div>
-
-              {/* Insights */}
               <div className="flex flex-col gap-3">
                 <div className="self-end px-2.5 py-1 rounded-full text-[0.7rem] bg-[#e0fce8] text-[#047857]">
                   Match 87%
@@ -104,8 +97,6 @@ const Landing = () => {
             </div>
           </div>
         </section>
-
-        {/* Hero Content */}
         <section>
           <p className="uppercase tracking-[0.16em] text-[0.75rem] text-[#c2d5ff]">
             AI-powered resume matcher
@@ -144,11 +135,8 @@ const Landing = () => {
           </div>
         </section>
       </main>
-
-      {/* Companies Section */}
       <section className="mt-16 -mx-[5vw]">
         <div className="relative w-full overflow-hidden py-16 pb-20 space-y-10">
-          {/* Top row: scroll left + floating bubbles */}
           <div className="flex animate-scroll-left w-max">
             {companiesRowOne.map((company, idx) => (
               <a
@@ -221,8 +209,6 @@ const Landing = () => {
               </a>
             ))}
           </div>
-
-          {/* Bottom row: scroll right + floating bubbles */}
           {companiesRowTwo.length > 0 && (
             <div className="flex animate-scroll-right w-max">
               {companiesRowTwo.map((company, idx) => (
@@ -299,8 +285,6 @@ const Landing = () => {
           )}
         </div>
       </section>
-
-      {/* Combined scroll + floating styles */}
       <style>{`
         @keyframes scroll-left {
           0% {

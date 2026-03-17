@@ -4,6 +4,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuth } from "../lib/AuthContext.jsx";
+import { CORE_API_BASE } from "../lib/serviceConfig.js";
 import AccountSetupStep from "../components/talent/AccountSetupStep.jsx";
 import PersonalInfoStep from "../components/talent/PersonalInfoStep.jsx";
 import EducationStep from "../components/talent/EducationStep.jsx";
@@ -186,11 +187,12 @@ const TalentRegister = ({ modal = false }) => {
     setSubmitSuccess("");
 
     try {
-      await authRegister(data.email, data.password, "Talent");
+      const { userId } = await authRegister(data.email, data.password, "Talent");
       const resolvedMajor =
         data.majorOption === "OTHER" ? data.majorOther : data.majorOption;
 
       const profilePayload = {
+        id: userId,
         user: "Talent",
         name: data.name,
         university: data.university,
@@ -220,7 +222,7 @@ const TalentRegister = ({ modal = false }) => {
       if (avatarFile) formData.append("avatar", avatarFile);
       if (resumeFile) formData.append("resume", resumeFile);
 
-      const response = await fetch("http://localhost:8080/talent/v1", {
+      const response = await fetch(`${CORE_API_BASE}/talent/v1`, {
         method: "POST",
         body: formData,
       });
@@ -265,7 +267,6 @@ const TalentRegister = ({ modal = false }) => {
   return (
     <div className={containerClasses}>
       <div className="w-full max-w-6xl rounded-3xl bg-slate-950/70 border border-transparent overflow-hidden flex flex-col">
-        {/* Top row: Workday-style horizontal stepper */}
         <div className="px-6 pt-6 pb-4 sm:px-10 border-b border-slate-800/80 bg-slate-950/80">
           <ol className="flex flex-wrap lg:flex-nowrap gap-2 sm:gap-3 text-[0.7rem] sm:text-xs">
             {(() => {
@@ -320,10 +321,7 @@ const TalentRegister = ({ modal = false }) => {
             })()}
           </ol>
         </div>
-
-        {/* Main row: left form + right checklist */}
         <div className="flex flex-col lg:flex-row">
-          {/* Left panel: header + form */}
           <section className="flex-1 px-6 py-8 sm:px-10">
             <header className="mb-6">
               <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
@@ -359,8 +357,6 @@ const TalentRegister = ({ modal = false }) => {
                     {submitSuccess}
                   </p>
                 )}
-
-                {/* Navigation buttons */}
                 <div className="flex items-center justify-between pt-2">
                   <button
                     type="button"
@@ -401,8 +397,6 @@ const TalentRegister = ({ modal = false }) => {
               </form>
             </FormProvider>
           </section>
-
-          {/* Right panel: guidance (only on first step) */}
           {activeStep === 0 && (
             <aside className="hidden lg:flex w-[40%] flex-col justify-between bg-[radial-gradient(circle_at_top,_#38bdf8_0,_transparent_55%),_radial-gradient(circle_at_bottom,_#22c55e_0,_transparent_55%)] p-8 text-sm text-slate-50">
               <div>

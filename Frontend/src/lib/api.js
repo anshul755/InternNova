@@ -1,7 +1,10 @@
-const JAVA_BASE = "http://localhost:8080";
+import { getStoredToken } from "./authStorage.js";
+import { CORE_API_BASE } from "./serviceConfig.js";
+
+const JAVA_BASE = CORE_API_BASE;
 
 function getToken() {
-  return localStorage.getItem("inn_access_token");
+  return getStoredToken();
 }
 
 async function request(path, options = {}) {
@@ -23,7 +26,13 @@ async function request(path, options = {}) {
     const text = await res.text();
     let message;
     try {
-      message = JSON.parse(text).message;
+      const json = JSON.parse(text);
+      // Handle Spring Boot validation errors
+      if (json.errors && Array.isArray(json.errors)) {
+        message = json.errors.map(e => e.defaultMessage || e.message).join(', ');
+      } else {
+        message = json.message || json.error;
+      }
     } catch {
       message = text;
     }

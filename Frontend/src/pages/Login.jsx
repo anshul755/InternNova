@@ -63,7 +63,6 @@ const Login = ({ modal = false }) => {
   return (
     <div className={containerClasses}>
       <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-8 rounded-3xl bg-slate-950/70 border border-transparent overflow-hidden">
-        {/* Left visuals / branding */}
         <section className="hidden lg:flex flex-col justify-between bg-[radial-gradient(circle_at_top,_#38bdf8_0,_transparent_55%),_radial-gradient(circle_at_bottom,_#a855f7_0,_transparent_55%)] p-10 text-slate-50">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900/60 border border-slate-700 text-xs tracking-[0.16em] uppercase">
@@ -100,8 +99,6 @@ const Login = ({ modal = false }) => {
             </div>
           </div>
         </section>
-
-        {/* Right auth card */}
         <section className="flex flex-col justify-center px-6 py-8 sm:px-10 bg-slate-950/40">
           <header className="mb-6">
             <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
@@ -114,8 +111,6 @@ const Login = ({ modal = false }) => {
               Choose how you want to log in: as a student or as a company.
             </p>
           </header>
-
-          {/* Tabs */}
           <div className="flex rounded-full bg-slate-900/70 p-1 text-xs mb-6 border border-slate-800">
             <button
               type="button"
@@ -140,8 +135,6 @@ const Login = ({ modal = false }) => {
               Company
             </button>
           </div>
-
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5 text-sm">
             {isUserActive ? (
               <div className="space-y-4">
@@ -288,8 +281,6 @@ const Login = ({ modal = false }) => {
               )}
             </button>
           </form>
-
-          {/* Footer links */}
           <div className="mt-5 flex flex-col gap-1.5 text-[0.78rem] text-slate-400">
             {isUserActive ? (
               <p>

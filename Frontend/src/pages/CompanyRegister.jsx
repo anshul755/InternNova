@@ -4,6 +4,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuth } from "../lib/AuthContext.jsx";
+import { CORE_API_BASE } from "../lib/serviceConfig.js";
 import CompanyAccountStep from "../components/company/CompanyAccountStep.jsx";
 import CompanyProfileStep from "../components/company/CompanyProfileStep.jsx";
 import CompanyDescriptionStep from "../components/company/CompanyDescriptionStep.jsx";
@@ -142,8 +143,9 @@ const CompanyRegister = ({ modal = false }) => {
     setSubmitSuccess("");
 
     try {
-      await authRegister(data.email, data.password, "Company");
+      const { userId } = await authRegister(data.email, data.password, "Company");
       const profilePayload = {
+        id: userId,
         user: "Company",
         companyName: data.companyName,
         companySize: data.companySize,
@@ -163,7 +165,7 @@ const CompanyRegister = ({ modal = false }) => {
       const logoFile = data.logoFile?.[0];
       if (logoFile) formData.append("logo", logoFile);
 
-      const response = await fetch("http://localhost:8080/company/v1", {
+      const response = await fetch(`${CORE_API_BASE}/company/v1`, {
         method: "POST",
         body: formData,
       });

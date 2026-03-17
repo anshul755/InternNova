@@ -99,7 +99,6 @@ export default function VerifyEmail() {
   return (
     <div className="min-h-screen bg-[linear-gradient(135deg,#1923c4_0%,#0a5bff_40%,#0c1b66_100%)] text-white flex items-center justify-center px-4 font-sans">
       <div className="w-full max-w-md rounded-3xl bg-slate-950/70 border border-slate-800 p-8 shadow-2xl">
-        {/* Header */}
         <div className="mb-6 text-center">
           <div className="inline-flex mb-3 h-12 w-12 items-center justify-center rounded-2xl bg-sky-500/20 border border-sky-500/40 text-sky-300 text-xl">
             ✉
@@ -117,7 +116,6 @@ export default function VerifyEmail() {
         </div>
 
         <form onSubmit={handleVerify} className="space-y-5">
-          {/* Email field (editable only when not passed via state) */}
           {!emailFromState && (
             <div className="space-y-1.5">
               <label className="block text-xs font-medium text-slate-300">Email</label>
@@ -131,8 +129,6 @@ export default function VerifyEmail() {
               />
             </div>
           )}
-
-          {/* OTP digit inputs */}
           <div>
             <label className="block text-xs font-medium text-slate-300 mb-2">
               Enter OTP
@@ -188,8 +184,6 @@ export default function VerifyEmail() {
             )}
           </button>
         </form>
-
-        {/* Resend */}
         <div className="mt-5 text-center text-xs text-slate-400">
           Didn&apos;t receive it?{" "}
           <button
