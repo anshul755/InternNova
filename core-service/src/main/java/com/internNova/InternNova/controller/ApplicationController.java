@@ -17,7 +17,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.internNova.InternNova.dto.ApplicationCreateDTO;
 import com.internNova.InternNova.dto.ApplicationResponseDTO;
@@ -34,16 +38,37 @@ public class ApplicationController {
     @Autowired
     private ApplicationService applicationService;
 
-    @PostMapping
-    public ResponseEntity<Application> createApplication(
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @PostMapping(consumes = "multipart/form-data")
+    public ResponseEntity<?> createApplicationMultipart(
+            @RequestPart("data") String data,
+            @RequestPart(value = "resumeFile", required = false) MultipartFile resumeFile) {
+        try {
+            ApplicationCreateDTO applicationCreateDTO = objectMapper.readValue(data, ApplicationCreateDTO.class);
+            Application application = applicationService.createApplication(applicationCreateDTO, resumeFile);
+            return ResponseEntity.ok(application);
+        } catch (JsonProcessingException e) {
+            return ResponseEntity.badRequest().body("Invalid application data format: " + e.getMessage());
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // ── JSON body (tests and clients that don't need to upload a file) ─────────
+    @PostMapping(consumes = "application/json")
+    public ResponseEntity<?> createApplicationJson(
             @Valid @RequestBody ApplicationCreateDTO applicationCreateDTO) {
         try {
-            Application application = applicationService.createApplication(applicationCreateDTO);
+            Application application = applicationService.createApplication(applicationCreateDTO, null);
             return ResponseEntity.ok(application);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
@@ -55,28 +80,27 @@ public class ApplicationController {
             @RequestParam(defaultValue = "appliedAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir,
             @RequestParam(required = false) ApplicationState status) {
-        
+
         try {
             if (page == -1 && size == -1) {
                 // Return all applications without pagination
                 List<ApplicationResponseDTO> applications = applicationService.getApplicationsByJob(jobId);
-                
+
                 if (status != null) {
                     applications = applications.stream()
-                        .filter(app -> app.getStatus() == status)
-                        .toList();
+                            .filter(app -> app.getStatus() == status)
+                            .toList();
                 }
-                
+
                 return ResponseEntity.ok(applications);
             } else {
                 // Return paginated results
-                Sort sort = Sort.by(sortDir.equalsIgnoreCase("desc") ? 
-                    Sort.Direction.DESC : Sort.Direction.ASC, sortBy);
+                Sort sort = Sort.by(sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC,
+                        sortBy);
                 Pageable pageable = PageRequest.of(page, size, sort);
-                
-                Page<ApplicationResponseDTO> applications = 
-                    applicationService.getApplicationsByJob(jobId, pageable);
-                    
+
+                Page<ApplicationResponseDTO> applications = applicationService.getApplicationsByJob(jobId, pageable);
+
                 return ResponseEntity.ok(applications);
             }
         } catch (Exception e) {
@@ -91,22 +115,21 @@ public class ApplicationController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "appliedAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir) {
-        
+
         try {
             if (page == -1 && size == -1) {
                 // Return all applications without pagination
-                List<ApplicationResponseDTO> applications = 
-                    applicationService.getApplicationsByStudent(studentId);
+                List<ApplicationResponseDTO> applications = applicationService.getApplicationsByStudent(studentId);
                 return ResponseEntity.ok(applications);
             } else {
                 // Return paginated results
-                Sort sort = Sort.by(sortDir.equalsIgnoreCase("desc") ? 
-                    Sort.Direction.DESC : Sort.Direction.ASC, sortBy);
+                Sort sort = Sort.by(sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC,
+                        sortBy);
                 Pageable pageable = PageRequest.of(page, size, sort);
-                
-                Page<ApplicationResponseDTO> applications = 
-                    applicationService.getApplicationsByStudent(studentId, pageable);
-                    
+
+                Page<ApplicationResponseDTO> applications = applicationService.getApplicationsByStudent(studentId,
+                        pageable);
+
                 return ResponseEntity.ok(applications);
             }
         } catch (Exception e) {
@@ -147,9 +170,31 @@ public class ApplicationController {
             if (requestBody != null && requestBody.containsKey("recruiterNotes")) {
                 recruiterNotes = requestBody.get("recruiterNotes");
             }
-            
+
             Application application = applicationService.rejectApplication(id, recruiterNotes);
             return ResponseEntity.ok(application);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PutMapping("/{id}/status")
+    public ResponseEntity<Application> updateApplicationStatus(
+            @PathVariable String id,
+            @RequestBody Map<String, String> requestBody) {
+        try {
+            if (requestBody == null || !requestBody.containsKey("status")) {
+                return ResponseEntity.badRequest().build();
+            }
+            ApplicationState status = ApplicationState.valueOf(requestBody.get("status").toUpperCase());
+            String recruiterNotes = requestBody.getOrDefault("recruiterNotes", null);
+
+            Application application = applicationService.updateApplicationStatus(id, status, recruiterNotes);
+            return ResponseEntity.ok(application);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
@@ -185,14 +230,16 @@ public class ApplicationController {
     public ResponseEntity<Map<String, Object>> getJobApplicationStats(@PathVariable String jobId) {
         try {
             long totalApplications = applicationService.getApplicationCountByJob(jobId);
-            
+
             Map<String, Object> stats = Map.of(
-                "totalApplications", totalApplications,
-                "pendingApplications", applicationService.getApplicationsByJobAndStatus(jobId, ApplicationState.PENDING).size(),
-                "shortlistedApplications", applicationService.getApplicationsByJobAndStatus(jobId, ApplicationState.SHORTLISTED).size(),
-                "rejectedApplications", applicationService.getApplicationsByJobAndStatus(jobId, ApplicationState.REJECTED).size()
-            );
-            
+                    "totalApplications", totalApplications,
+                    "appliedApplications",
+                    applicationService.getApplicationsByJobAndStatus(jobId, ApplicationState.APPLIED).size(),
+                    "shortlistedApplications",
+                    applicationService.getApplicationsByJobAndStatus(jobId, ApplicationState.SHORTLISTED).size(),
+                    "rejectedApplications",
+                    applicationService.getApplicationsByJobAndStatus(jobId, ApplicationState.REJECTED).size());
+
             return ResponseEntity.ok(stats);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
@@ -203,11 +250,10 @@ public class ApplicationController {
     public ResponseEntity<Map<String, Object>> getStudentApplicationStats(@PathVariable String studentId) {
         try {
             long totalApplications = applicationService.getApplicationCountByStudent(studentId);
-            
+
             Map<String, Object> stats = Map.of(
-                "totalApplications", totalApplications
-            );
-            
+                    "totalApplications", totalApplications);
+
             return ResponseEntity.ok(stats);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();

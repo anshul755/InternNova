@@ -79,10 +79,8 @@ class JobControllerTest {
 
     @Test
     void testCreateJob() throws Exception {
-        // Given
         when(jobService.createJob(any(JobCreateDTO.class))).thenReturn(testJob);
 
-        // When & Then
         mockMvc.perform(post("/jobs/v1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createDTO)))
@@ -96,11 +94,9 @@ class JobControllerTest {
 
     @Test
     void testCreateJobWithValidationError() throws Exception {
-        // Given - invalid DTO (missing required fields)
         JobCreateDTO invalidDTO = new JobCreateDTO();
         invalidDTO.setTitle(""); // Empty title
 
-        // When & Then
         mockMvc.perform(post("/jobs/v1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(invalidDTO)))
@@ -111,12 +107,10 @@ class JobControllerTest {
 
     @Test
     void testGetAllJobs() throws Exception {
-        // Given
         List<Job> jobs = Arrays.asList(testJob);
         Page<Job> jobPage = new PageImpl<>(jobs, PageRequest.of(0, 10), 1);
         when(jobService.getAllJobs(any())).thenReturn(jobPage);
 
-        // When & Then
         mockMvc.perform(get("/jobs/v1")
                 .param("page", "0")
                 .param("size", "10"))
@@ -130,12 +124,10 @@ class JobControllerTest {
 
     @Test
     void testGetAllJobsWithSearch() throws Exception {
-        // Given
         List<Job> jobs = Arrays.asList(testJob);
         Page<Job> jobPage = new PageImpl<>(jobs, PageRequest.of(0, 10), 1);
         when(jobService.searchJobs(eq("Java"), any())).thenReturn(jobPage);
 
-        // When & Then
         mockMvc.perform(get("/jobs/v1")
                 .param("search", "Java")
                 .param("page", "0")
@@ -149,12 +141,10 @@ class JobControllerTest {
 
     @Test
     void testGetAllJobsByCompany() throws Exception {
-        // Given
         List<Job> jobs = Arrays.asList(testJob);
         Page<Job> jobPage = new PageImpl<>(jobs, PageRequest.of(0, 10), 1);
         when(jobService.getJobsByCompany(eq("company1"), any())).thenReturn(jobPage);
 
-        // When & Then
         mockMvc.perform(get("/jobs/v1")
                 .param("companyId", "company1")
                 .param("page", "0")
@@ -168,36 +158,30 @@ class JobControllerTest {
 
     @Test
     void testGetJobById() throws Exception {
-        // Given
-        when(jobService.getJobById("job1")).thenReturn(Optional.of(testJob));
+        when(jobService.getJobById("job1", null)).thenReturn(Optional.of(testJob));
 
-        // When & Then
         mockMvc.perform(get("/jobs/v1/job1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("job1"))
                 .andExpect(jsonPath("$.title").value("Software Engineer Intern"));
 
-        verify(jobService).getJobById("job1");
+        verify(jobService).getJobById("job1", null);
     }
 
     @Test
     void testGetJobByIdNotFound() throws Exception {
-        // Given
-        when(jobService.getJobById("nonexistent")).thenReturn(Optional.empty());
+        when(jobService.getJobById("nonexistent", null)).thenReturn(Optional.empty());
 
-        // When & Then
         mockMvc.perform(get("/jobs/v1/nonexistent"))
                 .andExpect(status().isNotFound());
 
-        verify(jobService).getJobById("nonexistent");
+        verify(jobService).getJobById("nonexistent", null);
     }
 
     @Test
     void testUpdateJob() throws Exception {
-        // Given
         when(jobService.updateJob(eq("job1"), any(JobUpdateDTO.class))).thenReturn(testJob);
 
-        // When & Then
         mockMvc.perform(put("/jobs/v1/job1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateDTO)))
@@ -209,11 +193,9 @@ class JobControllerTest {
 
     @Test
     void testUpdateJobNotFound() throws Exception {
-        // Given
         when(jobService.updateJob(eq("nonexistent"), any(JobUpdateDTO.class)))
                 .thenThrow(new RuntimeException("Job not found"));
 
-        // When & Then
         mockMvc.perform(put("/jobs/v1/nonexistent")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateDTO)))
@@ -224,10 +206,8 @@ class JobControllerTest {
 
     @Test
     void testDeleteJob() throws Exception {
-        // Given
         doNothing().when(jobService).deleteJob("job1");
 
-        // When & Then
         mockMvc.perform(delete("/jobs/v1/job1"))
                 .andExpect(status().isNoContent());
 
@@ -236,10 +216,8 @@ class JobControllerTest {
 
     @Test
     void testDeleteJobNotFound() throws Exception {
-        // Given
         doThrow(new RuntimeException("Job not found")).when(jobService).deleteJob("nonexistent");
 
-        // When & Then
         mockMvc.perform(delete("/jobs/v1/nonexistent"))
                 .andExpect(status().isNotFound());
 
@@ -248,11 +226,9 @@ class JobControllerTest {
 
     @Test
     void testGetJobsByCompany() throws Exception {
-        // Given
         List<Job> jobs = Arrays.asList(testJob);
         when(jobService.getJobsByCompany("company1")).thenReturn(jobs);
 
-        // When & Then
         mockMvc.perform(get("/jobs/v1/company/company1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())

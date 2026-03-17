@@ -10,6 +10,7 @@ import com.internNova.InternNova.enums.User;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.ArrayList;
 
 @Document(collection = "talent")
 @Data
@@ -40,4 +41,6 @@ public class Talent {
 
     private List<String> preferredLocations;
     private List<String> preferredIndustries;
+
+    private List<String> savedJobs = new ArrayList<>();
 }

@@ -7,8 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
+import java.util.List;
+import com.internNova.InternNova.entity.Job;
 
 @RestController
 @RequestMapping("/talent/v1")
@@ -62,6 +63,36 @@ public class TalentController {
         try {
             talentService.deleteTalent(id);
             return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/{id}/saved-jobs/{jobId}")
+    public ResponseEntity<Talent> saveJob(@PathVariable String id, @PathVariable String jobId) {
+        try {
+            Talent talent = talentService.saveJob(id, jobId);
+            return ResponseEntity.ok(talent);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/{id}/saved-jobs/{jobId}")
+    public ResponseEntity<Talent> removeSavedJob(@PathVariable String id, @PathVariable String jobId) {
+        try {
+            Talent talent = talentService.removeSavedJob(id, jobId);
+            return ResponseEntity.ok(talent);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/{id}/saved-jobs")
+    public ResponseEntity<List<Job>> getSavedJobs(@PathVariable String id) {
+        try {
+            List<Job> jobs = talentService.getSavedJobs(id);
+            return ResponseEntity.ok(jobs);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }

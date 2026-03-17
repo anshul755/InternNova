@@ -21,10 +21,8 @@ public class ApplicationResponseDTO {
     private String recruiterNotes;
     private LocalDateTime appliedAt;
 
-    // Job details for convenience
     private String jobTitle;
     private String companyName;
     
-    // Student details for convenience
     private String studentName;
 }

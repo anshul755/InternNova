@@ -15,24 +15,26 @@ import com.internNova.InternNova.enums.OpportunityType;
 @Repository
 public interface JobRepository extends MongoRepository<Job, String> {
 
-    List<Job> findByIsDeletedFalse();
-    
-    Page<Job> findByIsDeletedFalse(Pageable pageable);
-    
+List<Job> findByIsDeletedFalseAndStatus(String status);
+
+    Page<Job> findByIsDeletedFalseAndStatus(String status, Pageable pageable);
+
+    List<Job> findByIsDeletedFalseAndStatusAndApplicationDeadlineBefore(String status, java.time.LocalDate date);
+
     Optional<Job> findByIdAndIsDeletedFalse(String id);
-    
+
     List<Job> findByCompanyIdAndIsDeletedFalse(String companyId);
-    
+
     Page<Job> findByCompanyIdAndIsDeletedFalse(String companyId, Pageable pageable);
-    
-    @Query("{'isDeleted': false, 'jobType': ?0}")
-    Page<Job> findByJobType(OpportunityType jobType, Pageable pageable);
-    
-    @Query("{'isDeleted': false, 'location': {$regex: ?0, $options: 'i'}}")
-    Page<Job> findByLocationContainingIgnoreCase(String location, Pageable pageable);
-    
-    @Query("{'isDeleted': false, $or: [{'title': {$regex: ?0, $options: 'i'}}, {'description': {$regex: ?0, $options: 'i'}}, {'skillsRequired': {$in: [?0]}}]}")
-    Page<Job> searchJobs(String keyword, Pageable pageable);
+
+    @Query("{'isDeleted': false, 'status': 'ACTIVE', 'jobType': ?0}")
+    Page<Job> findByJobTypeAndStatusActive(OpportunityType jobType, Pageable pageable);
+
+    @Query("{'isDeleted': false, 'status': 'ACTIVE', 'location': {$regex: ?0, $options: 'i'}}")
+    Page<Job> findByLocationContainingIgnoreCaseAndStatusActive(String location, Pageable pageable);
+
+    @Query("{'isDeleted': false, 'status': 'ACTIVE', $or: [{'title': {$regex: ?0, $options: 'i'}}, {'description': {$regex: ?0, $options: 'i'}}, {'skillsRequired': {$in: [?0]}}]}")
+    Page<Job> searchActiveJobs(String keyword, Pageable pageable);
     
     long countByCompanyIdAndIsDeletedFalse(String companyId);
 }

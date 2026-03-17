@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.internNova.InternNova.dto.JobCreateDTO;
 import com.internNova.InternNova.dto.JobUpdateDTO;
 import com.internNova.InternNova.entity.Job;
+import java.time.LocalDate;
 import com.internNova.InternNova.enums.OpportunityType;
 import com.internNova.InternNova.repository.JobRepository;
 
@@ -24,29 +25,30 @@ public class JobService {
     public Job createJob(JobCreateDTO jobCreateDTO) {
         Job job = new Job();
         mapCreateDTOToEntity(jobCreateDTO, job);
+        job.setCreatedAt(LocalDateTime.now());
         return jobRepository.save(job);
     }
 
     public List<Job> getAllJobs() {
-        return jobRepository.findByIsDeletedFalse();
+        return jobRepository.findByIsDeletedFalseAndStatus("ACTIVE");
     }
 
     public Page<Job> getAllJobs(Pageable pageable) {
-        return jobRepository.findByIsDeletedFalse(pageable);
+        return jobRepository.findByIsDeletedFalseAndStatus("ACTIVE", pageable);
     }
 
-    public Optional<Job> getJobById(String id) {
+    public Optional<Job> getJobById(String id, String viewerId) {
         Optional<Job> job = jobRepository.findByIdAndIsDeletedFalse(id);
         if (job.isPresent()) {
-            incrementViewCount(job.get());
+            incrementViewCount(job.get(), viewerId);
         }
         return job;
     }
 
-    public Job getJob(String id) {
+    public Job getJob(String id, String viewerId) {
         Job job = jobRepository.findByIdAndIsDeletedFalse(id)
             .orElseThrow(() -> new RuntimeException("Job not found"));
-        incrementViewCount(job);
+        incrementViewCount(job, viewerId);
         return job;
     }
 
@@ -59,15 +61,15 @@ public class JobService {
     }
 
     public Page<Job> getJobsByType(OpportunityType jobType, Pageable pageable) {
-        return jobRepository.findByJobType(jobType, pageable);
+        return jobRepository.findByJobTypeAndStatusActive(jobType, pageable);
     }
 
-    public Page<Job> getJobsByLocation(String location, Pageable pageable) {
-        return jobRepository.findByLocationContainingIgnoreCase(location, pageable);
+    public Page<Job> getJobsByLocation(String location, Pageable pageable) {    
+        return jobRepository.findByLocationContainingIgnoreCaseAndStatusActive(location, pageable);
     }
 
     public Page<Job> searchJobs(String keyword, Pageable pageable) {
-        return jobRepository.searchJobs(keyword, pageable);
+        return jobRepository.searchActiveJobs(keyword, pageable);
     }
 
     public Job updateJob(String id, JobUpdateDTO jobUpdateDTO) {
@@ -85,6 +87,11 @@ public class JobService {
     public void deleteJob(String id) {
         Job job = jobRepository.findByIdAndIsDeletedFalse(id)
             .orElseThrow(() -> new RuntimeException("Job not found"));
+
+        if (job.getApplicationsCount() > 0) {
+            throw new RuntimeException("Cannot delete job with existing applications. Please close or archive the job instead.");
+        }
+
         job.setDeleted(true);
         jobRepository.save(job);
     }
@@ -109,9 +116,29 @@ public class JobService {
         }
     }
 
-    private void incrementViewCount(Job job) {
-        job.setViewsCount(job.getViewsCount() + 1);
-        jobRepository.save(job);
+    public void expireJobs() {
+        List<Job> expiredJobs = jobRepository.findByIsDeletedFalseAndStatusAndApplicationDeadlineBefore("ACTIVE", LocalDate.now());
+        for (Job job : expiredJobs) {
+            job.setStatus("CLOSED");
+        }
+        if (!expiredJobs.isEmpty()) {
+            jobRepository.saveAll(expiredJobs);
+        }
+    }
+
+    private void incrementViewCount(Job job, String viewerId) {
+        boolean isCompanyViewingOwnJob = viewerId != null && viewerId.equals(job.getCompanyId());
+        
+        if (viewerId != null && !isCompanyViewingOwnJob) {
+            if (job.getViewedByUsers() == null) {
+                job.setViewedByUsers(new java.util.HashSet<>());
+            }
+            if (!job.getViewedByUsers().contains(viewerId)) {
+                job.getViewedByUsers().add(viewerId);
+                job.setViewsCount((long) job.getViewedByUsers().size());
+                jobRepository.save(job);
+            }
+        }
     }
 
     private void mapCreateDTOToEntity(JobCreateDTO dto, Job job) {
@@ -128,7 +155,13 @@ public class JobService {
         job.setJobType(dto.getJobType());
         job.setDuration(dto.getDuration());
         job.setStartDate(dto.getStartDate());
-        job.setApplicationDeadline(dto.getApplicationDeadline());
+        if (dto.getApplicationDeadline() != null) {
+            job.setApplicationDeadline(dto.getApplicationDeadline());
+        } else {
+            job.setApplicationDeadline(LocalDate.now().plusDays(30));
+        }
+        job.setSelectionCriteria(dto.getSelectionCriteria());
+        if (dto.getStatus() != null) job.setStatus(dto.getStatus());
     }
 
     private void mapUpdateDTOToEntity(JobUpdateDTO dto, Job job) {
@@ -146,5 +179,6 @@ public class JobService {
         if (dto.getStartDate() != null) job.setStartDate(dto.getStartDate());
         if (dto.getApplicationDeadline() != null) job.setApplicationDeadline(dto.getApplicationDeadline());
         if (dto.getStatus() != null) job.setStatus(dto.getStatus());
+        if (dto.getSelectionCriteria() != null) job.setSelectionCriteria(dto.getSelectionCriteria());
     }
 }

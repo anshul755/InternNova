@@ -1,8 +1,12 @@
 package com.internNova.InternNova.enums;
 
 public enum ApplicationState {
-    PENDING,
+    APPLIED,
+    UNDER_REVIEW,
     SHORTLISTED,
+    INTERVIEW,
+    OFFER,
+    HIRED,
     REJECTED,
     WITHDRAWN
 }

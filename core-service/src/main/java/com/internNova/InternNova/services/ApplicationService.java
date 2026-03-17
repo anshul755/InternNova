@@ -10,6 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
 
 import com.internNova.InternNova.dto.ApplicationCreateDTO;
 import com.internNova.InternNova.dto.ApplicationResponseDTO;
@@ -41,32 +43,57 @@ public class ApplicationService {
     @Autowired
     private JobService jobService;
 
+    @Autowired
+    private CloudinaryService cloudinaryService;
+
+    /** Convenience overload — used by tests and when no file is attached */
     public Application createApplication(ApplicationCreateDTO applicationCreateDTO) {
-        // Check if application already exists
+        return createApplication(applicationCreateDTO, null);
+    }
+
+    public Application createApplication(ApplicationCreateDTO applicationCreateDTO, MultipartFile resumeFile) {
         if (applicationRepository.existsByJobIdAndStudentIdAndIsDeletedFalse(
                 applicationCreateDTO.getJobId(), applicationCreateDTO.getStudentId())) {
             throw new RuntimeException("Application already exists for this job");
         }
 
-        // Verify job exists
         Job job = jobRepository.findByIdAndIsDeletedFalse(applicationCreateDTO.getJobId())
             .orElseThrow(() -> new RuntimeException("Job not found"));
 
-        // Verify talent exists
-        Talent talent = talentRepository.findById(applicationCreateDTO.getStudentId())
+        if (!"ACTIVE".equalsIgnoreCase(job.getStatus())) {
+            throw new RuntimeException("Job is not accepting applications");
+        }
+
+        talentRepository.findById(applicationCreateDTO.getStudentId())
             .orElseThrow(() -> new RuntimeException("Talent not found"));
 
         Application application = new Application();
         application.setJobId(applicationCreateDTO.getJobId());
         application.setStudentId(applicationCreateDTO.getStudentId());
         application.setCoverLetter(applicationCreateDTO.getCoverLetter());
-        application.setResumeUrl(applicationCreateDTO.getResumeUrl());
+
+        // Snapshot job details so they survive job deletion
+        application.setJobTitle(job.getTitle());
+        application.setJobLocation(job.getLocation());
+        Optional<Company> company = companyRepository.findById(job.getCompanyId());
+        company.ifPresent(c -> application.setCompanyName(c.getCompanyName()));
+        
+        if (resumeFile != null && !resumeFile.isEmpty()) {
+            try {
+                String resumeUrl = cloudinaryService.uploadFile(resumeFile);
+                application.setResumeUrl(resumeUrl);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to upload resume file: " + e.getMessage());
+            }
+        } else {
+            application.setResumeUrl(applicationCreateDTO.getResumeUrl());
+        }
+
         application.setAppliedAt(LocalDateTime.now());
-        application.setStatus(ApplicationState.PENDING);
+        application.setStatus(ApplicationState.APPLIED);
 
         Application savedApplication = applicationRepository.save(application);
         
-        // Increment application count for the job
         jobService.incrementApplicationCount(applicationCreateDTO.getJobId());
         
         return savedApplication;
@@ -119,10 +146,14 @@ public class ApplicationService {
     }
 
     public Application rejectApplication(String id, String recruiterNotes) {
+        return updateApplicationStatus(id, ApplicationState.REJECTED, recruiterNotes);
+    }
+
+    public Application updateApplicationStatus(String id, ApplicationState status, String recruiterNotes) {
         Application application = applicationRepository.findByIdAndIsDeletedFalse(id)
             .orElseThrow(() -> new RuntimeException("Application not found"));
         
-        application.setStatus(ApplicationState.REJECTED);
+        application.setStatus(status);
         if (recruiterNotes != null && !recruiterNotes.trim().isEmpty()) {
             application.setRecruiterNotes(recruiterNotes);
         }
@@ -136,7 +167,6 @@ public class ApplicationService {
         application.setDeleted(true);
         applicationRepository.save(application);
         
-        // Decrement application count for the job
         jobService.decrementApplicationCount(application.getJobId());
     }
 
@@ -172,19 +202,20 @@ public class ApplicationService {
         dto.setRecruiterNotes(application.getRecruiterNotes());
         dto.setAppliedAt(application.getAppliedAt());
 
-        // Add job details
+        // Use stored snapshot as the baseline (survives job deletion)
+        dto.setJobTitle(application.getJobTitle());
+        dto.setCompanyName(application.getCompanyName());
+
+        // Try to override with live data if the job still exists
         Optional<Job> job = jobRepository.findByIdAndIsDeletedFalse(application.getJobId());
         if (job.isPresent()) {
             dto.setJobTitle(job.get().getTitle());
-            
-            // Add company details
             Optional<Company> company = companyRepository.findById(job.get().getCompanyId());
             if (company.isPresent()) {
                 dto.setCompanyName(company.get().getCompanyName());
             }
         }
 
-        // Add student details
         Optional<Talent> talent = talentRepository.findById(application.getStudentId());
         if (talent.isPresent()) {
             dto.setStudentName(talent.get().getName());

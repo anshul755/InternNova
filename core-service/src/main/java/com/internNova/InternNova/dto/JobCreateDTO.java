@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.internNova.InternNova.enums.OpportunityType;
 
-import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -48,9 +48,13 @@ public class JobCreateDTO {
 
     private String duration;
 
-    @Future(message = "Start date must be in the future")
+    @FutureOrPresent(message = "Start date must be in the future or present")
     private LocalDate startDate;
 
-    @Future(message = "Application deadline must be in the future")
+    @FutureOrPresent(message = "Application deadline must be in the future or present")
     private LocalDate applicationDeadline;
+
+    private String selectionCriteria;
+    
+    private String status;
 }

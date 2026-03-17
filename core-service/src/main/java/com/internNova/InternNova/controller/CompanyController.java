@@ -47,8 +47,8 @@ public class CompanyController {
     public ResponseEntity<Company> getCompany(@PathVariable String id) {
         try {
             return ResponseEntity.ok(companyService.getCompany(id));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
         }
     }
 

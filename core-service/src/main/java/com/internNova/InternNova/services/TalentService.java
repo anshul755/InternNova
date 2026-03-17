@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import com.internNova.InternNova.repository.JobRepository;
+import com.internNova.InternNova.entity.Job;
+import java.util.List;
 
 import java.io.IOException;
 
@@ -20,10 +23,16 @@ public class TalentService {
     @Autowired
     private CloudinaryService cloudinaryService;
 
+    @Autowired
+    private JobRepository jobRepository;
+
     public Talent createTalent(TalentDTO talentDTO, MultipartFile resume, MultipartFile avatar)
             throws IOException {
 
         Talent talent = new Talent();
+        if (talentDTO.getId() != null && !talentDTO.getId().isBlank()) {
+            talent.setId(talentDTO.getId());
+        }
         talent.setUser(User.Talent);
         updateTalentFromDTO(talent, talentDTO);
 
@@ -81,6 +90,40 @@ public class TalentService {
         Talent talent = getTalent(id);
         talent.setDeleted(true);
         talentRepository.save(talent);
+    }
+
+    public Talent saveJob(String talentId, String jobId) {
+        Talent talent = getTalent(talentId);
+        
+        if (talent.getSavedJobs() == null) {
+            talent.setSavedJobs(new java.util.ArrayList<>());
+        }
+        
+        if (!talent.getSavedJobs().contains(jobId)) {
+            talent.getSavedJobs().add(jobId);
+            talentRepository.save(talent);
+        }
+        
+        return talent;
+    }
+
+    public Talent removeSavedJob(String talentId, String jobId) {
+        Talent talent = getTalent(talentId);
+        
+        if (talent.getSavedJobs() != null && talent.getSavedJobs().contains(jobId)) {
+            talent.getSavedJobs().remove(jobId);
+            talentRepository.save(talent);
+        }
+        
+        return talent;
+    }
+
+    public List<Job> getSavedJobs(String talentId) {
+        Talent talent = getTalent(talentId);
+        if (talent.getSavedJobs() == null || talent.getSavedJobs().isEmpty()) {
+            return new java.util.ArrayList<>();
+        }
+        return (List<Job>) jobRepository.findAllById(talent.getSavedJobs());
     }
 
     private void updateTalentFromDTO(Talent talent, TalentDTO dto) {

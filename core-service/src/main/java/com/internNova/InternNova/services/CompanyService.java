@@ -29,6 +29,9 @@ public class CompanyService {
     public Company createCompany(CompanyDTO companyDTO, MultipartFile logo) throws IOException {
 
         Company company = new Company();
+        if (companyDTO.getId() != null && !companyDTO.getId().isBlank()) {
+            company.setId(companyDTO.getId());
+        }
         company.setUser(User.Company);
         updateCompanyFromDTO(companyDTO, company);
 

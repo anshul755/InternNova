@@ -72,13 +72,10 @@ class JobServiceTest {
 
     @Test
     void testCreateJob() {
-        // Given
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
 
-        // When
         Job result = jobService.createJob(createDTO);
 
-        // Then
         assertNotNull(result);
         assertEquals(testJob.getTitle(), result.getTitle());
         verify(jobRepository).save(any(Job.class));
@@ -86,47 +83,38 @@ class JobServiceTest {
 
     @Test
     void testGetAllJobs() {
-        // Given
         List<Job> jobs = Arrays.asList(testJob);
-        when(jobRepository.findByIsDeletedFalse()).thenReturn(jobs);
+        when(jobRepository.findByIsDeletedFalseAndStatus("ACTIVE")).thenReturn(jobs);
 
-        // When
         List<Job> result = jobService.getAllJobs();
 
-        // Then
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(testJob.getTitle(), result.get(0).getTitle());
-        verify(jobRepository).findByIsDeletedFalse();
+        verify(jobRepository).findByIsDeletedFalseAndStatus("ACTIVE");
     }
 
     @Test
     void testGetAllJobsWithPagination() {
-        // Given
         Pageable pageable = PageRequest.of(0, 10);
         Page<Job> jobPage = new PageImpl<>(Arrays.asList(testJob));
-        when(jobRepository.findByIsDeletedFalse(pageable)).thenReturn(jobPage);
+        when(jobRepository.findByIsDeletedFalseAndStatus("ACTIVE", pageable)).thenReturn(jobPage);
 
-        // When
         Page<Job> result = jobService.getAllJobs(pageable);
 
-        // Then
         assertNotNull(result);
         assertEquals(1, result.getContent().size());
         assertEquals(testJob.getTitle(), result.getContent().get(0).getTitle());
-        verify(jobRepository).findByIsDeletedFalse(pageable);
+        verify(jobRepository).findByIsDeletedFalseAndStatus("ACTIVE", pageable);
     }
 
     @Test
     void testGetJobById() {
-        // Given
         when(jobRepository.findByIdAndIsDeletedFalse("job1")).thenReturn(Optional.of(testJob));
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
 
-        // When
-        Optional<Job> result = jobService.getJobById("job1");
+        Optional<Job> result = jobService.getJobById("job1", "talent-123");
 
-        // Then
         assertTrue(result.isPresent());
         assertEquals(testJob.getTitle(), result.get().getTitle());
         // View count should be incremented
@@ -136,27 +124,21 @@ class JobServiceTest {
 
     @Test
     void testGetJobByIdNotFound() {
-        // Given
         when(jobRepository.findByIdAndIsDeletedFalse("nonexistent")).thenReturn(Optional.empty());
 
-        // When
-        Optional<Job> result = jobService.getJobById("nonexistent");
+        Optional<Job> result = jobService.getJobById("nonexistent", "talent-123");
 
-        // Then
         assertFalse(result.isPresent());
         verify(jobRepository).findByIdAndIsDeletedFalse("nonexistent");
     }
 
     @Test
     void testGetJob() {
-        // Given
         when(jobRepository.findByIdAndIsDeletedFalse("job1")).thenReturn(Optional.of(testJob));
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
 
-        // When
-        Job result = jobService.getJob("job1");
+        Job result = jobService.getJob("job1", "talent-123");
 
-        // Then
         assertNotNull(result);
         assertEquals(testJob.getTitle(), result.getTitle());
         verify(jobRepository).findByIdAndIsDeletedFalse("job1");
@@ -165,24 +147,19 @@ class JobServiceTest {
 
     @Test
     void testGetJobNotFound() {
-        // Given
         when(jobRepository.findByIdAndIsDeletedFalse("nonexistent")).thenReturn(Optional.empty());
 
-        // When & Then
-        assertThrows(RuntimeException.class, () -> jobService.getJob("nonexistent"));
+        assertThrows(RuntimeException.class, () -> jobService.getJob("nonexistent", "talent-123"));
         verify(jobRepository).findByIdAndIsDeletedFalse("nonexistent");
     }
 
     @Test
     void testGetJobsByCompany() {
-        // Given
         List<Job> jobs = Arrays.asList(testJob);
         when(jobRepository.findByCompanyIdAndIsDeletedFalse("company1")).thenReturn(jobs);
 
-        // When
         List<Job> result = jobService.getJobsByCompany("company1");
 
-        // Then
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(testJob.getCompanyId(), result.get(0).getCompanyId());
@@ -191,14 +168,11 @@ class JobServiceTest {
 
     @Test
     void testUpdateJob() {
-        // Given
         when(jobRepository.findByIdAndIsDeletedFalse("job1")).thenReturn(Optional.of(testJob));
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
 
-        // When
         Job result = jobService.updateJob("job1", updateDTO);
 
-        // Then
         assertNotNull(result);
         verify(jobRepository).findByIdAndIsDeletedFalse("job1");
         verify(jobRepository).save(any(Job.class));
@@ -206,80 +180,64 @@ class JobServiceTest {
 
     @Test
     void testUpdateJobNotFound() {
-        // Given
         when(jobRepository.findByIdAndIsDeletedFalse("nonexistent")).thenReturn(Optional.empty());
 
-        // When & Then
         assertThrows(RuntimeException.class, () -> jobService.updateJob("nonexistent", updateDTO));
         verify(jobRepository).findByIdAndIsDeletedFalse("nonexistent");
     }
 
     @Test
     void testDeleteJob() {
-        // Given
         when(jobRepository.findByIdAndIsDeletedFalse("job1")).thenReturn(Optional.of(testJob));
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
 
-        // When
         jobService.deleteJob("job1");
 
-        // Then
         verify(jobRepository).findByIdAndIsDeletedFalse("job1");
         verify(jobRepository).save(argThat(job -> job.isDeleted()));
     }
 
     @Test
     void testDeleteJobNotFound() {
-        // Given
         when(jobRepository.findByIdAndIsDeletedFalse("nonexistent")).thenReturn(Optional.empty());
 
-        // When & Then
         assertThrows(RuntimeException.class, () -> jobService.deleteJob("nonexistent"));
         verify(jobRepository).findByIdAndIsDeletedFalse("nonexistent");
     }
 
     @Test
     void testIncrementApplicationCount() {
-        // Given
         when(jobRepository.findByIdAndIsDeletedFalse("job1")).thenReturn(Optional.of(testJob));
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
 
-        // When
         jobService.incrementApplicationCount("job1");
 
-        // Then
         verify(jobRepository).findByIdAndIsDeletedFalse("job1");
         verify(jobRepository).save(argThat(job -> job.getApplicationsCount() == 1L));
     }
 
     @Test
     void testDecrementApplicationCount() {
-        // Given
         testJob.setApplicationsCount(5L);
         when(jobRepository.findByIdAndIsDeletedFalse("job1")).thenReturn(Optional.of(testJob));
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
 
-        // When
         jobService.decrementApplicationCount("job1");
 
-        // Then
         verify(jobRepository).findByIdAndIsDeletedFalse("job1");
         verify(jobRepository).save(argThat(job -> job.getApplicationsCount() == 4L));
     }
 
     @Test
     void testSearchJobs() {
-        // Given
         Pageable pageable = PageRequest.of(0, 10);
         Page<Job> jobPage = new PageImpl<>(Arrays.asList(testJob));
-        when(jobRepository.searchJobs("Java", pageable)).thenReturn(jobPage);
+        when(jobRepository.searchActiveJobs("Java", pageable)).thenReturn(jobPage);
 
-        // When
         Page<Job> result = jobService.searchJobs("Java", pageable);
 
-        // Then
         assertNotNull(result);
         assertEquals(1, result.getContent().size());
-        verify(jobRepository).searchJobs("Java", pageable);
+        verify(jobRepository).searchActiveJobs("Java", pageable);
     }
 }

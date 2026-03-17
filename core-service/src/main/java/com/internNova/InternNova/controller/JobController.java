@@ -35,12 +35,12 @@ public class JobController {
     private JobService jobService;
 
     @PostMapping
-    public ResponseEntity<Job> createJob(@Valid @RequestBody JobCreateDTO jobCreateDTO) {
+    public ResponseEntity<?> createJob(@Valid @RequestBody JobCreateDTO jobCreateDTO) {
         try {
             Job job = jobService.createJob(jobCreateDTO);
             return ResponseEntity.ok(job);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
@@ -48,7 +48,7 @@ public class JobController {
     public ResponseEntity<?> getAllJobs(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "appliedAt") String sortBy,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir,
             @RequestParam(required = false) String companyId,
             @RequestParam(required = false) OpportunityType jobType,
@@ -81,9 +81,11 @@ public class JobController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Job> getJob(@PathVariable String id) {
+    public ResponseEntity<Job> getJob(
+            @PathVariable String id,
+            @RequestParam(required = false) String viewerId) {
         try {
-            Optional<Job> job = jobService.getJobById(id);
+            Optional<Job> job = jobService.getJobById(id, viewerId);
             return job.map(ResponseEntity::ok)
                      .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {

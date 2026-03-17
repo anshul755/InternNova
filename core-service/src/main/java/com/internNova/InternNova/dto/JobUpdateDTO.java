@@ -32,4 +32,5 @@ public class JobUpdateDTO {
     private LocalDate startDate;
     private LocalDate applicationDeadline;
     private String status;
+    private String selectionCriteria;
 }

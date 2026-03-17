@@ -12,6 +12,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import com.internNova.InternNova.repository.JobRepository;
+import com.internNova.InternNova.entity.Job;
+import java.util.List;
+import java.util.ArrayList;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,6 +32,9 @@ class TalentServiceTest {
 
     @Mock
     private CloudinaryService cloudinaryService;
+
+    @Mock
+    private JobRepository jobRepository;
 
     @InjectMocks
     private TalentService talentService;
@@ -128,5 +135,46 @@ class TalentServiceTest {
 
         assertTrue(testTalent.isDeleted());
         verify(talentRepository, times(1)).save(testTalent);
+    }
+
+    @Test
+    void testSaveJob_Success() {
+        when(talentRepository.findById("1")).thenReturn(Optional.of(testTalent));
+        when(talentRepository.save(any(Talent.class))).thenAnswer(i -> i.getArgument(0));
+
+        Talent result = talentService.saveJob("1", "job1");
+
+        assertTrue(result.getSavedJobs().contains("job1"));
+        verify(talentRepository, times(1)).save(testTalent);
+    }
+
+    @Test
+    void testRemoveSavedJob_Success() {
+        testTalent.setSavedJobs(new ArrayList<>(List.of("job1", "job2")));
+        when(talentRepository.findById("1")).thenReturn(Optional.of(testTalent));
+        when(talentRepository.save(any(Talent.class))).thenAnswer(i -> i.getArgument(0));
+
+        Talent result = talentService.removeSavedJob("1", "job1");
+
+        assertFalse(result.getSavedJobs().contains("job1"));
+        assertTrue(result.getSavedJobs().contains("job2"));
+        verify(talentRepository, times(1)).save(testTalent);
+    }
+
+    @Test
+    void testGetSavedJobs_Success() {
+        testTalent.setSavedJobs(new ArrayList<>(List.of("job1", "job2")));
+        when(talentRepository.findById("1")).thenReturn(Optional.of(testTalent));
+        
+        Job job1 = new Job();
+        job1.setId("job1");
+        Job job2 = new Job();
+        job2.setId("job2");
+        when(jobRepository.findAllById(anyList())).thenReturn(List.of(job1, job2));
+
+        List<Job> result = talentService.getSavedJobs("1");
+
+        assertEquals(2, result.size());
+        verify(jobRepository, times(1)).findAllById(testTalent.getSavedJobs());
     }
 }

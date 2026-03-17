@@ -1,7 +1,10 @@
 package com.internNova.InternNova.entity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -34,6 +37,10 @@ public class Job {
     private LocalDate applicationDeadline;
     private String status = "ACTIVE";
     private Long viewsCount = 0L;
+    private Set<String> viewedByUsers = new HashSet<>();
     private Long applicationsCount = 0L;
+    private LocalDateTime createdAt;
     private boolean isDeleted = false;
-}
+
+    private String selectionCriteria;
+}

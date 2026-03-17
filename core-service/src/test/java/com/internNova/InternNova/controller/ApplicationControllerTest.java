@@ -52,7 +52,7 @@ class ApplicationControllerTest {
         testApplication.setId("app1");
         testApplication.setJobId("job1");
         testApplication.setStudentId("talent1");
-        testApplication.setStatus(ApplicationState.PENDING);
+        testApplication.setStatus(ApplicationState.APPLIED);
         testApplication.setCoverLetter("I am interested in this position");
         testApplication.setAppliedAt(LocalDateTime.now());
         testApplication.setDeleted(false);
@@ -66,7 +66,7 @@ class ApplicationControllerTest {
         responseDTO.setId("app1");
         responseDTO.setJobId("job1");
         responseDTO.setStudentId("talent1");
-        responseDTO.setStatus(ApplicationState.PENDING);
+        responseDTO.setStatus(ApplicationState.APPLIED);
         responseDTO.setCoverLetter("I am interested in this position");
         responseDTO.setAppliedAt(LocalDateTime.now());
         responseDTO.setJobTitle("Software Engineer");
@@ -76,10 +76,8 @@ class ApplicationControllerTest {
 
     @Test
     void testCreateApplication() throws Exception {
-        // Given
-        when(applicationService.createApplication(any(ApplicationCreateDTO.class))).thenReturn(testApplication);
+        when(applicationService.createApplication(any(ApplicationCreateDTO.class), isNull())).thenReturn(testApplication);
 
-        // When & Then
         mockMvc.perform(post("/applications/v1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createDTO)))
@@ -88,46 +86,40 @@ class ApplicationControllerTest {
                 .andExpect(jsonPath("$.jobId").value("job1"))
                 .andExpect(jsonPath("$.studentId").value("talent1"));
 
-        verify(applicationService).createApplication(any(ApplicationCreateDTO.class));
+        verify(applicationService).createApplication(any(ApplicationCreateDTO.class), isNull());
     }
 
     @Test
     void testCreateApplicationValidationError() throws Exception {
-        // Given - invalid DTO (missing required fields)
         ApplicationCreateDTO invalidDTO = new ApplicationCreateDTO();
         invalidDTO.setJobId(""); // Empty jobId
 
-        // When & Then
         mockMvc.perform(post("/applications/v1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(invalidDTO)))
                 .andExpect(status().isBadRequest());
 
-        verify(applicationService, never()).createApplication(any(ApplicationCreateDTO.class));
+        verify(applicationService, never()).createApplication(any(ApplicationCreateDTO.class), any());
     }
 
     @Test
     void testCreateApplicationAlreadyExists() throws Exception {
-        // Given
-        when(applicationService.createApplication(any(ApplicationCreateDTO.class)))
+        when(applicationService.createApplication(any(ApplicationCreateDTO.class), isNull()))
                 .thenThrow(new RuntimeException("Application already exists for this job"));
 
-        // When & Then
         mockMvc.perform(post("/applications/v1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createDTO)))
                 .andExpect(status().isBadRequest());
 
-        verify(applicationService).createApplication(any(ApplicationCreateDTO.class));
+        verify(applicationService).createApplication(any(ApplicationCreateDTO.class), isNull());
     }
 
     @Test
     void testGetApplicationsByJob() throws Exception {
-        // Given
         List<ApplicationResponseDTO> applications = Arrays.asList(responseDTO);
         when(applicationService.getApplicationsByJob("job1")).thenReturn(applications);
 
-        // When & Then
         mockMvc.perform(get("/applications/v1/job/job1")
                 .param("page", "-1")
                 .param("size", "-1"))
@@ -141,12 +133,10 @@ class ApplicationControllerTest {
 
     @Test
     void testGetApplicationsByJobWithPagination() throws Exception {
-        // Given
         List<ApplicationResponseDTO> applications = Arrays.asList(responseDTO);
         Page<ApplicationResponseDTO> applicationPage = new PageImpl<>(applications, PageRequest.of(0, 10), 1);
         when(applicationService.getApplicationsByJob(eq("job1"), any())).thenReturn(applicationPage);
 
-        // When & Then
         mockMvc.perform(get("/applications/v1/job/job1")
                 .param("page", "0")
                 .param("size", "10"))
@@ -160,11 +150,9 @@ class ApplicationControllerTest {
 
     @Test
     void testGetApplicationsByStudent() throws Exception {
-        // Given
         List<ApplicationResponseDTO> applications = Arrays.asList(responseDTO);
         when(applicationService.getApplicationsByStudent("talent1")).thenReturn(applications);
 
-        // When & Then
         mockMvc.perform(get("/applications/v1/student/talent1")
                 .param("page", "-1")
                 .param("size", "-1"))
@@ -178,10 +166,8 @@ class ApplicationControllerTest {
 
     @Test
     void testGetApplication() throws Exception {
-        // Given
         when(applicationService.getApplicationById("app1")).thenReturn(responseDTO);
 
-        // When & Then
         mockMvc.perform(get("/applications/v1/app1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("app1"))
@@ -193,11 +179,9 @@ class ApplicationControllerTest {
 
     @Test
     void testGetApplicationNotFound() throws Exception {
-        // Given
         when(applicationService.getApplicationById("nonexistent"))
                 .thenThrow(new RuntimeException("Application not found"));
 
-        // When & Then
         mockMvc.perform(get("/applications/v1/nonexistent"))
                 .andExpect(status().isNotFound());
 
@@ -206,11 +190,9 @@ class ApplicationControllerTest {
 
     @Test
     void testShortlistApplication() throws Exception {
-        // Given
         testApplication.setStatus(ApplicationState.SHORTLISTED);
         when(applicationService.shortlistApplication("app1")).thenReturn(testApplication);
 
-        // When & Then
         mockMvc.perform(put("/applications/v1/app1/shortlist"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("app1"))
@@ -221,11 +203,9 @@ class ApplicationControllerTest {
 
     @Test
     void testShortlistApplicationNotFound() throws Exception {
-        // Given
         when(applicationService.shortlistApplication("nonexistent"))
                 .thenThrow(new RuntimeException("Application not found"));
 
-        // When & Then
         mockMvc.perform(put("/applications/v1/nonexistent/shortlist"))
                 .andExpect(status().isNotFound());
 
@@ -234,14 +214,12 @@ class ApplicationControllerTest {
 
     @Test
     void testRejectApplication() throws Exception {
-        // Given
         testApplication.setStatus(ApplicationState.REJECTED);
         testApplication.setRecruiterNotes("Not a good fit");
         when(applicationService.rejectApplication(eq("app1"), eq("Not a good fit"))).thenReturn(testApplication);
 
         Map<String, String> requestBody = Map.of("recruiterNotes", "Not a good fit");
 
-        // When & Then
         mockMvc.perform(put("/applications/v1/app1/reject")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestBody)))
@@ -254,11 +232,9 @@ class ApplicationControllerTest {
 
     @Test
     void testRejectApplicationWithoutNotes() throws Exception {
-        // Given
         testApplication.setStatus(ApplicationState.REJECTED);
         when(applicationService.rejectApplication(eq("app1"), isNull())).thenReturn(testApplication);
 
-        // When & Then
         mockMvc.perform(put("/applications/v1/app1/reject")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{}"))
@@ -271,10 +247,8 @@ class ApplicationControllerTest {
 
     @Test
     void testWithdrawApplication() throws Exception {
-        // Given
         doNothing().when(applicationService).withdrawApplication("app1");
 
-        // When & Then
         mockMvc.perform(put("/applications/v1/app1/withdraw"))
                 .andExpect(status().isNoContent());
 
@@ -283,10 +257,8 @@ class ApplicationControllerTest {
 
     @Test
     void testDeleteApplication() throws Exception {
-        // Given
         doNothing().when(applicationService).deleteApplication("app1");
 
-        // When & Then
         mockMvc.perform(delete("/applications/v1/app1"))
                 .andExpect(status().isNoContent());
 
@@ -295,10 +267,8 @@ class ApplicationControllerTest {
 
     @Test
     void testDeleteApplicationNotFound() throws Exception {
-        // Given
         doThrow(new RuntimeException("Application not found")).when(applicationService).deleteApplication("nonexistent");
 
-        // When & Then
         mockMvc.perform(delete("/applications/v1/nonexistent"))
                 .andExpect(status().isNotFound());
 
@@ -307,16 +277,14 @@ class ApplicationControllerTest {
 
     @Test
     void testGetJobApplicationStats() throws Exception {
-        // Given
         when(applicationService.getApplicationCountByJob("job1")).thenReturn(10L);
-        when(applicationService.getApplicationsByJobAndStatus("job1", ApplicationState.PENDING))
+        when(applicationService.getApplicationsByJobAndStatus("job1", ApplicationState.APPLIED))
                 .thenReturn(Arrays.asList(new Application(), new Application()));
         when(applicationService.getApplicationsByJobAndStatus("job1", ApplicationState.SHORTLISTED))
                 .thenReturn(Arrays.asList(new Application()));
         when(applicationService.getApplicationsByJobAndStatus("job1", ApplicationState.REJECTED))
                 .thenReturn(Arrays.asList());
 
-        // When & Then
         mockMvc.perform(get("/applications/v1/stats/job/job1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalApplications").value(10))
@@ -325,17 +293,15 @@ class ApplicationControllerTest {
                 .andExpect(jsonPath("$.rejectedApplications").value(0));
 
         verify(applicationService).getApplicationCountByJob("job1");
-        verify(applicationService).getApplicationsByJobAndStatus("job1", ApplicationState.PENDING);
+        verify(applicationService).getApplicationsByJobAndStatus("job1", ApplicationState.APPLIED);
         verify(applicationService).getApplicationsByJobAndStatus("job1", ApplicationState.SHORTLISTED);
         verify(applicationService).getApplicationsByJobAndStatus("job1", ApplicationState.REJECTED);
     }
 
     @Test
     void testGetStudentApplicationStats() throws Exception {
-        // Given
         when(applicationService.getApplicationCountByStudent("talent1")).thenReturn(5L);
 
-        // When & Then
         mockMvc.perform(get("/applications/v1/stats/student/talent1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalApplications").value(5));
