@@ -12,7 +12,6 @@ public class JobScheduler {
     @Autowired
     private JobService jobService;
 
-    // Runs every day at midnight server time
     @Scheduled(cron = "0 0 0 * * ?")
     public void expireJobsDaily() {
         jobService.expireJobs();

@@ -27,8 +27,6 @@ public class Application {
     private LocalDateTime appliedAt;
     private boolean isDeleted = false;
 
-    // Snapshot of job details captured at application time
-    // so they remain visible even if the job is later deleted
     private String jobTitle;
     private String companyName;
     private String jobLocation;

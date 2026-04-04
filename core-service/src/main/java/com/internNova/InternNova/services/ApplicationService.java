@@ -46,7 +46,6 @@ public class ApplicationService {
     @Autowired
     private CloudinaryService cloudinaryService;
 
-    /** Convenience overload — used by tests and when no file is attached */
     public Application createApplication(ApplicationCreateDTO applicationCreateDTO) {
         return createApplication(applicationCreateDTO, null);
     }
@@ -72,7 +71,7 @@ public class ApplicationService {
         application.setStudentId(applicationCreateDTO.getStudentId());
         application.setCoverLetter(applicationCreateDTO.getCoverLetter());
 
-        // Snapshot job details so they survive job deletion
+
         application.setJobTitle(job.getTitle());
         application.setJobLocation(job.getLocation());
         Optional<Company> company = companyRepository.findById(job.getCompanyId());
@@ -202,11 +201,9 @@ public class ApplicationService {
         dto.setRecruiterNotes(application.getRecruiterNotes());
         dto.setAppliedAt(application.getAppliedAt());
 
-        // Use stored snapshot as the baseline (survives job deletion)
         dto.setJobTitle(application.getJobTitle());
         dto.setCompanyName(application.getCompanyName());
 
-        // Try to override with live data if the job still exists
         Optional<Job> job = jobRepository.findByIdAndIsDeletedFalse(application.getJobId());
         if (job.isPresent()) {
             dto.setJobTitle(job.get().getTitle());

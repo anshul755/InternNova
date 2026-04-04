@@ -58,7 +58,6 @@ public class ApplicationController {
         }
     }
 
-    // ── JSON body (tests and clients that don't need to upload a file) ─────────
     @PostMapping(consumes = "application/json")
     public ResponseEntity<?> createApplicationJson(
             @Valid @RequestBody ApplicationCreateDTO applicationCreateDTO) {
@@ -83,7 +82,6 @@ public class ApplicationController {
 
         try {
             if (page == -1 && size == -1) {
-                // Return all applications without pagination
                 List<ApplicationResponseDTO> applications = applicationService.getApplicationsByJob(jobId);
 
                 if (status != null) {
@@ -94,7 +92,6 @@ public class ApplicationController {
 
                 return ResponseEntity.ok(applications);
             } else {
-                // Return paginated results
                 Sort sort = Sort.by(sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC,
                         sortBy);
                 Pageable pageable = PageRequest.of(page, size, sort);
@@ -118,11 +115,9 @@ public class ApplicationController {
 
         try {
             if (page == -1 && size == -1) {
-                // Return all applications without pagination
                 List<ApplicationResponseDTO> applications = applicationService.getApplicationsByStudent(studentId);
                 return ResponseEntity.ok(applications);
             } else {
-                // Return paginated results
                 Sort sort = Sort.by(sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC,
                         sortBy);
                 Pageable pageable = PageRequest.of(page, size, sort);
