@@ -1,14 +1,33 @@
 import { useEffect } from "react";
+import { Navigate, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { IoClose } from "react-icons/io5";
-import { useLocation, useNavigate } from "react-router-dom";
 import Landing from "./pages/Landing.jsx";
 import Login from "./pages/Login.jsx";
 import CompanyRegister from "./pages/CompanyRegister.jsx";
 import TalentRegister from "./pages/TalentRegister.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
+import VerifyEmail from "./pages/VerifyEmail.jsx";
+import ForgotPassword from "./pages/ForgotPassword.jsx";
+import JobListings from "./pages/JobListings.jsx";
+import JobDetails from "./pages/JobDetails.jsx";
+import ApplicationManagement from "./pages/ApplicationManagement.jsx";
+import ApplicationDetail from "./pages/ApplicationDetail.jsx";
+import TalentDashboard from "./pages/TalentDashboard.jsx";
+import CompanyDashboard from "./pages/CompanyDashboard.jsx";
+import CompanyApplications from "./pages/CompanyApplications.jsx";
+import PostJob from "./pages/PostJob.jsx";
+import TalentProfileEdit from "./pages/TalentProfileEdit.jsx";
+import CompanyProfileEdit from "./pages/CompanyProfileEdit.jsx";
+import JobEdit from "./pages/JobEdit.jsx";
+import SavedJobs from "./pages/SavedJobs.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import RoleProtectedRoute from "./components/RoleProtectedRoute.jsx";
+import { getPostLoginRoute, useAuth } from "./lib/AuthContext.jsx";
 
-function App() {
+function ModalLayout() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
 
   const path = location.pathname;
 
@@ -35,6 +54,10 @@ function App() {
     navigate("/");
   };
 
+  if (!loading && user && modalType) {
+    return <Navigate to={getPostLoginRoute(user.role)} replace />;
+  }
+
   return (
     <div className="min-h-screen relative">
       <Landing />
@@ -58,6 +81,114 @@ function App() {
         </div>
       )}
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/talent"
+        element={
+          <RoleProtectedRoute role="Talent">
+            <TalentDashboard />
+          </RoleProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/company"
+        element={
+          <RoleProtectedRoute role="Company">
+            <CompanyDashboard />
+          </RoleProtectedRoute>
+        }
+      />
+      <Route path="/jobs" element={<JobListings />} />
+      <Route
+        path="/jobs/create"
+        element={
+          <RoleProtectedRoute role="Company">
+            <PostJob />
+          </RoleProtectedRoute>
+        }
+      />
+      <Route path="/jobs/:id" element={<JobDetails />} />
+      <Route
+        path="/jobs/:id/edit"
+        element={
+          <RoleProtectedRoute role="Company">
+            <JobEdit />
+          </RoleProtectedRoute>
+        }
+      />
+      <Route
+        path="/jobs/:id/applications"
+        element={
+          <RoleProtectedRoute role="Company">
+            <CompanyApplications />
+          </RoleProtectedRoute>
+        }
+      />
+      <Route
+        path="/company/applications"
+        element={
+          <RoleProtectedRoute role="Company">
+            <CompanyApplications />
+          </RoleProtectedRoute>
+        }
+      />
+      <Route
+        path="/applications"
+        element={
+          <RoleProtectedRoute role="Talent">
+            <ApplicationManagement />
+          </RoleProtectedRoute>
+        }
+      />
+      <Route
+        path="/applications/:id"
+        element={
+          <ProtectedRoute>
+            <ApplicationDetail />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/saved-jobs"
+        element={
+          <RoleProtectedRoute role="Talent">
+            <SavedJobs />
+          </RoleProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile/edit"
+        element={
+          <RoleProtectedRoute role="Talent">
+            <TalentProfileEdit />
+          </RoleProtectedRoute>
+        }
+      />
+      <Route
+        path="/company/profile/edit"
+        element={
+          <RoleProtectedRoute role="Company">
+            <CompanyProfileEdit />
+          </RoleProtectedRoute>
+        }
+      />
+      <Route path="/verify-email" element={<VerifyEmail />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/*" element={<ModalLayout />} />
+    </Routes>
   );
 }
 

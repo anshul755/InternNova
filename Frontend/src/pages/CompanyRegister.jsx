@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useAuth } from "../lib/AuthContext.jsx";
+import { CORE_API_BASE } from "../lib/serviceConfig.js";
 import CompanyAccountStep from "../components/company/CompanyAccountStep.jsx";
 import CompanyProfileStep from "../components/company/CompanyProfileStep.jsx";
 import CompanyDescriptionStep from "../components/company/CompanyDescriptionStep.jsx";
@@ -18,12 +20,10 @@ const passwordSchema = z
   .regex(/(?=.*[@#$%^&+=!_])/, "Must contain a special character");
 
 const baseSchema = z.object({
-  // Step 1
   email: z.string().email("Enter a valid email"),
   password: passwordSchema,
   confirmPassword: z.string(),
 
-  // Step 2
   companyName: z.string().min(1, "Company name is required"),
   companySize: z.string().min(1, "Company size is required"),
   companyType: z.string().min(1, "Company type is required"),
@@ -35,13 +35,11 @@ const baseSchema = z.object({
       return year >= 1800 && year <= 2100;
     }, "Founded year must be between 1800 and 2100"),
 
-  // Step 3
   companyDescription: z
     .string()
     .min(10, "Please add at least a short description"),
   websiteUrl: z.string().url("Enter a valid website URL"),
 
-  // Step 4
   logoUrl: z
     .string()
     .url("Enter a valid logo URL")
@@ -75,6 +73,8 @@ const stepRequiredFields = [
 ];
 
 const CompanyRegister = ({ modal = false }) => {
+  const { register: authRegister } = useAuth();
+  const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -143,10 +143,11 @@ const CompanyRegister = ({ modal = false }) => {
     setSubmitSuccess("");
 
     try {
-      const payload = {
+      const { userId } = await authRegister(data.email, data.password, "Company");
+      const profilePayload = {
+        id: userId,
+        user: "Company",
         companyName: data.companyName,
-        email: data.email,
-        password: data.password,
         companySize: data.companySize,
         companyDescription: data.companyDescription,
         foundedYear: Number(data.foundedYear),
@@ -158,25 +159,23 @@ const CompanyRegister = ({ modal = false }) => {
       const formData = new FormData();
       formData.append(
         "data",
-        new Blob([JSON.stringify(payload)], { type: "application/json" })
+        new Blob([JSON.stringify(profilePayload)], { type: "application/json" })
       );
 
       const logoFile = data.logoFile?.[0];
-      if (logoFile) {
-        formData.append("logo", logoFile);
-      }
+      if (logoFile) formData.append("logo", logoFile);
 
-      const response = await fetch("http://localhost:8080/company/v1", {
+      const response = await fetch(`${CORE_API_BASE}/company/v1`, {
         method: "POST",
         body: formData,
       });
 
       if (!response.ok) {
         const errorBody = await response.text();
-        throw new Error(errorBody || "Registration failed");
+        throw new Error(errorBody || "Profile creation failed");
       }
 
-      setSubmitSuccess("Company profile created successfully");
+      navigate("/verify-email", { state: { email: data.email } });
     } catch (err) {
       setSubmitError(err.message || "Something went wrong");
     } finally {

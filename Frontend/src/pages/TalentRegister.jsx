@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useAuth } from "../lib/AuthContext.jsx";
+import { CORE_API_BASE } from "../lib/serviceConfig.js";
 import AccountSetupStep from "../components/talent/AccountSetupStep.jsx";
 import PersonalInfoStep from "../components/talent/PersonalInfoStep.jsx";
 import EducationStep from "../components/talent/EducationStep.jsx";
@@ -19,17 +21,14 @@ const passwordSchema = z
   .regex(/(?=.*[@#$%^&+=!_])/, "Must contain a special character");
 
 const baseSchema = z.object({
-  // Step 1
   email: z.string().email("Enter a valid email"),
   password: passwordSchema,
   confirmPassword: z.string(),
 
-  // Step 2
   name: z.string().min(1, "Name is required"),
   bio: z.string().optional(),
   location: z.string().optional(),
 
-  // Step 3
   university: z.string().min(1, "University is required"),
   degreeLevel: z.string().min(1, "Degree level is required"),
   majorOption: z.string().min(1, "Major is required"),
@@ -47,12 +46,10 @@ const baseSchema = z.object({
     return !Number.isNaN(num) && num >= 0 && num <= 10;
   }, "CGPA must be between 0.0 and 10.0"),
 
-  // Step 4
   skills: z.array(z.string()).min(1, "Select at least one skill"),
   preferredLocations: z.array(z.string()).optional(),
   preferredIndustries: z.array(z.string()).optional(),
 
-  // Step 5
   linkedinUrl: z.string().url("Enter a valid LinkedIn URL"),
   githubUrl: z.string().url("Enter a valid GitHub URL"),
   portfolioUrl: z
@@ -61,7 +58,6 @@ const baseSchema = z.object({
     .optional()
     .or(z.literal("")),
 
-  // File uploads (optional)
   avatarFile: z.any().optional(),
   resumeFile: z.any().optional(),
 });
@@ -92,17 +88,18 @@ const steps = [
   "Review",
 ];
 
-// Required fields that determine completion/error state for each step
 const stepRequiredFields = [
-  ["email", "password", "confirmPassword"], // Step 1
-  ["name"], // Step 2
-  ["university", "degreeLevel", "majorOption", "graduationYear", "cgpa"], // Step 3
-  ["skills"], // Step 4
-  ["linkedinUrl", "githubUrl"], // Step 5
-  [], // Step 6 (Review has no own required fields)
+  ["email", "password", "confirmPassword"],
+  ["name"],
+  ["university", "degreeLevel", "majorOption", "graduationYear", "cgpa"],
+  ["skills"],
+  ["linkedinUrl", "githubUrl"],
+  [],
 ];
 
 const TalentRegister = ({ modal = false }) => {
+  const { register: authRegister } = useAuth();
+  const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -146,7 +143,7 @@ const TalentRegister = ({ modal = false }) => {
     if (activeStep === 0) {
       fieldsToValidate = ["email", "password", "confirmPassword"];
     } else if (activeStep === 1) {
-      fieldsToValidate = ["name", "bio", "location"]; // bio/location optional, but we keep for consistency
+      fieldsToValidate = ["name", "bio", "location"];
     } else if (activeStep === 2) {
       fieldsToValidate = [
         "university",
@@ -190,14 +187,14 @@ const TalentRegister = ({ modal = false }) => {
     setSubmitSuccess("");
 
     try {
-      // Build DTO according to backend TalentRegistrationDTO/TalentDTO
+      const { userId } = await authRegister(data.email, data.password, "Talent");
       const resolvedMajor =
         data.majorOption === "OTHER" ? data.majorOther : data.majorOption;
 
-      const payload = {
+      const profilePayload = {
+        id: userId,
+        user: "Talent",
         name: data.name,
-        email: data.email,
-        password: data.password,
         university: data.university,
         major: data.degreeLevel
           ? `${data.degreeLevel} - ${resolvedMajor}`
@@ -217,30 +214,25 @@ const TalentRegister = ({ modal = false }) => {
       const formData = new FormData();
       formData.append(
         "data",
-        new Blob([JSON.stringify(payload)], { type: "application/json" })
+        new Blob([JSON.stringify(profilePayload)], { type: "application/json" })
       );
 
       const avatarFile = data.avatarFile?.[0];
       const resumeFile = data.resumeFile?.[0];
+      if (avatarFile) formData.append("avatar", avatarFile);
+      if (resumeFile) formData.append("resume", resumeFile);
 
-      if (avatarFile) {
-        formData.append("avatar", avatarFile);
-      }
-      if (resumeFile) {
-        formData.append("resume", resumeFile);
-      }
-
-      const response = await fetch("http://localhost:8080/talent/v1", {
+      const response = await fetch(`${CORE_API_BASE}/talent/v1`, {
         method: "POST",
         body: formData,
       });
 
       if (!response.ok) {
         const errorBody = await response.text();
-        throw new Error(errorBody || "Registration failed");
+        throw new Error(errorBody || "Profile creation failed");
       }
 
-      setSubmitSuccess("Account created successfully");
+      navigate("/verify-email", { state: { email: data.email } });
     } catch (err) {
       setSubmitError(err.message || "Something went wrong");
     } finally {
@@ -275,7 +267,6 @@ const TalentRegister = ({ modal = false }) => {
   return (
     <div className={containerClasses}>
       <div className="w-full max-w-6xl rounded-3xl bg-slate-950/70 border border-transparent overflow-hidden flex flex-col">
-        {/* Top row: Workday-style horizontal stepper */}
         <div className="px-6 pt-6 pb-4 sm:px-10 border-b border-slate-800/80 bg-slate-950/80">
           <ol className="flex flex-wrap lg:flex-nowrap gap-2 sm:gap-3 text-[0.7rem] sm:text-xs">
             {(() => {
@@ -330,10 +321,7 @@ const TalentRegister = ({ modal = false }) => {
             })()}
           </ol>
         </div>
-
-        {/* Main row: left form + right checklist */}
         <div className="flex flex-col lg:flex-row">
-          {/* Left panel: header + form */}
           <section className="flex-1 px-6 py-8 sm:px-10">
             <header className="mb-6">
               <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
@@ -369,8 +357,6 @@ const TalentRegister = ({ modal = false }) => {
                     {submitSuccess}
                   </p>
                 )}
-
-                {/* Navigation buttons */}
                 <div className="flex items-center justify-between pt-2">
                   <button
                     type="button"
@@ -411,8 +397,6 @@ const TalentRegister = ({ modal = false }) => {
               </form>
             </FormProvider>
           </section>
-
-          {/* Right panel: guidance (only on first step) */}
           {activeStep === 0 && (
             <aside className="hidden lg:flex w-[40%] flex-col justify-between bg-[radial-gradient(circle_at_top,_#38bdf8_0,_transparent_55%),_radial-gradient(circle_at_bottom,_#22c55e_0,_transparent_55%)] p-8 text-sm text-slate-50">
               <div>

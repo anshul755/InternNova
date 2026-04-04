@@ -13,8 +13,7 @@ const LinksUploadsStep = () => {
         Step 5 · Links & uploads
       </h2>
       <p className="text-[0.75rem] text-slate-400 mb-3">
-        Add links and optional uploads. Files will be uploaded to your backend
-        via the existing /talent/v1 endpoint.
+        Add your professional links and upload optional files.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

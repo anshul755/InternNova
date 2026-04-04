@@ -1,12 +1,10 @@
 import React from "react";
 import { useFormContext } from "react-hook-form";
 
-// Start with no predefined options for skills/industries; users will add their own.
 const SKILL_OPTIONS = [];
 const LOCATION_OPTIONS = [];
 const INDUSTRY_OPTIONS = [];
 
-// Major Indian cities used for preferred location dropdown
 const INDIAN_CITIES = [
   "Ahmedabad",
   "Amritsar",
