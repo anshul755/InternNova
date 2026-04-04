@@ -40,7 +40,6 @@ const JobDetails = () => {
       const jobData = await res.json();
       setJob(jobData);
 
-      // Check if talent already applied
       if (isTalent && user) {
         try {
           const appsRes = await api.get(`/applications/v1/student/${user.id}?page=-1&size=-1`);
@@ -53,9 +52,7 @@ const JobDetails = () => {
           if (profile.savedJobs && profile.savedJobs.includes(id)) {
             setIsSaved(true);
           }
-        } catch {
-          // non-critical
-        }
+        } catch {}
       }
     } catch (err) {
       setError(err.message || 'Failed to load job details');

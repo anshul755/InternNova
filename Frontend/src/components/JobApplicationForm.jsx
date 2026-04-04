@@ -28,7 +28,6 @@ const JobApplicationForm = ({ job, onSubmit, onCancel }) => {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
     
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -107,17 +106,14 @@ const JobApplicationForm = ({ job, onSubmit, onCancel }) => {
     setSubmitting(true);
     
     try {
-      // Create FormData for file upload
       const applicationData = new FormData();
       
-      // Add form fields
       Object.keys(formData).forEach(key => {
         if (formData[key] !== null && formData[key] !== '') {
           applicationData.append(key, formData[key]);
         }
       });
       
-      // Add job and user info
       applicationData.append('jobId', job.id);
       applicationData.append('userId', user.id);
       applicationData.append('userEmail', user.email);

@@ -44,7 +44,6 @@ const CompanyDashboard = () => {
       const jobList = Array.isArray(jobsData) ? jobsData : (jobsData.content || []);
       setJobs(jobList);
 
-      // Fetch recent applications for the most recent job
       if (jobList.length > 0) {
         try {
           const appsRes = await api.get(`/applications/v1/job/${jobList[0].id}?page=0&size=5&sortBy=appliedAt&sortDir=desc`);

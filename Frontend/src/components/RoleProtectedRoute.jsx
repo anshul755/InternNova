@@ -18,7 +18,6 @@ export default function RoleProtectedRoute({ children, role }) {
   }
 
   if (user.role !== role) {
-    // Redirect to the appropriate dashboard
     const redirect = user.role === "Company" ? "/dashboard/company" : "/dashboard/talent";
     return <Navigate to={redirect} replace />;
   }

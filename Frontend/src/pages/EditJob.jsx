@@ -36,7 +36,6 @@ const EditJob = () => {
       const res = await api.get(`/jobs/v1/${id}`);
       const data = await res.json();
       
-      // Authorization check (optional, but good practice)
       if (data.companyId !== user.id) {
         throw new Error("Unauthorized to edit this job");
       }

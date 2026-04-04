@@ -14,13 +14,11 @@ export default function Dashboard() {
   const role = user?.role ?? "Talent";
   const colors = ROLE_COLORS[role] ?? ROLE_COLORS.Talent;
 
-  // Redirect to appropriate dashboard based on user role
   useEffect(() => {
     if (user) {
       if (role === "Company") {
         navigate("/dashboard/company", { replace: true });
       } else {
-        // Default to talent dashboard for "Talent" role or any other role
         navigate("/dashboard/talent", { replace: true });
       }
     }

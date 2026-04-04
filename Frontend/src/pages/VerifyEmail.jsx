@@ -24,9 +24,9 @@ export default function VerifyEmail() {
   };
 
   const handleOtpChange = (index, value) => {
-    if (!/^\d*$/.test(value)) return; // digits only
+    if (!/^\d*$/.test(value)) return;
     const updated = [...otp];
-    updated[index] = value.slice(-1); // keep last digit
+    updated[index] = value.slice(-1);
     setOtp(updated);
     setError("");
 

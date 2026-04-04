@@ -143,7 +143,7 @@ const TalentRegister = ({ modal = false }) => {
     if (activeStep === 0) {
       fieldsToValidate = ["email", "password", "confirmPassword"];
     } else if (activeStep === 1) {
-      fieldsToValidate = ["name", "bio", "location"]; // bio/location optional, but we keep for consistency
+      fieldsToValidate = ["name", "bio", "location"];
     } else if (activeStep === 2) {
       fieldsToValidate = [
         "university",

@@ -70,7 +70,6 @@ export function AuthProvider({ children }) {
     return token;
   }, []);
 
-  // Rehydrate from localStorage on mount, then try refresh-token cookie fallback
   useEffect(() => {
     let cancelled = false;
 
@@ -194,7 +193,7 @@ export function AuthProvider({ children }) {
     const res = await fetch(`${AUTH_BASE}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      credentials: "include", // allow refresh-token cookie
+      credentials: "include",
       body: JSON.stringify({ email, password }),
     });
     const body = await res.json();
@@ -215,9 +214,7 @@ export function AuthProvider({ children }) {
           headers: { Authorization: `Bearer ${token}` },
           credentials: "include",
         });
-      } catch {
-        // best-effort; always clear locally
-      }
+      } catch {}
     }
     _clearToken();
   }, []);

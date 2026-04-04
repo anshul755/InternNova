@@ -15,7 +15,6 @@ async function request(path, options = {}) {
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  // Don't force Content-Type for FormData — browser sets the boundary automatically
   if (!(options.body instanceof FormData) && !headers["Content-Type"]) {
     headers["Content-Type"] = "application/json";
   }
@@ -27,7 +26,6 @@ async function request(path, options = {}) {
     let message;
     try {
       const json = JSON.parse(text);
-      // Handle Spring Boot validation errors
       if (json.errors && Array.isArray(json.errors)) {
         message = json.errors.map(e => e.defaultMessage || e.message).join(', ');
       } else {
