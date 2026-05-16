@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Navigate, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { IoClose } from "react-icons/io5";
+import AppLayout from "./components/AppLayout.jsx";
 import Landing from "./pages/Landing.jsx";
 import Login from "./pages/Login.jsx";
 import CompanyRegister from "./pages/CompanyRegister.jsx";
@@ -59,16 +60,16 @@ function ModalLayout() {
   }
 
   return (
-    <div className="min-h-screen relative">
+    <>
       <Landing />
 
       {modalType && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/80 backdrop-blur-2xl">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-surface-950/85 backdrop-blur-2xl">
           <div className="relative w-full max-w-6xl max-h-[90vh] overflow-y-auto no-scrollbar px-4 py-4">
             <button
               type="button"
               onClick={handleClose}
-              className="absolute right-6 top-6 z-50 inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-900/80 border border-slate-600 text-slate-200 text-base shadow-sm backdrop-blur-md hover:bg-slate-800 hover:text-white hover:border-slate-400 transition-colors"
+              className="absolute right-6 top-6 z-50 inline-flex h-9 w-9 items-center justify-center rounded-full glass text-slate-200 text-base shadow-sm hover:bg-white/10 hover:text-white transition-colors"
               aria-label="Close"
             >
               <IoClose className="h-5 w-5" />
@@ -80,114 +81,130 @@ function ModalLayout() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
 
 function App() {
   return (
     <Routes>
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/dashboard/talent"
-        element={
-          <RoleProtectedRoute role="Talent">
-            <TalentDashboard />
-          </RoleProtectedRoute>
-        }
-      />
-      <Route
-        path="/dashboard/company"
-        element={
-          <RoleProtectedRoute role="Company">
-            <CompanyDashboard />
-          </RoleProtectedRoute>
-        }
-      />
-      <Route path="/jobs" element={<JobListings />} />
-      <Route
-        path="/jobs/create"
-        element={
-          <RoleProtectedRoute role="Company">
-            <PostJob />
-          </RoleProtectedRoute>
-        }
-      />
-      <Route path="/jobs/:id" element={<JobDetails />} />
-      <Route
-        path="/jobs/:id/edit"
-        element={
-          <RoleProtectedRoute role="Company">
-            <JobEdit />
-          </RoleProtectedRoute>
-        }
-      />
-      <Route
-        path="/jobs/:id/applications"
-        element={
-          <RoleProtectedRoute role="Company">
-            <CompanyApplications />
-          </RoleProtectedRoute>
-        }
-      />
-      <Route
-        path="/company/applications"
-        element={
-          <RoleProtectedRoute role="Company">
-            <CompanyApplications />
-          </RoleProtectedRoute>
-        }
-      />
-      <Route
-        path="/applications"
-        element={
-          <RoleProtectedRoute role="Talent">
-            <ApplicationManagement />
-          </RoleProtectedRoute>
-        }
-      />
-      <Route
-        path="/applications/:id"
-        element={
-          <ProtectedRoute>
-            <ApplicationDetail />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/saved-jobs"
-        element={
-          <RoleProtectedRoute role="Talent">
-            <SavedJobs />
-          </RoleProtectedRoute>
-        }
-      />
-      <Route
-        path="/profile/edit"
-        element={
-          <RoleProtectedRoute role="Talent">
-            <TalentProfileEdit />
-          </RoleProtectedRoute>
-        }
-      />
-      <Route
-        path="/company/profile/edit"
-        element={
-          <RoleProtectedRoute role="Company">
-            <CompanyProfileEdit />
-          </RoleProtectedRoute>
-        }
-      />
-      <Route path="/verify-email" element={<VerifyEmail />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/*" element={<ModalLayout />} />
+      {/* All routes share the AppLayout shell (Navbar + Footer) */}
+      <Route element={<AppLayout />}>
+        {/* Dashboard routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/talent"
+          element={
+            <RoleProtectedRoute role="Talent">
+              <TalentDashboard />
+            </RoleProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/company"
+          element={
+            <RoleProtectedRoute role="Company">
+              <CompanyDashboard />
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* Job routes */}
+        <Route path="/jobs" element={<JobListings />} />
+        <Route
+          path="/jobs/create"
+          element={
+            <RoleProtectedRoute role="Company">
+              <PostJob />
+            </RoleProtectedRoute>
+          }
+        />
+        <Route path="/jobs/:id" element={<JobDetails />} />
+        <Route
+          path="/jobs/:id/edit"
+          element={
+            <RoleProtectedRoute role="Company">
+              <JobEdit />
+            </RoleProtectedRoute>
+          }
+        />
+        <Route
+          path="/jobs/:id/applications"
+          element={
+            <RoleProtectedRoute role="Company">
+              <CompanyApplications />
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* Application routes */}
+        <Route
+          path="/company/applications"
+          element={
+            <RoleProtectedRoute role="Company">
+              <CompanyApplications />
+            </RoleProtectedRoute>
+          }
+        />
+        <Route
+          path="/applications"
+          element={
+            <RoleProtectedRoute role="Talent">
+              <ApplicationManagement />
+            </RoleProtectedRoute>
+          }
+        />
+        <Route
+          path="/applications/:id"
+          element={
+            <ProtectedRoute>
+              <ApplicationDetail />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Saved jobs */}
+        <Route
+          path="/saved-jobs"
+          element={
+            <RoleProtectedRoute role="Talent">
+              <SavedJobs />
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* Profile routes */}
+        <Route
+          path="/profile/edit"
+          element={
+            <RoleProtectedRoute role="Talent">
+              <TalentProfileEdit />
+            </RoleProtectedRoute>
+          }
+        />
+        <Route
+          path="/company/profile/edit"
+          element={
+            <RoleProtectedRoute role="Company">
+              <CompanyProfileEdit />
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* Auth pages */}
+        <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+
+        {/* Landing + auth modals (catch-all) */}
+        <Route path="/*" element={<ModalLayout />} />
+      </Route>
     </Routes>
   );
 }

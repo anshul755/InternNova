@@ -1,29 +1,29 @@
-import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../lib/AuthContext';
-import { api } from '../lib/api';
+import { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../lib/AuthContext";
+import { api } from "../lib/api";
 
 const STATUS_COLORS = {
-  APPLIED:      'bg-yellow-400/10 text-yellow-400 border-yellow-400/20',
-  UNDER_REVIEW: 'bg-blue-400/10 text-blue-400 border-blue-400/20',
-  SHORTLISTED:  'bg-purple-400/10 text-purple-400 border-purple-400/20',
-  INTERVIEW:    'bg-indigo-400/10 text-indigo-400 border-indigo-400/20',
-  OFFER:        'bg-green-400/10 text-green-400 border-green-400/20',
-  HIRED:        'bg-teal-400/10 text-teal-400 border-teal-400/20',
-  REJECTED:     'bg-red-400/10    text-red-400    border-red-400/20',
-  WITHDRAWN:    'bg-slate-400/10  text-slate-400  border-slate-400/20',
+  APPLIED: "bg-amber-50 text-amber-700 border-amber-200",
+  UNDER_REVIEW: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  SHORTLISTED: "bg-lime-50 text-lime-700 border-lime-200",
+  INTERVIEW: "bg-teal-50 text-teal-700 border-teal-200",
+  OFFER: "bg-green-50 text-green-700 border-green-200",
+  HIRED: "bg-emerald-100 text-emerald-800 border-emerald-200",
+  REJECTED: "bg-rose-50 text-rose-700 border-rose-200",
+  WITHDRAWN: "bg-slate-100 text-slate-600 border-slate-200",
 };
 
 export default function ApplicationDetail() {
   const { id } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const isCompany = user?.role === 'Company';
+  const isCompany = user?.role === "Company";
 
   const [application, setApplication] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [updating, setUpdating] = useState('');
+  const [error, setError] = useState("");
+  const [updating, setUpdating] = useState("");
 
   useEffect(() => {
     fetchApplication();
@@ -31,13 +31,13 @@ export default function ApplicationDetail() {
 
   const fetchApplication = async () => {
     setLoading(true);
-    setError('');
+    setError("");
     try {
       const res = await api.get(`/applications/v1/${id}`);
       const data = await res.json();
       setApplication(data);
     } catch (err) {
-      setError(err.message || 'Failed to load application');
+      setError(err.message || "Failed to load application");
     } finally {
       setLoading(false);
     }
@@ -45,33 +45,48 @@ export default function ApplicationDetail() {
 
   const handleUpdateStatus = async (newStatus) => {
     setUpdating(newStatus);
-    const notes = newStatus === 'REJECTED' ? (window.prompt('Add a note for the applicant (optional):') ?? '') : application.recruiterNotes;
+    const notes =
+      newStatus === "REJECTED"
+        ? (window.prompt("Add a note for the applicant (optional):") ?? "")
+        : application.recruiterNotes;
     try {
-      await api.put(`/applications/v1/${id}/status`, { status: newStatus, recruiterNotes: notes });
-      setApplication(prev => ({ ...prev, status: newStatus, recruiterNotes: notes || prev.recruiterNotes }));
+      await api.put(`/applications/v1/${id}/status`, {
+        status: newStatus,
+        recruiterNotes: notes,
+      });
+      setApplication((prev) => ({
+        ...prev,
+        status: newStatus,
+        recruiterNotes: notes || prev.recruiterNotes,
+      }));
     } catch (err) {
-      alert(err.message || 'Failed to update application status');
+      alert(err.message || "Failed to update application status");
     } finally {
-      setUpdating('');
+      setUpdating("");
     }
   };
 
-  const backLink = isCompany ? '/company/applications' : '/applications';
+  const backLink = isCompany ? "/company/applications" : "/applications";
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" />
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
       </div>
     );
   }
 
   if (error || !application) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
+      <div className="flex items-center justify-center min-h-[50vh]">
         <div className="text-center">
-          <p className="text-red-400 mb-4">{error || 'Application not found'}</p>
-          <Link to={backLink} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm">
+          <p className="text-rose-500 mb-4">
+            {error || "Application not found"}
+          </p>
+          <Link
+            to={backLink}
+            className="btn-primary px-4 py-2 text-sm font-medium"
+          >
             Go Back
           </Link>
         </div>
@@ -79,42 +94,45 @@ export default function ApplicationDetail() {
     );
   }
 
-  const statusClass = STATUS_COLORS[application.status] || STATUS_COLORS.APPLIED;
+  const statusClass =
+    STATUS_COLORS[application.status] || STATUS_COLORS.APPLIED;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
-      <div className="border-b border-slate-800">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link to={backLink} className="text-sm text-slate-400 hover:text-slate-200 transition-colors">
-              ← Back
-            </Link>
-            <span className="text-slate-600">|</span>
-            <span className="text-sm font-medium">Application Review</span>
-          </div>
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
           <Link
-            to={isCompany ? '/dashboard/company' : '/dashboard/talent'}
-            className="px-4 py-2 text-sm bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
+            to={backLink}
+            className="text-sm text-slate-500 hover:text-blue-600 font-medium transition-colors"
           >
-            Dashboard
+            ← Back
           </Link>
+          <span className="text-slate-300">|</span>
+          <span className="text-sm font-medium text-slate-900">
+            Application Review
+          </span>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        <div className={`flex items-center justify-between p-5 rounded-xl border ${statusClass}`}>
+      <div className="space-y-6">
+        {/* Status Banner */}
+        <div
+          className={`flex items-center justify-between p-5 rounded-xl border ${statusClass}`}
+        >
           <div>
-            <p className="text-xs uppercase tracking-wide opacity-70 mb-1">Status</p>
+            <p className="text-xs uppercase tracking-wide opacity-70 mb-1">
+              Status
+            </p>
             <p className="text-xl font-bold">{application.status}</p>
           </div>
-          {isCompany && application.status !== 'WITHDRAWN' && (
+          {isCompany && application.status !== "WITHDRAWN" && (
             <div className="flex gap-3 items-center">
-              <span className="text-sm text-slate-400">Update Status:</span>
+              <span className="text-sm text-slate-500">Update Status:</span>
               <select
                 value={application.status}
                 onChange={(e) => handleUpdateStatus(e.target.value)}
                 disabled={!!updating}
-                className="bg-slate-800 border border-slate-700 text-white text-sm rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 outline-none disabled:opacity-50"
+                className="bg-white/60 border border-white/60 text-slate-900 text-sm rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300 outline-none disabled:opacity-50"
               >
                 <option value="APPLIED">Applied</option>
                 <option value="UNDER_REVIEW">Under Review</option>
@@ -124,24 +142,37 @@ export default function ApplicationDetail() {
                 <option value="HIRED">Hired</option>
                 <option value="REJECTED">Rejected</option>
               </select>
-              {updating && <span className="text-xs text-blue-400 animate-pulse">Updating...</span>}
+              {updating && (
+                <span className="text-xs text-slate-700 animate-pulse">
+                  Updating...
+                </span>
+              )}
             </div>
           )}
         </div>
 
+        {/* Details Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-slate-900 rounded-xl p-6 border border-slate-800 space-y-4">
-            <h2 className="text-base font-semibold text-slate-200">Applicant</h2>
+          <div className="glass-card p-6 space-y-4">
+            <h2 className="text-base font-semibold text-slate-900">
+              Applicant
+            </h2>
             <dl className="space-y-3 text-sm">
               <div>
                 <dt className="text-xs text-slate-400">Name</dt>
-                <dd className="text-slate-200 font-medium">{application.studentName || `Candidate #${application.studentId}`}</dd>
+                <dd className="text-slate-700 font-medium">
+                  {application.studentName ||
+                    `Candidate #${application.studentId}`}
+                </dd>
               </div>
               {application.studentEmail && (
                 <div>
                   <dt className="text-xs text-slate-400">Email</dt>
                   <dd>
-                    <a href={`mailto:${application.studentEmail}`} className="text-blue-400 hover:text-blue-300">
+                    <a
+                      href={`mailto:${application.studentEmail}`}
+                      className="text-slate-700 hover:text-slate-900"
+                    >
                       {application.studentEmail}
                     </a>
                   </dd>
@@ -149,21 +180,28 @@ export default function ApplicationDetail() {
               )}
               <div>
                 <dt className="text-xs text-slate-400">Applied</dt>
-                <dd className="text-slate-200">
-                  {new Date(application.appliedAt || application.createdAt).toLocaleDateString('en-IN', {
-                    day: 'numeric', month: 'long', year: 'numeric',
+                <dd className="text-slate-700">
+                  {new Date(
+                    application.appliedAt || application.createdAt,
+                  ).toLocaleDateString("en-IN", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
                   })}
                 </dd>
               </div>
             </dl>
           </div>
-          <div className="bg-slate-900 rounded-xl p-6 border border-slate-800 space-y-4">
-            <h2 className="text-base font-semibold text-slate-200">Job</h2>
+          <div className="glass-card p-6 space-y-4">
+            <h2 className="text-base font-semibold text-slate-900">Job</h2>
             <dl className="space-y-3 text-sm">
               <div>
                 <dt className="text-xs text-slate-400">Position</dt>
                 <dd>
-                  <Link to={`/jobs/${application.jobId}`} className="text-blue-400 hover:text-blue-300 font-medium">
+                  <Link
+                    to={`/jobs/${application.jobId}`}
+                    className="text-slate-700 hover:text-slate-900 font-medium"
+                  >
                     {application.jobTitle || `Job #${application.jobId}`}
                   </Link>
                 </dd>
@@ -171,7 +209,7 @@ export default function ApplicationDetail() {
               {application.companyName && (
                 <div>
                   <dt className="text-xs text-slate-400">Company</dt>
-                  <dd className="text-slate-200">{application.companyName}</dd>
+                  <dd className="text-slate-700">{application.companyName}</dd>
                 </div>
               )}
             </dl>
@@ -181,43 +219,51 @@ export default function ApplicationDetail() {
                 href={application.resumeUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-block mt-2 px-4 py-2 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 text-blue-400 rounded-lg text-sm transition-colors"
+                className="inline-block mt-2 px-4 py-2 bg-brand-100 hover:bg-brand-200 border border-brand-200 text-slate-900 rounded-lg text-sm font-medium transition-colors"
               >
-                📄 View Resume
+                View Resume
               </a>
             )}
           </div>
         </div>
+
         {application.coverLetter && (
-          <div className="bg-slate-900 rounded-xl p-6 border border-slate-800">
-            <h2 className="text-base font-semibold text-slate-200 mb-4">Cover Letter</h2>
-            <p className="text-slate-300 whitespace-pre-line leading-relaxed text-sm">
+          <div className="glass-card p-6">
+            <h2 className="text-base font-semibold text-slate-900 mb-4">
+              Cover Letter
+            </h2>
+            <p className="text-slate-600 whitespace-pre-line leading-relaxed text-sm">
               {application.coverLetter}
             </p>
           </div>
         )}
         {application.recruiterNotes && (
-          <div className="bg-slate-900 rounded-xl p-6 border border-slate-800">
-            <h2 className="text-base font-semibold text-slate-200 mb-3">Recruiter Notes</h2>
-            <p className="text-slate-300 text-sm italic">{application.recruiterNotes}</p>
+          <div className="glass-card p-6">
+            <h2 className="text-base font-semibold text-slate-900 mb-3">
+              Recruiter Notes
+            </h2>
+            <p className="text-slate-600 text-sm italic">
+              {application.recruiterNotes}
+            </p>
           </div>
         )}
-        {!isCompany && !['REJECTED', 'HIRED', 'WITHDRAWN'].includes(application.status) && (
-          <button
-            onClick={async () => {
-              if (!window.confirm('Withdraw this application?')) return;
-              try {
-                await api.put(`/applications/v1/${id}/withdraw`, {});
-                setApplication(prev => ({ ...prev, status: 'WITHDRAWN' }));
-              } catch (err) {
-                alert(err.message || 'Failed to withdraw');
-              }
-            }}
-            className="px-5 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-lg text-sm transition-colors"
-          >
-            Withdraw Application
-          </button>
-        )}
+        {!isCompany &&
+          !["REJECTED", "HIRED", "WITHDRAWN"].includes(application.status) && (
+            <button
+              onClick={async () => {
+                if (!window.confirm("Withdraw this application?")) return;
+                try {
+                  await api.put(`/applications/v1/${id}/withdraw`, {});
+                  setApplication((prev) => ({ ...prev, status: "WITHDRAWN" }));
+                } catch (err) {
+                  alert(err.message || "Failed to withdraw");
+                }
+              }}
+              className="px-5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-lg text-sm font-medium transition-colors"
+            >
+              Withdraw Application
+            </button>
+          )}
       </div>
     </div>
   );

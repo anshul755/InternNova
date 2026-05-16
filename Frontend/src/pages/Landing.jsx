@@ -8,31 +8,33 @@ const companiesRowTwo = companies.slice(midpoint);
 
 const Landing = () => {
   return (
-    <div className="min-h-screen bg-[linear-gradient(135deg,#1923c4_0%,#0a5bff_40%,#0c1b66_100%)] text-white px-[5vw] py-6 flex flex-col font-sans overflow-x-hidden">
+    <div className="relative min-h-screen text-slate-900 px-[5vw] py-6 flex flex-col font-sans overflow-x-hidden saas-section">
       <header className="flex items-center justify-between gap-6">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#36e4ff] to-[#02c39a] flex items-center justify-center font-bold">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#c7f284] to-[#8fd9b6] flex items-center justify-center font-bold text-slate-900 shadow-lg shadow-emerald-400/20">
             IN
           </div>
-          <span className="font-semibold tracking-wider">InternNova</span>
+          <span className="font-semibold tracking-wider text-slate-900">
+            InternNova
+          </span>
         </div>
 
         <nav className="hidden md:flex gap-5 text-[0.95rem]">
           <a
             href="#features"
-            className="text-[#e5ecff] hover:text-white transition-colors"
+            className="text-slate-600 hover:text-slate-900 transition-colors"
           >
             Features
           </a>
           <a
             href="#how-it-works"
-            className="text-[#e5ecff] hover:text-white transition-colors"
+            className="text-slate-600 hover:text-slate-900 transition-colors"
           >
             How it works
           </a>
           <a
             href="#pricing"
-            className="text-[#e5ecff] hover:text-white transition-colors"
+            className="text-slate-600 hover:text-slate-900 transition-colors"
           >
             Pricing
           </a>
@@ -41,14 +43,11 @@ const Landing = () => {
         <div className="flex gap-3">
           <Link
             to="/login"
-            className="hidden sm:inline-flex items-center justify-center px-5 py-2 rounded-full text-sm font-medium hover:bg-[#0a16504d] transition-all"
+            className="hidden sm:inline-flex items-center justify-center px-5 py-2 rounded-full text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-white/70 transition-all"
           >
             Login
           </Link>
-          <Link
-            to="/login"
-            className="inline-flex items-center justify-center bg-white text-[#0a1f5b] px-5 py-2 rounded-full text-sm font-medium hover:bg-[#f2f4ff] hover:-translate-y-px transition-all"
-          >
+          <Link to="/login" className="btn-primary text-sm">
             Get Started
           </Link>
         </div>
@@ -58,35 +57,35 @@ const Landing = () => {
           className="flex justify-center order-first lg:order-last"
           aria-hidden="true"
         >
-          <div className="w-full max-w-[520px] rounded-3xl bg-[#f8f9ff] shadow-[0_28px_60px_rgba(4,5,40,0.6)] overflow-hidden">
-            <div className="flex gap-1.5 p-3 bg-gradient-to-r from-[#101835] to-[#060b1c]">
+          <div className="w-full max-w-[520px] glass-panel overflow-hidden">
+            <div className="flex gap-1.5 p-3 bg-white/60 backdrop-blur">
               <span className="w-2.5 h-2.5 rounded-full bg-white/20"></span>
               <span className="w-2.5 h-2.5 rounded-full bg-white/20"></span>
               <span className="w-2.5 h-2.5 rounded-full bg-white/20"></span>
             </div>
 
             <div className="grid grid-cols-[1.1fr_0.9fr] p-5 gap-4">
-              <div className="bg-white rounded-2xl p-4 shadow-sm">
-                <div className="h-[7px] w-[70%] bg-[#c7d2ff] rounded-full mb-2"></div>
-                <div className="h-[7px] bg-[#e3e8ff] rounded-full mb-2"></div>
-                <div className="h-[7px] bg-[#e3e8ff] rounded-full mb-2"></div>
-                <div className="h-3 bg-[#eef1ff] rounded-lg my-3"></div>
-                <div className="h-[7px] w-[55%] bg-[#e3e8ff] rounded-full mb-2"></div>
-                <div className="h-[7px] bg-[#e3e8ff] rounded-full mb-2"></div>
-                <div className="h-[7px] bg-[#e3e8ff] rounded-full mb-2"></div>
+              <div className="bg-white/70 border border-white/60 rounded-2xl p-4 shadow-sm">
+                <div className="h-[7px] w-[70%] bg-[#cbe9a8] rounded-full mb-2"></div>
+                <div className="h-[7px] bg-[#e1f2d2] rounded-full mb-2"></div>
+                <div className="h-[7px] bg-[#e1f2d2] rounded-full mb-2"></div>
+                <div className="h-3 bg-[#eef7e8] rounded-lg my-3"></div>
+                <div className="h-[7px] w-[55%] bg-[#e1f2d2] rounded-full mb-2"></div>
+                <div className="h-[7px] bg-[#e1f2d2] rounded-full mb-2"></div>
+                <div className="h-[7px] bg-[#e1f2d2] rounded-full mb-2"></div>
               </div>
               <div className="flex flex-col gap-3">
-                <div className="self-end px-2.5 py-1 rounded-full text-[0.7rem] bg-[#e0fce8] text-[#047857]">
+                <div className="self-end px-2.5 py-1 rounded-full text-[0.7rem] bg-[#e6f7ef] text-[#0f766e]">
                   Match 87%
                 </div>
-                <div className="bg-white rounded-2xl p-3 shadow-sm border-l-4 border-[#16a34a]">
+                <div className="bg-white/70 border border-white/60 rounded-2xl p-3 shadow-sm border-l-4 border-[#7bbf6a]">
                   <p className="text-[0.7rem] text-slate-500 mb-1.5">
                     High impact
                   </p>
                   <div className="h-2 bg-gray-200 rounded-full mb-1.5"></div>
                   <div className="h-2 bg-gray-200 rounded-full"></div>
                 </div>
-                <div className="bg-white rounded-2xl p-3 shadow-sm border-l-4 border-[#f59e0b]">
+                <div className="bg-white/70 border border-white/60 rounded-2xl p-3 shadow-sm border-l-4 border-[#a6d7a2]">
                   <p className="text-[0.7rem] text-slate-500 mb-1.5">
                     Suggestions
                   </p>
@@ -98,37 +97,30 @@ const Landing = () => {
           </div>
         </section>
         <section>
-          <p className="uppercase tracking-[0.16em] text-[0.75rem] text-[#c2d5ff]">
+          <p className="uppercase tracking-[0.16em] text-[0.75rem] text-slate-500">
             AI-powered resume matcher
           </p>
-          <h1 className="text-4xl lg:text-6xl font-bold leading-[1.1] my-4">
+          <h1 className="text-4xl lg:text-6xl font-bold leading-[1.1] my-4 text-slate-900">
             Land your dream internship faster.
           </h1>
-          <p className="max-w-lg text-[#d1ddff] text-base">
+          <p className="max-w-lg text-slate-600 text-base">
             InternNova compares your resume with any job posting, highlights
             missing skills, and suggests tailored keywords so recruiters see
             your best work first.
           </p>
 
           <div className="flex flex-wrap gap-3 my-7">
-            <button className="bg-[#36e4ff] text-[#061548] px-5 py-2 rounded-full text-sm font-medium hover:bg-[#24cbe4] transition-colors">
-              View Example Match
-            </button>
-            <button className="bg-transparent border border-white/60 px-5 py-2 rounded-full text-sm font-medium hover:bg-[#08165080] transition-colors">
-              Try it free
-            </button>
+            <button className="btn-primary text-sm">View Example Match</button>
+            <button className="btn-secondary text-sm">Try it free</button>
           </div>
 
-          <div className="flex flex-wrap gap-3 text-[0.85rem] text-[#c2d5ff]">
+          <div className="flex flex-wrap gap-3 text-[0.85rem] text-slate-600">
             {[
               "Skill gap insights",
               "Match score dashboard",
               "ATS-friendly suggestions",
             ].map((text) => (
-              <span
-                key={text}
-                className="bg-[#050d3c99] px-4 py-1.5 rounded-full"
-              >
+              <span key={text} className="glass-pill px-4 py-1.5">
                 ✔ {text}
               </span>
             ))}
@@ -144,7 +136,7 @@ const Landing = () => {
                 href={company.careersUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative flex items-center justify-center w-32 h-32 flex-shrink-0 mx-4 bg-white rounded-full shadow-lg hover:scale-110 hover:shadow-2xl transition-all duration-300 floating-bubble"
+                className="group relative flex items-center justify-center w-32 h-32 flex-shrink-0 mx-4 bg-white/70 border border-white/60 rounded-full shadow-lg hover:scale-110 hover:shadow-2xl transition-all duration-300 floating-bubble"
                 style={{
                   animationDelay: `${idx * 0.4}s`,
                   animationDuration: `${8 + (idx % 5)}s`,
@@ -178,7 +170,7 @@ const Landing = () => {
                 href={company.careersUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative flex items-center justify-center w-32 h-32 flex-shrink-0 mx-4 bg-white rounded-full shadow-lg hover:scale-110 hover:shadow-2xl transition-all duration-300 floating-bubble"
+                className="group relative flex items-center justify-center w-32 h-32 flex-shrink-0 mx-4 bg-white/70 border border-white/60 rounded-full shadow-lg hover:scale-110 hover:shadow-2xl transition-all duration-300 floating-bubble"
                 style={{
                   animationDelay: `${(idx + companiesRowOne.length) * 0.4}s`,
                   animationDuration: `${
@@ -217,7 +209,7 @@ const Landing = () => {
                   href={company.careersUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group relative flex items-center justify-center w-32 h-32 flex-shrink-0 mx-4 bg-white rounded-full shadow-lg hover:scale-110 hover:shadow-2xl transition-all duration-300 floating-bubble"
+                  className="group relative flex items-center justify-center w-32 h-32 flex-shrink-0 mx-4 bg-white/70 border border-white/60 rounded-full shadow-lg hover:scale-110 hover:shadow-2xl transition-all duration-300 floating-bubble"
                   style={{
                     animationDelay: `${idx * 0.4}s`,
                     animationDuration: `${8 + (idx % 5)}s`,
@@ -251,7 +243,7 @@ const Landing = () => {
                   href={company.careersUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group relative flex items-center justify-center w-32 h-32 flex-shrink-0 mx-4 bg-white rounded-full shadow-lg hover:scale-110 hover:shadow-2xl transition-all duration-300 floating-bubble"
+                  className="group relative flex items-center justify-center w-32 h-32 flex-shrink-0 mx-4 bg-white/70 border border-white/60 rounded-full shadow-lg hover:scale-110 hover:shadow-2xl transition-all duration-300 floating-bubble"
                   style={{
                     animationDelay: `${(idx + companiesRowTwo.length) * 0.4}s`,
                     animationDuration: `${

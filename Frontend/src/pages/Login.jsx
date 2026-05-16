@@ -31,13 +31,16 @@ const Login = ({ modal = false }) => {
     const email =
       activeTab === "user" ? formValues.userEmail : formValues.companyEmail;
     const password =
-      activeTab === "user" ? formValues.userPassword : formValues.companyPassword;
+      activeTab === "user"
+        ? formValues.userPassword
+        : formValues.companyPassword;
     const errorKey = activeTab === "user" ? "user" : "company";
 
     if (!validateEmail(email) || password.trim().length < 6) {
       setErrors((prev) => ({
         ...prev,
-        [errorKey]: "Please enter a valid email and password (min 6 characters).",
+        [errorKey]:
+          "Please enter a valid email and password (min 6 characters).",
       }));
       return;
     }
@@ -48,7 +51,10 @@ const Login = ({ modal = false }) => {
       await login(email, password);
       navigate("/dashboard", { replace: true });
     } catch (err) {
-      setErrors((prev) => ({ ...prev, [errorKey]: err.message || "Login failed." }));
+      setErrors((prev) => ({
+        ...prev,
+        [errorKey]: err.message || "Login failed.",
+      }));
     } finally {
       setSubmitting(false);
     }
@@ -57,30 +63,30 @@ const Login = ({ modal = false }) => {
   const isUserActive = activeTab === "user";
 
   const containerClasses = modal
-    ? "w-full text-white flex items-center justify-center px-[2vw] py-4 font-sans"
-    : "min-h-screen bg-[linear-gradient(135deg,#1923c4_0%,#0a5bff_40%,#0c1b66_100%)] text-white flex items-center justify-center px-[5vw] py-8 font-sans";
+    ? "w-full text-slate-900 flex items-center justify-center px-[2vw] py-4 font-sans"
+    : "min-h-screen text-slate-900 flex items-center justify-center px-[5vw] py-8 font-sans saas-section";
 
   return (
     <div className={containerClasses}>
-      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-8 rounded-3xl bg-slate-950/70 border border-transparent overflow-hidden">
-        <section className="hidden lg:flex flex-col justify-between bg-[radial-gradient(circle_at_top,_#38bdf8_0,_transparent_55%),_radial-gradient(circle_at_bottom,_#a855f7_0,_transparent_55%)] p-10 text-slate-50">
+      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-8 rounded-3xl glass-panel border border-white/60 overflow-hidden">
+        <section className="hidden lg:flex flex-col justify-between bg-white/60 border-r border-white/60 p-10 text-slate-900">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900/60 border border-slate-700 text-xs tracking-[0.16em] uppercase">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass-pill text-xs tracking-[0.16em] uppercase text-slate-600">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               Internship-ready in weeks
             </div>
             <h1 className="mt-6 text-3xl font-semibold tracking-tight">
               InternNova
             </h1>
-            <p className="mt-3 text-sm text-slate-200/80 max-w-sm">
+            <p className="mt-3 text-sm text-slate-600 max-w-sm">
               One platform, two journeys. Students discover meaningful
               internships while companies find motivated early talent, faster.
             </p>
           </div>
 
-          <div className="space-y-4 text-sm text-slate-100/80">
+          <div className="space-y-4 text-sm text-slate-600">
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-2xl bg-slate-900/70 flex items-center justify-center text-xs font-semibold border border-slate-700">
+              <div className="h-9 w-9 rounded-2xl bg-white/70 flex items-center justify-center text-xs font-semibold border border-white/70">
                 U
               </div>
               <p>
@@ -89,7 +95,7 @@ const Login = ({ modal = false }) => {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-2xl bg-slate-900/70 flex items-center justify-center text-xs font-semibold border border-slate-700">
+              <div className="h-9 w-9 rounded-2xl bg-white/70 flex items-center justify-center text-xs font-semibold border border-white/70">
                 C
               </div>
               <p>
@@ -99,26 +105,26 @@ const Login = ({ modal = false }) => {
             </div>
           </div>
         </section>
-        <section className="flex flex-col justify-center px-6 py-8 sm:px-10 bg-slate-950/40">
+        <section className="flex flex-col justify-center px-6 py-8 sm:px-10 bg-white/60">
           <header className="mb-6">
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
               Sign in
             </p>
-            <h2 className="mt-2 text-xl sm:text-2xl font-semibold text-slate-50">
+            <h2 className="mt-2 text-xl sm:text-2xl font-semibold text-slate-900">
               Welcome back to InternNova
             </h2>
-            <p className="mt-1.5 text-xs text-slate-400">
+            <p className="mt-1.5 text-xs text-slate-500">
               Choose how you want to log in: as a student or as a company.
             </p>
           </header>
-          <div className="flex rounded-full bg-slate-900/70 p-1 text-xs mb-6 border border-slate-800">
+          <div className="flex rounded-full glass-pill p-1 text-xs mb-6">
             <button
               type="button"
               onClick={() => setActiveTab("user")}
               className={`flex-1 px-4 py-2 rounded-full transition-colors ${
                 isUserActive
-                  ? "bg-slate-100 text-slate-900 shadow-sm"
-                  : "text-slate-300 hover:text-white"
+                  ? "bg-white text-slate-900 shadow-sm"
+                  : "text-slate-600 hover:text-slate-900"
               }`}
             >
               User
@@ -128,8 +134,8 @@ const Login = ({ modal = false }) => {
               onClick={() => setActiveTab("company")}
               className={`flex-1 px-4 py-2 rounded-full transition-colors ${
                 !isUserActive
-                  ? "bg-slate-100 text-slate-900 shadow-sm"
-                  : "text-slate-300 hover:text-white"
+                  ? "bg-white text-slate-900 shadow-sm"
+                  : "text-slate-600 hover:text-slate-900"
               }`}
             >
               Company
@@ -141,7 +147,7 @@ const Login = ({ modal = false }) => {
                 <div className="space-y-1.5">
                   <label
                     htmlFor="userEmail"
-                    className="block text-xs font-medium text-slate-300"
+                    className="block text-xs font-medium text-slate-600"
                   >
                     Email
                   </label>
@@ -152,10 +158,8 @@ const Login = ({ modal = false }) => {
                     autoComplete="email"
                     value={formValues.userEmail}
                     onChange={handleChange}
-                    className={`w-full rounded-lg bg-slate-900 border px-3 py-2 outline-none text-sm placeholder:text-slate-500 transition-colors ${
-                      errors.user
-                        ? "border-rose-500/80 focus:border-rose-400"
-                        : "border-slate-700 focus:border-sky-400"
+                    className={`input-glass ${
+                      errors.user ? "border-rose-400" : "border-white/70"
                     }`}
                     placeholder="you@studentmail.com"
                     required
@@ -166,13 +170,13 @@ const Login = ({ modal = false }) => {
                   <div className="flex items-center justify-between">
                     <label
                       htmlFor="userPassword"
-                      className="block text-xs font-medium text-slate-300"
+                      className="block text-xs font-medium text-slate-600"
                     >
                       Password
                     </label>
                     <Link
                       to="/forgot-password"
-                      className="text-[0.7rem] text-sky-400 hover:text-sky-300"
+                      className="text-[0.7rem] text-emerald-600 hover:text-emerald-700"
                     >
                       Forgot password?
                     </Link>
@@ -184,10 +188,8 @@ const Login = ({ modal = false }) => {
                     autoComplete="current-password"
                     value={formValues.userPassword}
                     onChange={handleChange}
-                    className={`w-full rounded-lg bg-slate-900 border px-3 py-2 outline-none text-sm placeholder:text-slate-500 transition-colors ${
-                      errors.user
-                        ? "border-rose-500/80 focus:border-rose-400"
-                        : "border-slate-700 focus:border-sky-400"
+                    className={`input-glass ${
+                      errors.user ? "border-rose-400" : "border-white/70"
                     }`}
                     placeholder="Enter your password"
                     required
@@ -195,7 +197,7 @@ const Login = ({ modal = false }) => {
                 </div>
 
                 {errors.user && (
-                  <p className="text-xs text-rose-400 bg-rose-950/60 border border-rose-800 rounded-md px-3 py-2">
+                  <p className="text-xs text-rose-600 bg-rose-100 border border-rose-200 rounded-md px-3 py-2">
                     {errors.user}
                   </p>
                 )}
@@ -205,7 +207,7 @@ const Login = ({ modal = false }) => {
                 <div className="space-y-1.5">
                   <label
                     htmlFor="companyEmail"
-                    className="block text-xs font-medium text-slate-300"
+                    className="block text-xs font-medium text-slate-600"
                   >
                     Company email
                   </label>
@@ -216,10 +218,8 @@ const Login = ({ modal = false }) => {
                     autoComplete="email"
                     value={formValues.companyEmail}
                     onChange={handleChange}
-                    className={`w-full rounded-lg bg-slate-900 border px-3 py-2 outline-none text-sm placeholder:text-slate-500 transition-colors ${
-                      errors.company
-                        ? "border-rose-500/80 focus:border-rose-400"
-                        : "border-slate-700 focus:border-emerald-400"
+                    className={`input-glass ${
+                      errors.company ? "border-rose-400" : "border-white/70"
                     }`}
                     placeholder="talent@yourcompany.com"
                     required
@@ -230,13 +230,13 @@ const Login = ({ modal = false }) => {
                   <div className="flex items-center justify-between">
                     <label
                       htmlFor="companyPassword"
-                      className="block text-xs font-medium text-slate-300"
+                      className="block text-xs font-medium text-slate-600"
                     >
                       Password
                     </label>
                     <Link
                       to="/forgot-password"
-                      className="text-[0.7rem] text-emerald-400 hover:text-emerald-300"
+                      className="text-[0.7rem] text-emerald-600 hover:text-emerald-700"
                     >
                       Forgot password?
                     </Link>
@@ -248,10 +248,8 @@ const Login = ({ modal = false }) => {
                     autoComplete="current-password"
                     value={formValues.companyPassword}
                     onChange={handleChange}
-                    className={`w-full rounded-lg bg-slate-900 border px-3 py-2 outline-none text-sm placeholder:text-slate-500 transition-colors ${
-                      errors.company
-                        ? "border-rose-500/80 focus:border-rose-400"
-                        : "border-slate-700 focus:border-emerald-400"
+                    className={`input-glass ${
+                      errors.company ? "border-rose-400" : "border-white/70"
                     }`}
                     placeholder="Enter your password"
                     required
@@ -259,7 +257,7 @@ const Login = ({ modal = false }) => {
                 </div>
 
                 {errors.company && (
-                  <p className="text-xs text-rose-400 bg-rose-950/60 border border-rose-800 rounded-md px-3 py-2">
+                  <p className="text-xs text-rose-600 bg-rose-100 border border-rose-200 rounded-md px-3 py-2">
                     {errors.company}
                   </p>
                 )}
@@ -269,25 +267,25 @@ const Login = ({ modal = false }) => {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full mt-2 inline-flex items-center justify-center gap-2 rounded-lg bg-sky-400 text-slate-950 font-medium text-sm py-2.5 hover:bg-sky-300 disabled:opacity-60 disabled:cursor-not-allowed transition-transform hover:-translate-y-[1px] shadow-[0_10px_30px_rgba(56,189,248,0.45)]"
+              className="btn-primary w-full mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {submitting ? (
                 <>
-                  <span className="h-4 w-4 rounded-full border-2 border-slate-950 border-t-transparent animate-spin" />
-                  Signing in…
+                  <span className="h-4 w-4 rounded-full border-2 border-slate-900 border-t-transparent animate-spin" />
+                  Signing in...
                 </>
               ) : (
                 "Continue"
               )}
             </button>
           </form>
-          <div className="mt-5 flex flex-col gap-1.5 text-[0.78rem] text-slate-400">
+          <div className="mt-5 flex flex-col gap-1.5 text-[0.78rem] text-slate-500">
             {isUserActive ? (
               <p>
                 New here?{" "}
                 <Link
                   to="/register/user"
-                  className="text-sky-400 hover:text-sky-300 font-medium"
+                  className="text-emerald-600 hover:text-emerald-700 font-medium"
                 >
                   Create an account
                 </Link>
@@ -297,7 +295,7 @@ const Login = ({ modal = false }) => {
                 Hiring interns?{" "}
                 <Link
                   to="/register/company"
-                  className="text-emerald-400 hover:text-emerald-300 font-medium"
+                  className="text-emerald-600 hover:text-emerald-700 font-medium"
                 >
                   Register company
                 </Link>

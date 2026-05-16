@@ -29,17 +29,17 @@ const EducationStep = () => {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-sm font-semibold text-slate-100 mb-1">
-        Step 3 · Education
+      <h2 className="text-sm font-semibold text-slate-900 mb-1">
+        Step 3 - Education
       </h2>
-      <p className="text-[0.75rem] text-slate-400 mb-3">
+      <p className="text-[0.75rem] text-slate-500 mb-3">
         Share your current or most recent education details.
       </p>
 
       <div className="space-y-1.5">
         <label
           htmlFor="university"
-          className="block text-xs font-medium text-slate-300"
+          className="block text-xs font-medium text-slate-600"
         >
           University<span className="text-rose-400"> *</span>
         </label>
@@ -47,10 +47,8 @@ const EducationStep = () => {
           id="university"
           type="text"
           {...register("university")}
-          className={`w-full rounded-lg bg-slate-950 border px-3 py-2 outline-none text-sm placeholder:text-slate-500 transition-colors ${
-            errors.university
-              ? "border-rose-500/80 focus:border-rose-400"
-              : "border-slate-700 focus:border-sky-400"
+          className={`input-glass text-sm ${
+            errors.university ? "border-rose-400" : "border-white/70"
           }`}
           placeholder="Indian Institute of Technology, Delhi"
         />
@@ -64,17 +62,17 @@ const EducationStep = () => {
       <div className="space-y-1.5">
         <label
           htmlFor="degreeLevel"
-          className="block text-xs font-medium text-slate-300"
+          className="block text-xs font-medium text-slate-600"
         >
           Degree level<span className="text-rose-400"> *</span>
         </label>
         <select
           id="degreeLevel"
           {...register("degreeLevel")}
-          className={`w-full rounded-lg bg-slate-950 border px-3 py-2 outline-none text-sm transition-colors ${
+          className={`input-glass text-sm ${
             errors.degreeLevel
-              ? "border-rose-500/80 focus:border-rose-400 text-slate-100"
-              : "border-slate-700 focus:border-sky-400 text-slate-100"
+              ? "border-rose-400 text-slate-900"
+              : "border-white/70 text-slate-900"
           }`}
         >
           <option value="">Select degree level</option>
@@ -94,17 +92,17 @@ const EducationStep = () => {
       <div className="space-y-1.5">
         <label
           htmlFor="majorOption"
-          className="block text-xs font-medium text-slate-300"
+          className="block text-xs font-medium text-slate-600"
         >
           Major / Program<span className="text-rose-400"> *</span>
         </label>
         <select
           id="majorOption"
           {...register("majorOption")}
-          className={`w-full rounded-lg bg-slate-950 border px-3 py-2 outline-none text-sm transition-colors ${
+          className={`input-glass text-sm ${
             errors.majorOption
-              ? "border-rose-500/80 focus:border-rose-400 text-slate-100"
-              : "border-slate-700 focus:border-sky-400 text-slate-100"
+              ? "border-rose-400 text-slate-900"
+              : "border-white/70 text-slate-900"
           }`}
         >
           <option value="">Select major / program</option>
@@ -125,7 +123,7 @@ const EducationStep = () => {
         <div className="space-y-1.5">
           <label
             htmlFor="majorOther"
-            className="block text-xs font-medium text-slate-300"
+            className="block text-xs font-medium text-slate-600"
           >
             Other major / program<span className="text-rose-400"> *</span>
           </label>
@@ -133,10 +131,8 @@ const EducationStep = () => {
             id="majorOther"
             type="text"
             {...register("majorOther")}
-            className={`w-full rounded-lg bg-slate-950 border px-3 py-2 outline-none text-sm placeholder:text-slate-500 transition-colors ${
-              errors.majorOther
-                ? "border-rose-500/80 focus:border-rose-400"
-                : "border-slate-700 focus:border-sky-400"
+            className={`input-glass text-sm ${
+              errors.majorOther ? "border-rose-400" : "border-white/70"
             }`}
             placeholder="e.g. B.Sc Data Science"
           />
@@ -152,17 +148,15 @@ const EducationStep = () => {
         <div className="space-y-1.5">
           <label
             htmlFor="graduationYear"
-            className="block text-xs font-medium text-slate-300"
+            className="block text-xs font-medium text-slate-600"
           >
             Graduation year<span className="text-rose-400"> *</span>
           </label>
           <select
             id="graduationYear"
             {...register("graduationYear")}
-            className={`w-full rounded-lg bg-slate-950 border px-3 py-2 outline-none text-sm transition-colors ${
-              errors.graduationYear
-                ? "border-rose-500/80 focus:border-rose-400"
-                : "border-slate-700 focus:border-sky-400"
+            className={`input-glass text-sm ${
+              errors.graduationYear ? "border-rose-400" : "border-white/70"
             }`}
           >
             <option value="">Select year</option>
@@ -182,7 +176,7 @@ const EducationStep = () => {
         <div className="space-y-1.5">
           <label
             htmlFor="cgpa"
-            className="block text-xs font-medium text-slate-300"
+            className="block text-xs font-medium text-slate-600"
           >
             CGPA (0.0 - 10.0)<span className="text-rose-400"> *</span>
           </label>
@@ -193,10 +187,8 @@ const EducationStep = () => {
             min="0"
             max="10"
             {...register("cgpa")}
-            className={`w-full rounded-lg bg-slate-950 border px-3 py-2 outline-none text-sm placeholder:text-slate-500 transition-colors ${
-              errors.cgpa
-                ? "border-rose-500/80 focus:border-rose-400"
-                : "border-slate-700 focus:border-sky-400"
+            className={`input-glass text-sm ${
+              errors.cgpa ? "border-rose-400" : "border-white/70"
             }`}
             placeholder="8.5"
           />

@@ -9,10 +9,10 @@ const CompanyProfileStep = () => {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-sm font-semibold text-slate-100 mb-1">
+      <h2 className="text-sm font-semibold text-slate-900 mb-1">
         Step 2 - Company details
       </h2>
-      <p className="text-[0.75rem] text-slate-400 mb-3">
+      <p className="text-[0.75rem] text-slate-500 mb-3">
         Share the basics about your company so candidates understand who you
         are.
       </p>
@@ -20,7 +20,7 @@ const CompanyProfileStep = () => {
       <div className="space-y-1.5">
         <label
           htmlFor="companyName"
-          className="block text-xs font-medium text-slate-300"
+          className="block text-xs font-medium text-slate-600"
         >
           Company name<span className="text-rose-400"> *</span>
         </label>
@@ -28,10 +28,8 @@ const CompanyProfileStep = () => {
           id="companyName"
           type="text"
           {...register("companyName")}
-          className={`w-full rounded-lg bg-slate-950 border px-3 py-2 outline-none text-sm placeholder:text-slate-500 transition-colors ${
-            errors.companyName
-              ? "border-rose-500/80 focus:border-rose-400"
-              : "border-slate-700 focus:border-sky-400"
+          className={`input-glass text-sm ${
+            errors.companyName ? "border-rose-400" : "border-white/70"
           }`}
           placeholder="InternNova Labs Pvt. Ltd."
         />
@@ -46,17 +44,15 @@ const CompanyProfileStep = () => {
         <div className="space-y-1.5">
           <label
             htmlFor="companySize"
-            className="block text-xs font-medium text-slate-300"
+            className="block text-xs font-medium text-slate-600"
           >
             Company size<span className="text-rose-400"> *</span>
           </label>
           <select
             id="companySize"
             {...register("companySize")}
-            className={`w-full rounded-lg bg-slate-950 border px-3 py-2 outline-none text-sm transition-colors ${
-              errors.companySize
-                ? "border-rose-500/80 focus:border-rose-400 text-slate-100"
-                : "border-slate-700 focus:border-sky-400 text-slate-100"
+            className={`input-glass text-sm ${
+              errors.companySize ? "border-rose-400" : "border-white/70"
             }`}
           >
             <option value="">Select size</option>
@@ -77,17 +73,15 @@ const CompanyProfileStep = () => {
         <div className="space-y-1.5">
           <label
             htmlFor="companyType"
-            className="block text-xs font-medium text-slate-300"
+            className="block text-xs font-medium text-slate-600"
           >
             Company type<span className="text-rose-400"> *</span>
           </label>
           <select
             id="companyType"
             {...register("companyType")}
-            className={`w-full rounded-lg bg-slate-950 border px-3 py-2 outline-none text-sm transition-colors ${
-              errors.companyType
-                ? "border-rose-500/80 focus:border-rose-400 text-slate-100"
-                : "border-slate-700 focus:border-sky-400 text-slate-100"
+            className={`input-glass text-sm ${
+              errors.companyType ? "border-rose-400" : "border-white/70"
             }`}
           >
             <option value="">Select type</option>
@@ -108,7 +102,7 @@ const CompanyProfileStep = () => {
       <div className="space-y-1.5">
         <label
           htmlFor="foundedYear"
-          className="block text-xs font-medium text-slate-300"
+          className="block text-xs font-medium text-slate-600"
         >
           Founded year<span className="text-rose-400"> *</span>
         </label>
@@ -116,10 +110,8 @@ const CompanyProfileStep = () => {
           id="foundedYear"
           type="number"
           {...register("foundedYear")}
-          className={`w-full rounded-lg bg-slate-950 border px-3 py-2 outline-none text-sm placeholder:text-slate-500 transition-colors ${
-            errors.foundedYear
-              ? "border-rose-500/80 focus:border-rose-400"
-              : "border-slate-700 focus:border-sky-400"
+          className={`input-glass text-sm ${
+            errors.foundedYear ? "border-rose-400" : "border-white/70"
           }`}
           placeholder="2015"
           min={1800}

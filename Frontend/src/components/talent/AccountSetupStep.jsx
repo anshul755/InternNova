@@ -9,10 +9,10 @@ const AccountSetupStep = () => {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-sm font-semibold text-slate-100 mb-1">
-        Step 1 · Account setup
+      <h2 className="text-sm font-semibold text-slate-900 mb-1">
+        Step 1 - Account setup
       </h2>
-      <p className="text-[0.75rem] text-slate-400 mb-3">
+      <p className="text-[0.75rem] text-slate-500 mb-3">
         Create your login credentials. Use a strong password to protect your
         account.
       </p>
@@ -20,7 +20,7 @@ const AccountSetupStep = () => {
       <div className="space-y-1.5">
         <label
           htmlFor="email"
-          className="block text-xs font-medium text-slate-300"
+          className="block text-xs font-medium text-slate-600"
         >
           Email<span className="text-rose-400"> *</span>
         </label>
@@ -28,10 +28,8 @@ const AccountSetupStep = () => {
           id="email"
           type="email"
           {...register("email")}
-          className={`w-full rounded-lg bg-slate-950 border px-3 py-2 outline-none text-sm placeholder:text-slate-500 transition-colors ${
-            errors.email
-              ? "border-rose-500/80 focus:border-rose-400"
-              : "border-slate-700 focus:border-sky-400"
+          className={`input-glass text-sm ${
+            errors.email ? "border-rose-400" : "border-white/70"
           }`}
           placeholder="you@studentmail.com"
         />
@@ -46,7 +44,7 @@ const AccountSetupStep = () => {
         <div className="space-y-1.5">
           <label
             htmlFor="password"
-            className="block text-xs font-medium text-slate-300"
+            className="block text-xs font-medium text-slate-600"
           >
             Password<span className="text-rose-400"> *</span>
           </label>
@@ -54,10 +52,8 @@ const AccountSetupStep = () => {
             id="password"
             type="password"
             {...register("password")}
-            className={`w-full rounded-lg bg-slate-950 border px-3 py-2 outline-none text-sm placeholder:text-slate-500 transition-colors ${
-              errors.password
-                ? "border-rose-500/80 focus:border-rose-400"
-                : "border-slate-700 focus:border-sky-400"
+            className={`input-glass text-sm ${
+              errors.password ? "border-rose-400" : "border-white/70"
             }`}
             placeholder="8+ chars, Aa1@#$_"
           />
@@ -71,7 +67,7 @@ const AccountSetupStep = () => {
         <div className="space-y-1.5">
           <label
             htmlFor="confirmPassword"
-            className="block text-xs font-medium text-slate-300"
+            className="block text-xs font-medium text-slate-600"
           >
             Confirm password<span className="text-rose-400"> *</span>
           </label>
@@ -79,10 +75,8 @@ const AccountSetupStep = () => {
             id="confirmPassword"
             type="password"
             {...register("confirmPassword")}
-            className={`w-full rounded-lg bg-slate-950 border px-3 py-2 outline-none text-sm placeholder:text-slate-500 transition-colors ${
-              errors.confirmPassword
-                ? "border-rose-500/80 focus:border-rose-400"
-                : "border-slate-700 focus:border-sky-400"
+            className={`input-glass text-sm ${
+              errors.confirmPassword ? "border-rose-400" : "border-white/70"
             }`}
             placeholder="Re-enter password"
           />
