@@ -13,20 +13,27 @@ import Footer from "./Footer.jsx";
 export default function AppLayout() {
   const location = useLocation();
   const isLanding = location.pathname === "/" || location.pathname === "";
+  const isAuthModalRoute = [
+    "/login",
+    "/register/user",
+    "/register/talent",
+    "/register/company",
+  ].includes(location.pathname);
+  const showShellChrome = !isLanding && !isAuthModalRoute;
 
   return (
     <div className="saas-shell flex flex-col">
       <div className="saas-backdrop" aria-hidden="true" />
-      <Navbar />
+      {showShellChrome && <Navbar />}
 
       {/* pt-16 offsets the fixed navbar height (h-16 = 4rem) */}
-      <main className={`flex-1 ${isLanding ? "" : "pt-16"} saas-section`}>
+      <main className={`flex-1 ${showShellChrome ? "pt-16" : ""} saas-section`}>
         <div key={location.pathname} className={isLanding ? "" : "page-enter"}>
           <Outlet />
         </div>
       </main>
 
-      <Footer />
+      {showShellChrome && <Footer />}
     </div>
   );
 }

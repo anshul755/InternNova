@@ -8,13 +8,51 @@
       name="description"
       content="InternNova — AI-powered internship matching platform. Find your dream internship or discover top early talent, faster."
     />
-    <meta name="theme-color" content="#080a14" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    <script>
+      (() => {
+        const storageKey = "internnova-theme";
+        const prefersDark = window.matchMedia(
+          "(prefers-color-scheme: dark)",
+        ).matches;
+
+        let theme = prefersDark ? "dark" : "light";
+
+        try {
+          const stored = window.localStorage.getItem(storageKey);
+          if (stored === "light" || stored === "dark") {
+            theme = stored;
+          } else if (stored === "system") {
+            theme = prefersDark ? "dark" : "light";
+          }
+        } catch {
+          // Ignore storage errors and fall back to the system theme.
+        }
+
+        const root = document.documentElement;
+        root.dataset.theme = theme;
+        root.classList.toggle("dark", theme === "dark");
+        root.style.colorScheme = theme;
+
+        let meta = document.querySelector('meta[name="theme-color"]');
+        if (!meta) {
+          meta = document.createElement("meta");
+          meta.setAttribute("name", "theme-color");
+          document.head.appendChild(meta);
+        }
+        if (meta) {
+          meta.setAttribute(
+            "content",
+            theme === "dark" ? "#07120c" : "#eef5eb",
+          );
+        }
+      })();
+    </script>
     <title>InternNova — Land Your Dream Internship</title>
   </head>
   <body>

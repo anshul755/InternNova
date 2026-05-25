@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
+import { useTheme } from "../lib/ThemeContext.jsx";
+import ThemeToggle from "./ThemeToggle.jsx";
 import {
   IoMenu,
   IoClose,
@@ -117,18 +119,22 @@ function UserDropdown({ user, onLogout, light }) {
           </div>
 
           <div className="py-1">
-            {menuItems.map(({ label, icon: Icon, to }) => (
-              <Link
-                key={to}
-                to={to}
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:text-slate-900 hover:bg-white/60 transition-colors"
-                role="menuitem"
-              >
-                <Icon className="w-4 h-4 text-slate-400" />
-                {label}
-              </Link>
-            ))}
+            {menuItems.map(({ label, icon, to }) => {
+              const MenuIcon = icon;
+
+              return (
+                <Link
+                  key={to}
+                  to={to}
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:text-slate-900 hover:bg-white/60 transition-colors"
+                  role="menuitem"
+                >
+                  <MenuIcon className="w-4 h-4 text-slate-400" />
+                  {label}
+                </Link>
+              );
+            })}
           </div>
 
           <div className="border-t border-white/40 pt-1">
@@ -153,13 +159,14 @@ function UserDropdown({ user, onLogout, light }) {
 /* ─── Main Navbar ─── */
 export default function Navbar() {
   const { user, loading, logout } = useAuth();
+  const { theme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isAuthenticated = !loading && !!user;
-  const useLight = true;
+  const useLight = theme !== "dark";
 
   /* scroll listener */
   useEffect(() => {
@@ -169,6 +176,7 @@ export default function Navbar() {
   }, []);
 
   /* close mobile menu on route change */
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     setMobileOpen(false);
   }, [location.pathname]);
@@ -280,6 +288,7 @@ export default function Navbar() {
 
         {/* Right — Auth actions */}
         <div className="flex items-center gap-3">
+          <ThemeToggle className="hidden sm:inline-flex" />
           {!isAuthenticated ? (
             <>
               <Link

@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import companies from "../data/companies";
+import ThemeToggle from "../components/ThemeToggle.jsx";
 
 const midpoint = Math.ceil(companies.length / 2);
 const companiesRowOne = companies.slice(0, midpoint);
@@ -40,7 +41,8 @@ const Landing = () => {
           </a>
         </nav>
 
-        <div className="flex gap-3">
+        <div className="flex items-center gap-3">
+          <ThemeToggle className="hidden sm:inline-flex" />
           <Link
             to="/login"
             className="hidden sm:inline-flex items-center justify-center px-5 py-2 rounded-full text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-white/70 transition-all"

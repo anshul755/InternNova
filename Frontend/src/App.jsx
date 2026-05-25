@@ -1,5 +1,11 @@
 import { useEffect } from "react";
-import { Navigate, Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import {
+  Navigate,
+  Routes,
+  Route,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import { IoClose } from "react-icons/io5";
 import AppLayout from "./components/AppLayout.jsx";
 import Landing from "./pages/Landing.jsx";
@@ -59,17 +65,25 @@ function ModalLayout() {
     return <Navigate to={getPostLoginRoute(user.role)} replace />;
   }
 
+  const showLanding = !modalType;
+
   return (
     <>
-      <Landing />
+      {showLanding ? (
+        <Landing />
+      ) : (
+        <div className="saas-shell min-h-screen">
+          <div className="saas-backdrop" aria-hidden="true" />
+        </div>
+      )}
 
       {modalType && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-surface-950/85 backdrop-blur-2xl">
+        <div className="theme-overlay fixed inset-0 z-[60] flex items-center justify-center backdrop-blur-2xl">
           <div className="relative w-full max-w-6xl max-h-[90vh] overflow-y-auto no-scrollbar px-4 py-4">
             <button
               type="button"
               onClick={handleClose}
-              className="absolute right-6 top-6 z-50 inline-flex h-9 w-9 items-center justify-center rounded-full glass text-slate-200 text-base shadow-sm hover:bg-white/10 hover:text-white transition-colors"
+              className="absolute right-6 top-6 z-50 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-slate-950/70 text-white text-base shadow-lg shadow-black/30 transition-colors hover:bg-slate-900 hover:border-white/30"
               aria-label="Close"
             >
               <IoClose className="h-5 w-5" />
