@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
+import { useTheme } from "../lib/ThemeContext.jsx";
 
 const Login = ({ modal = false }) => {
   const { login } = useAuth();
+  const { isDark } = useTheme();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("user");
   const [formValues, setFormValues] = useState({
@@ -66,16 +68,22 @@ const Login = ({ modal = false }) => {
     ? "w-full text-slate-900 flex items-center justify-center px-[2vw] py-4 font-sans"
     : "min-h-screen text-slate-900 flex items-center justify-center px-[5vw] py-8 font-sans saas-section";
 
+  const tabClass = (active) => `auth-tab ${active ? "auth-tab--active" : ""}`;
+
+  const panelClass = modal
+    ? "w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-8 rounded-3xl auth-panel overflow-hidden"
+    : "w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-8 rounded-3xl auth-panel overflow-hidden";
+
   return (
     <div className={containerClasses}>
-      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-8 rounded-3xl glass-panel border border-white/60 overflow-hidden">
-        <section className="hidden lg:flex flex-col justify-between bg-white/60 border-r border-white/60 p-10 text-slate-900">
+      <div className={panelClass}>
+        <section className="hidden lg:flex flex-col justify-between auth-panel__aside border-r p-10 text-slate-900">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass-pill text-xs tracking-[0.16em] uppercase text-slate-600">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               Internship-ready in weeks
             </div>
-            <h1 className="mt-6 text-3xl font-semibold tracking-tight">
+            <h1 className="mt-6 text-3xl font-semibold tracking-tight text-slate-900">
               InternNova
             </h1>
             <p className="mt-3 text-sm text-slate-600 max-w-sm">
@@ -105,7 +113,7 @@ const Login = ({ modal = false }) => {
             </div>
           </div>
         </section>
-        <section className="flex flex-col justify-center px-6 py-8 sm:px-10 bg-white/60">
+        <section className="flex flex-col justify-center px-6 py-8 sm:px-10 auth-panel__content">
           <header className="mb-6">
             <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
               Sign in
@@ -117,26 +125,18 @@ const Login = ({ modal = false }) => {
               Choose how you want to log in: as a student or as a company.
             </p>
           </header>
-          <div className="flex rounded-full glass-pill p-1 text-xs mb-6">
+          <div className="auth-tabs flex text-xs mb-6">
             <button
               type="button"
               onClick={() => setActiveTab("user")}
-              className={`flex-1 px-4 py-2 rounded-full transition-colors ${
-                isUserActive
-                  ? "bg-white text-slate-900 shadow-sm"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
+              className={tabClass(isUserActive)}
             >
               User
             </button>
             <button
               type="button"
               onClick={() => setActiveTab("company")}
-              className={`flex-1 px-4 py-2 rounded-full transition-colors ${
-                !isUserActive
-                  ? "bg-white text-slate-900 shadow-sm"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
+              className={tabClass(!isUserActive)}
             >
               Company
             </button>
@@ -158,9 +158,7 @@ const Login = ({ modal = false }) => {
                     autoComplete="email"
                     value={formValues.userEmail}
                     onChange={handleChange}
-                    className={`input-glass ${
-                      errors.user ? "border-rose-400" : "border-white/70"
-                    }`}
+                    className={`input-glass ${errors.user ? "border-rose-400" : ""}`}
                     placeholder="you@studentmail.com"
                     required
                   />
@@ -176,7 +174,7 @@ const Login = ({ modal = false }) => {
                     </label>
                     <Link
                       to="/forgot-password"
-                      className="text-[0.7rem] text-emerald-600 hover:text-emerald-700"
+                      className="text-[0.7rem] text-emerald-600 hover:text-emerald-700 dark:text-emerald-300 dark:hover:text-emerald-200"
                     >
                       Forgot password?
                     </Link>
@@ -188,16 +186,14 @@ const Login = ({ modal = false }) => {
                     autoComplete="current-password"
                     value={formValues.userPassword}
                     onChange={handleChange}
-                    className={`input-glass ${
-                      errors.user ? "border-rose-400" : "border-white/70"
-                    }`}
+                    className={`input-glass ${errors.user ? "border-rose-400" : ""}`}
                     placeholder="Enter your password"
                     required
                   />
                 </div>
 
                 {errors.user && (
-                  <p className="text-xs text-rose-600 bg-rose-100 border border-rose-200 rounded-md px-3 py-2">
+                  <p className="text-xs text-rose-600 bg-rose-100 border border-rose-200 rounded-md px-3 py-2 dark:bg-rose-950/35 dark:border-rose-900/40 dark:text-rose-200">
                     {errors.user}
                   </p>
                 )}
@@ -218,9 +214,7 @@ const Login = ({ modal = false }) => {
                     autoComplete="email"
                     value={formValues.companyEmail}
                     onChange={handleChange}
-                    className={`input-glass ${
-                      errors.company ? "border-rose-400" : "border-white/70"
-                    }`}
+                    className={`input-glass ${errors.company ? "border-rose-400" : ""}`}
                     placeholder="talent@yourcompany.com"
                     required
                   />
@@ -236,7 +230,7 @@ const Login = ({ modal = false }) => {
                     </label>
                     <Link
                       to="/forgot-password"
-                      className="text-[0.7rem] text-emerald-600 hover:text-emerald-700"
+                      className="text-[0.7rem] text-emerald-600 hover:text-emerald-700 dark:text-emerald-300 dark:hover:text-emerald-200"
                     >
                       Forgot password?
                     </Link>
@@ -248,16 +242,14 @@ const Login = ({ modal = false }) => {
                     autoComplete="current-password"
                     value={formValues.companyPassword}
                     onChange={handleChange}
-                    className={`input-glass ${
-                      errors.company ? "border-rose-400" : "border-white/70"
-                    }`}
+                    className={`input-glass ${errors.company ? "border-rose-400" : ""}`}
                     placeholder="Enter your password"
                     required
                   />
                 </div>
 
                 {errors.company && (
-                  <p className="text-xs text-rose-600 bg-rose-100 border border-rose-200 rounded-md px-3 py-2">
+                  <p className="text-xs text-rose-600 bg-rose-100 border border-rose-200 rounded-md px-3 py-2 dark:bg-rose-950/35 dark:border-rose-900/40 dark:text-rose-200">
                     {errors.company}
                   </p>
                 )}

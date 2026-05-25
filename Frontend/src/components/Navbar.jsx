@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useTheme } from "../lib/ThemeContext.jsx";
+import { api } from "../lib/api.js";
 import ThemeToggle from "./ThemeToggle.jsx";
 import {
   IoMenu,
@@ -36,8 +37,9 @@ function Logo({ light }) {
 }
 
 /* ─── User Dropdown ─── */
-function UserDropdown({ user, onLogout, light }) {
+function UserDropdown({ user, onLogout, light, displayName, avatarUrl }) {
   const [open, setOpen] = useState(false);
+  const [imgError, setImgError] = useState(false);
   const ref = useRef(null);
 
   useEffect(() => {
@@ -90,13 +92,22 @@ function UserDropdown({ user, onLogout, light }) {
         aria-label="User menu"
         id="user-menu-button"
       >
-        <span className="h-8 w-8 rounded-full bg-gradient-to-br from-[#c7f284] to-[#8bcf7a] flex items-center justify-center text-xs font-semibold text-slate-900">
-          {initial}
-        </span>
+        {avatarUrl && !imgError ? (
+          <img
+            src={avatarUrl}
+            alt={displayName || "User avatar"}
+            onError={() => setImgError(true)}
+            className="h-8 w-8 rounded-full object-cover"
+          />
+        ) : (
+          <span className="h-8 w-8 rounded-full bg-gradient-to-br from-[#c7f284] to-[#8bcf7a] flex items-center justify-center text-xs font-semibold text-slate-900">
+            {initial}
+          </span>
+        )}
         <span
           className={`hidden sm:block text-sm max-w-[140px] truncate ${light ? "text-slate-700" : "text-slate-300"}`}
         >
-          {user?.email}
+          {displayName}
         </span>
         <IoChevronDown
           className={`w-3.5 h-3.5 transition-transform duration-200 ${
@@ -112,10 +123,29 @@ function UserDropdown({ user, onLogout, light }) {
           aria-labelledby="user-menu-button"
         >
           <div className="px-4 py-2.5 border-b border-white/40">
-            <p className="text-xs text-slate-600 truncate">{user?.email}</p>
-            <p className="text-xs font-medium text-slate-900 mt-0.5">
-              {isCompany ? "Company" : "Talent"}
-            </p>
+            <div className="flex items-center gap-3">
+              {avatarUrl && !imgError ? (
+                <img
+                  src={avatarUrl}
+                  alt={displayName || "User avatar"}
+                  onError={() => setImgError(true)}
+                  className="h-10 w-10 rounded-full object-cover"
+                />
+              ) : (
+                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#c7f284] to-[#8bcf7a] flex items-center justify-center text-sm font-semibold text-slate-900">
+                  {initial}
+                </div>
+              )}
+              <div className="min-w-0">
+                <p className="text-xs text-slate-600 truncate">{displayName}</p>
+                <p className="text-xs font-medium text-slate-900 mt-0.5">
+                  {isCompany ? "Company" : "Talent"}
+                </p>
+                <p className="text-[0.7rem] text-slate-500 truncate mt-0.5">
+                  {user?.email}
+                </p>
+              </div>
+            </div>
           </div>
 
           <div className="py-1">
@@ -164,6 +194,8 @@ export default function Navbar() {
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [displayName, setDisplayName] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState(null);
 
   const isAuthenticated = !loading && !!user;
   const useLight = theme !== "dark";
@@ -180,6 +212,77 @@ export default function Navbar() {
   useEffect(() => {
     setMobileOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadDisplayName = async () => {
+      if (!isAuthenticated || !user?.id) {
+        setDisplayName("");
+        return;
+      }
+
+      const fallbackName =
+        user?.displayName ||
+        user?.name ||
+        user?.companyName ||
+        user?.email ||
+        "";
+
+      try {
+        const profilePath =
+          user.role === "Company"
+            ? `/company/v1/${user.id}`
+            : `/talent/v1/${user.id}`;
+        const res = await api.get(profilePath);
+        const profile = await res.json();
+        const nextName =
+          user.role === "Company" ? profile?.companyName : profile?.name;
+
+        // Try common avatar/logo fields returned by the backend
+        const candidateAvatar =
+          (user.role === "Company"
+            ? profile?.logoUrl ||
+              profile?.logo ||
+              profile?.logo_url ||
+              profile?.imageUrl
+            : profile?.avatarUrl ||
+              profile?.avatar ||
+              profile?.avatar_url ||
+              profile?.imageUrl ||
+              profile?.photoUrl ||
+              profile?.photo) ||
+          // fallbacks from user object
+          user?.logoUrl ||
+          user?.avatarUrl ||
+          user?.photoUrl ||
+          null;
+
+        if (!cancelled) {
+          setDisplayName(nextName || fallbackName);
+          setAvatarUrl(candidateAvatar || null);
+        }
+      } catch {
+        if (!cancelled) {
+          setDisplayName(fallbackName);
+        }
+      }
+    };
+
+    loadDisplayName();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    isAuthenticated,
+    user?.companyName,
+    user?.displayName,
+    user?.email,
+    user?.id,
+    user?.name,
+    user?.role,
+  ]);
 
   const handleLogout = async () => {
     await logout();
@@ -309,6 +412,14 @@ export default function Navbar() {
               onLogout={handleLogout}
               user={user}
               light={useLight}
+              displayName={
+                displayName ||
+                user?.displayName ||
+                user?.name ||
+                user?.companyName ||
+                user?.email
+              }
+              avatarUrl={avatarUrl}
             />
           )}
 
