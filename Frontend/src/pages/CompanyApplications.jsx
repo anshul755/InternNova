@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
+import GlassSelect from "../components/GlassSelect.jsx";
 
 const STATUS_COLORS = {
   APPLIED: "bg-amber-50 text-amber-700 border-amber-200",
@@ -200,18 +201,22 @@ export default function CompanyApplications() {
                             Resume
                           </a>
                         )}
-                        <select
+                        <GlassSelect
+                          label={`Update status for ${app.studentName || `Candidate #${app.studentId}`}`}
                           value={app.status}
-                          onChange={(e) => updateStatus(app.id, e.target.value)}
+                          onValueChange={(nextValue) =>
+                            updateStatus(app.id, nextValue)
+                          }
                           disabled={updatingId === app.id}
-                          className="mt-3 w-full bg-white/60 border border-white/60 rounded-lg text-xs px-2 py-1.5 text-slate-700 focus:ring-2 focus:ring-emerald-200 outline-none disabled:opacity-50"
-                        >
-                          {pipelineStages.map((s) => (
-                            <option key={s} value={s}>
-                              {s.replace("_", " ")}
-                            </option>
-                          ))}
-                        </select>
+                          placeholder="Update status"
+                          clearLabel="Update status"
+                          showClearOption={false}
+                          className="mt-3"
+                          options={pipelineStages.map((s) => ({
+                            value: s,
+                            label: s.replace("_", " "),
+                          }))}
+                        />
                       </div>
                     ))
                   )}
@@ -232,21 +237,22 @@ export default function CompanyApplications() {
           >
             Select Job
           </label>
-          <select
-            id="job-select"
+          <GlassSelect
+            label="Select Job"
             value={selectedJobId}
-            onChange={(e) => {
-              setSelectedJobId(e.target.value);
+            onValueChange={(nextValue) => {
+              setSelectedJobId(nextValue);
               setPage(0);
             }}
-            className="w-full sm:w-[420px] px-3 py-2.5 bg-white/60 border border-white/60 rounded-lg text-sm text-slate-900 focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300 outline-none"
-          >
-            {jobs.map((job) => (
-              <option key={job.id} value={job.id}>
-                {job.title} • {job.location}
-              </option>
-            ))}
-          </select>
+            placeholder="Select Job"
+            clearLabel="Select Job"
+            showClearOption={false}
+            className="w-full sm:w-[420px]"
+            options={jobs.map((job) => ({
+              value: String(job.id),
+              label: `${job.title} • ${job.location}`,
+            }))}
+          />
         </div>
 
         {selectedJob && (

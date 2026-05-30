@@ -116,72 +116,74 @@ function UserDropdown({ user, onLogout, light, displayName, avatarUrl }) {
         />
       </button>
 
-      {open && (
-        <div
-          className="absolute right-0 top-full mt-2 w-56 glass-card border border-white/60 py-2 animate-slide-down z-50"
-          role="menu"
-          aria-labelledby="user-menu-button"
-        >
-          <div className="px-4 py-2.5 border-b border-white/40">
-            <div className="flex items-center gap-3">
-              {avatarUrl && !imgError ? (
-                <img
-                  src={avatarUrl}
-                  alt={displayName || "User avatar"}
-                  onError={() => setImgError(true)}
-                  className="h-10 w-10 rounded-full object-cover"
-                />
-              ) : (
-                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#c7f284] to-[#8bcf7a] flex items-center justify-center text-sm font-semibold text-slate-900">
-                  {initial}
-                </div>
-              )}
-              <div className="min-w-0">
-                <p className="text-xs text-slate-600 truncate">{displayName}</p>
-                <p className="text-xs font-medium text-slate-900 mt-0.5">
-                  {isCompany ? "Company" : "Talent"}
-                </p>
-                <p className="text-[0.7rem] text-slate-500 truncate mt-0.5">
-                  {user?.email}
-                </p>
+      <div
+        className={`absolute right-0 top-full mt-2 w-56 glass-panel border border-white/60 py-2 z-50 origin-top-right transition-all duration-200 ease-out will-change-transform ${
+          open
+            ? "pointer-events-auto visible opacity-100 translate-y-0 scale-100"
+            : "pointer-events-none invisible opacity-0 -translate-y-2 scale-95"
+        }`}
+        role="menu"
+        aria-labelledby="user-menu-button"
+      >
+        <div className="px-4 py-2.5 border-b border-white/40 bg-white/10">
+          <div className="flex items-center gap-3">
+            {avatarUrl && !imgError ? (
+              <img
+                src={avatarUrl}
+                alt={displayName || "User avatar"}
+                onError={() => setImgError(true)}
+                className="h-10 w-10 rounded-full object-cover"
+              />
+            ) : (
+              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#c7f284] to-[#8bcf7a] flex items-center justify-center text-sm font-semibold text-slate-900">
+                {initial}
               </div>
+            )}
+            <div className="min-w-0">
+              <p className="text-xs text-slate-600 truncate">{displayName}</p>
+              <p className="text-xs font-medium text-slate-900 mt-0.5">
+                {isCompany ? "Company" : "Talent"}
+              </p>
+              <p className="text-[0.7rem] text-slate-500 truncate mt-0.5">
+                {user?.email}
+              </p>
             </div>
           </div>
-
-          <div className="py-1">
-            {menuItems.map(({ label, icon, to }) => {
-              const MenuIcon = icon;
-
-              return (
-                <Link
-                  key={to}
-                  to={to}
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:text-slate-900 hover:bg-white/60 transition-colors"
-                  role="menuitem"
-                >
-                  <MenuIcon className="w-4 h-4 text-slate-400" />
-                  {label}
-                </Link>
-              );
-            })}
-          </div>
-
-          <div className="border-t border-white/40 pt-1">
-            <button
-              onClick={() => {
-                setOpen(false);
-                onLogout();
-              }}
-              className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:text-slate-900 hover:bg-white/60 transition-colors"
-              role="menuitem"
-            >
-              <IoLogOutOutline className="w-4 h-4" />
-              Sign out
-            </button>
-          </div>
         </div>
-      )}
+
+        <div className="py-1">
+          {menuItems.map(({ label, icon, to }) => {
+            const MenuIcon = icon;
+
+            return (
+              <Link
+                key={to}
+                to={to}
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:text-slate-900 hover:bg-brand-100 transition-colors"
+                role="menuitem"
+              >
+                <MenuIcon className="w-4 h-4 text-slate-500" />
+                {label}
+              </Link>
+            );
+          })}
+        </div>
+
+        <div className="border-t border-white/40 pt-1">
+          <button
+            onClick={() => {
+              setOpen(false);
+              onLogout();
+            }}
+            className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:text-slate-900 hover:bg-brand-100 transition-colors"
+            role="menuitem"
+          >
+            <IoLogOutOutline className="w-4 h-4" />
+            Sign out
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

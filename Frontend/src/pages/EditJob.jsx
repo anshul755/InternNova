@@ -2,6 +2,7 @@
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import GlassSelect from "../components/GlassSelect.jsx";
 
 const EditJob = () => {
   const { user } = useAuth();
@@ -171,18 +172,23 @@ const EditJob = () => {
                 <label className="block text-sm font-medium text-slate-400 mb-1">
                   Job Type *
                 </label>
-                <select
-                  name="jobType"
+                <GlassSelect
+                  label="Job Type"
                   value={form.jobType}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 bg-white/60 border border-white/60 rounded-lg text-slate-900"
-                >
-                  <option value="INTERNSHIP">Internship</option>
-                  <option value="FULL_TIME">Full Time</option>
-                  <option value="PART_TIME">Part Time</option>
-                  <option value="CONTRACT">Contract</option>
-                  <option value="FREELANCE">Freelance</option>
-                </select>
+                  onValueChange={(nextValue) =>
+                    setForm((prev) => ({ ...prev, jobType: nextValue }))
+                  }
+                  placeholder="Select job type"
+                  clearLabel="Select job type"
+                  showClearOption={false}
+                  options={[
+                    { value: "INTERNSHIP", label: "Internship" },
+                    { value: "FULL_TIME", label: "Full Time" },
+                    { value: "PART_TIME", label: "Part Time" },
+                    { value: "CONTRACT", label: "Contract" },
+                    { value: "FREELANCE", label: "Freelance" },
+                  ]}
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-400 mb-1">

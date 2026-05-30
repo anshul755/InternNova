@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
+import GlassSelect from "../components/GlassSelect.jsx";
 
 const JOB_TYPES = [
   "INTERNSHIP",
@@ -10,6 +11,34 @@ const JOB_TYPES = [
   "CONTRACT",
   "FREELANCE",
 ];
+
+const CompanyAvatar = ({ companyName, logoUrl }) => {
+  const [hasError, setHasError] = useState(false);
+  const initials = (companyName || "Company")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+
+  return (
+    <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/70 bg-white/80 shadow-sm">
+      {logoUrl && !hasError ? (
+        <img
+          src={logoUrl}
+          alt={`${companyName || "Company"} logo`}
+          className="h-full w-full object-cover"
+          onError={() => setHasError(true)}
+        />
+      ) : (
+        <span className="text-sm font-semibold text-slate-700">
+          {initials || "CO"}
+        </span>
+      )}
+    </div>
+  );
+};
 
 const JobListings = () => {
   const { user } = useAuth();
@@ -26,10 +55,12 @@ const JobListings = () => {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
+  const [companiesById, setCompaniesById] = useState({});
 
   const fetchJobs = useCallback(async () => {
     setLoading(true);
     setError("");
+
     try {
       const params = new URLSearchParams({
         page: page.toString(),
@@ -68,6 +99,47 @@ const JobListings = () => {
     return () => clearTimeout(delay);
   }, [fetchJobs]);
 
+  useEffect(() => {
+    const companyIds = [
+      ...new Set(jobs.map((job) => job.companyId).filter(Boolean)),
+    ];
+
+    if (companyIds.length === 0) {
+      setCompaniesById({});
+      return;
+    }
+
+    let cancelled = false;
+
+    const fetchCompanies = async () => {
+      const entries = await Promise.all(
+        companyIds.map(async (companyId) => {
+          try {
+            const res = await api.get(`/company/v1/${companyId}`);
+            const data = await res.json();
+            return [companyId, data];
+          } catch {
+            return [companyId, null];
+          }
+        }),
+      );
+
+      if (cancelled) return;
+
+      const nextCompaniesById = {};
+      entries.forEach(([companyId, company]) => {
+        if (company) nextCompaniesById[companyId] = company;
+      });
+      setCompaniesById(nextCompaniesById);
+    };
+
+    fetchCompanies();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [jobs]);
+
   const clearFilters = () => {
     setSearchTerm("");
     setLocationFilter("");
@@ -84,26 +156,23 @@ const JobListings = () => {
     return `Up to $${max.toLocaleString()}`;
   };
 
-  const formatPostedDate = (dateString) => {
-    if (!dateString) return "";
-    const diffDays = Math.ceil(
-      Math.abs(new Date() - new Date(dateString)) / (1000 * 60 * 60 * 24),
-    );
-    if (diffDays <= 1) return "Today";
-    if (diffDays < 7) return `${diffDays} days ago`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
-    return `${Math.floor(diffDays / 30)}mo ago`;
-  };
-
   const filteredJobs = remoteFilter
-    ? jobs.filter((j) =>
-        remoteFilter === "remote" ? j.remoteOption : !j.remoteOption,
+    ? jobs.filter((job) =>
+        remoteFilter === "remote" ? job.remoteOption : !job.remoteOption,
       )
     : jobs;
 
+  const getCompanyName = (job) =>
+    companiesById[job.companyId]?.companyName || job.companyName || "Company";
+
+  const getCompanyLogoUrl = (job) =>
+    companiesById[job.companyId]?.logoUrl ||
+    job.companyLogoUrl ||
+    job.logoUrl ||
+    "";
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
-      {/* Search & Filter Card */}
       <div className="glass-card p-6 mb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <div className="lg:col-span-2">
@@ -137,40 +206,50 @@ const JobListings = () => {
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1">
+            <label
+              id="job-type-filter-label"
+              className="block text-xs font-medium text-slate-500 mb-1"
+            >
               Job Type
             </label>
-            <select
+            <GlassSelect
+              label="Job Type"
+              labelId="job-type-filter-label"
               value={typeFilter}
-              onChange={(e) => {
-                setTypeFilter(e.target.value);
+              onValueChange={(nextValue) => {
+                setTypeFilter(nextValue);
                 setPage(0);
               }}
-              className="input-glass text-sm"
-            >
-              <option value="">All Types</option>
-              {JOB_TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {t.replace("_", " ")}
-                </option>
-              ))}
-            </select>
+              placeholder="All Types"
+              clearLabel="All Types"
+              options={JOB_TYPES.map((t) => ({
+                value: t,
+                label: t.replace("_", " "),
+              }))}
+            />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1">
+            <label
+              id="work-style-filter-label"
+              className="block text-xs font-medium text-slate-500 mb-1"
+            >
               Work Style
             </label>
-            <select
+            <GlassSelect
+              label="Work Style"
+              labelId="work-style-filter-label"
               value={remoteFilter}
-              onChange={(e) => setRemoteFilter(e.target.value)}
-              className="input-glass text-sm"
-            >
-              <option value="">All</option>
-              <option value="remote">Remote</option>
-              <option value="onsite">On-site</option>
-            </select>
+              onValueChange={(nextValue) => setRemoteFilter(nextValue)}
+              placeholder="All"
+              clearLabel="All"
+              options={[
+                { value: "remote", label: "Remote" },
+                { value: "onsite", label: "On-site" },
+              ]}
+            />
           </div>
         </div>
+
         {(searchTerm || locationFilter || typeFilter || remoteFilter) && (
           <div className="mt-3">
             <button
@@ -183,7 +262,6 @@ const JobListings = () => {
         )}
       </div>
 
-      {/* Results header */}
       <div className="flex justify-between items-center mb-6">
         <div>
           <h2 className="text-xl font-semibold text-slate-900">
@@ -224,87 +302,64 @@ const JobListings = () => {
         <div className="space-y-4">
           {filteredJobs.map((job) => (
             <div key={job.id} className="glass-card p-6">
-              <div className="flex justify-between items-start gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <Link
-                      to={`/jobs/${job.id}`}
-                      className="text-lg font-semibold text-slate-900 hover:text-slate-950 transition-colors"
-                    >
-                      {job.title}
-                    </Link>
-                    {job.remoteOption && (
-                      <span className="px-2.5 py-0.5 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-medium border border-emerald-100">
-                        Remote
-                      </span>
-                    )}
-                    {job.jobType && (
-                      <span className="px-2.5 py-0.5 bg-brand-100 text-slate-900 rounded-lg text-xs font-medium border border-brand-200">
-                        {job.jobType.replace("_", " ")}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-500 mb-3">
-                    <span className="text-slate-700 font-medium">
-                      {job.location}
-                    </span>
-                    {job.duration && (
-                      <>
-                        <span className="text-slate-300">•</span>
-                        <span>{job.duration}</span>
-                      </>
-                    )}
-                    {(job.salaryMin || job.salaryMax) && (
-                      <>
-                        <span className="text-slate-300">•</span>
-                        <span className="text-emerald-600 font-medium">
-                          {formatSalary(job.salaryMin, job.salaryMax)}
+              <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                <div className="flex min-w-0 flex-1 gap-4">
+                  <CompanyAvatar
+                    companyName={getCompanyName(job)}
+                    logoUrl={getCompanyLogoUrl(job)}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      {job.remoteOption && (
+                        <span className="px-2.5 py-0.5 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-medium border border-emerald-100">
+                          Remote
                         </span>
-                      </>
-                    )}
-                  </div>
-
-                  {job.description && (
-                    <p className="text-slate-500 text-sm mb-3 line-clamp-2">
-                      {job.description}
-                    </p>
-                  )}
-
-                  {job.skillsRequired?.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      {job.skillsRequired.slice(0, 6).map((skill, i) => (
-                        <span
-                          key={i}
-                          className="px-2.5 py-0.5 bg-white/70 text-slate-700 rounded-lg text-xs font-medium border border-white/60"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                      {job.skillsRequired.length > 6 && (
-                        <span className="px-2.5 py-0.5 bg-white/60 text-slate-500 rounded-lg text-xs border border-white/50">
-                          +{job.skillsRequired.length - 6} more
+                      )}
+                      {job.jobType && (
+                        <span className="px-2.5 py-0.5 bg-brand-100 text-slate-900 rounded-lg text-xs font-medium border border-brand-200">
+                          {job.jobType.replace("_", " ")}
                         </span>
                       )}
                     </div>
-                  )}
 
-                  <div className="flex items-center gap-4 text-xs text-slate-400">
-                    <span>{job.applicationsCount || 0} applicants</span>
-                    {job.applicationDeadline && (
-                      <>
-                        <span className="text-slate-300">•</span>
-                        <span>
-                          Deadline:{" "}
-                          {new Date(
-                            job.applicationDeadline,
-                          ).toLocaleDateString()}
-                        </span>
-                      </>
+                    <Link
+                      to={`/jobs/${job.id}`}
+                      className="block text-xl font-semibold text-slate-900 hover:text-slate-950 transition-colors truncate"
+                    >
+                      {job.title}
+                    </Link>
+
+                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500">
+                      <span className="font-medium text-slate-700">
+                        {getCompanyName(job)}
+                      </span>
+                      <span className="text-slate-300">•</span>
+                      <span>{job.location || "Location not specified"}</span>
+                      {job.duration && (
+                        <>
+                          <span className="text-slate-300">•</span>
+                          <span>{job.duration}</span>
+                        </>
+                      )}
+                      {(job.salaryMin || job.salaryMax) && (
+                        <>
+                          <span className="text-slate-300">•</span>
+                          <span className="text-emerald-600 font-medium">
+                            {formatSalary(job.salaryMin, job.salaryMax)}
+                          </span>
+                        </>
+                      )}
+                    </div>
+
+                    {job.description && (
+                      <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-500 line-clamp-3">
+                        {job.description}
+                      </p>
                     )}
                   </div>
                 </div>
-                <div className="flex flex-col gap-2 flex-shrink-0">
+
+                <div className="flex flex-col gap-2 flex-shrink-0 lg:w-40">
                   <Link
                     to={`/jobs/${job.id}`}
                     className="btn-primary px-4 py-2 text-sm text-center"

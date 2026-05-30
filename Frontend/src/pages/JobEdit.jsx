@@ -2,6 +2,7 @@
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import GlassSelect from "../components/GlassSelect.jsx";
 
 const JOB_TYPES = [
   "INTERNSHIP",
@@ -218,38 +219,50 @@ const JobEdit = () => {
                 <label className="block text-xs text-slate-500 font-medium mb-1">
                   Employment Type*
                 </label>
-                <select
-                  name="jobType"
+                <GlassSelect
+                  label="Employment Type"
                   value={form.jobType}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 bg-white/60 border border-white/60 rounded-lg text-sm text-slate-900 focus:outline-none focus:border-emerald-300"
-                >
-                  {JOB_TYPES.map((t) => (
-                    <option key={t} value={t}>
-                      {t.replace("_", " ")}
-                    </option>
-                  ))}
-                </select>
+                  onValueChange={(nextValue) =>
+                    setForm((prev) => ({ ...prev, jobType: nextValue }))
+                  }
+                  placeholder="Select employment type"
+                  clearLabel="Select employment type"
+                  showClearOption={false}
+                  options={JOB_TYPES.map((t) => ({
+                    value: t,
+                    label: t.replace("_", " "),
+                  }))}
+                />
               </div>
               <div>
                 <label className="block text-xs text-slate-500 font-medium mb-1">
                   Job Status*
                 </label>
-                <select
-                  name="status"
+                <GlassSelect
+                  label="Job Status"
                   value={form.status}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 bg-white/60 border border-white/60 rounded-lg text-sm text-slate-900 focus:outline-none focus:border-emerald-300"
-                >
-                  <option value="DRAFT">Draft (Not public)</option>
-                  <option value="ACTIVE">
-                    Active (Accepting applications)
-                  </option>
-                  <option value="CLOSED">
-                    Closed (Hidden, no new applications)
-                  </option>
-                  <option value="ARCHIVED">Archived (Hidden, completed)</option>
-                </select>
+                  onValueChange={(nextValue) =>
+                    setForm((prev) => ({ ...prev, status: nextValue }))
+                  }
+                  placeholder="Select status"
+                  clearLabel="Select status"
+                  showClearOption={false}
+                  options={[
+                    { value: "DRAFT", label: "Draft (Not public)" },
+                    {
+                      value: "ACTIVE",
+                      label: "Active (Accepting applications)",
+                    },
+                    {
+                      value: "CLOSED",
+                      label: "Closed (Hidden, no new applications)",
+                    },
+                    {
+                      value: "ARCHIVED",
+                      label: "Archived (Hidden, completed)",
+                    },
+                  ]}
+                />
               </div>
               <div>
                 <label className="block text-xs text-slate-500 font-medium mb-1">

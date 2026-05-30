@@ -1,5 +1,6 @@
 import React from "react";
 import { useFormContext } from "react-hook-form";
+import GlassSelect from "../GlassSelect.jsx";
 
 const years = Array.from({ length: 2100 - 1990 + 1 }, (_, i) => 1990 + i);
 
@@ -22,10 +23,14 @@ const EducationStep = () => {
   const {
     register,
     watch,
+    setValue,
     formState: { errors },
   } = useFormContext();
 
   const selectedMajor = watch("majorOption");
+  const degreeLevel = watch("degreeLevel");
+  const majorOption = watch("majorOption");
+  const graduationYear = watch("graduationYear");
 
   return (
     <div className="space-y-4">
@@ -66,22 +71,20 @@ const EducationStep = () => {
         >
           Degree level<span className="text-rose-400"> *</span>
         </label>
-        <select
-          id="degreeLevel"
-          {...register("degreeLevel")}
-          className={`input-glass text-sm ${
-            errors.degreeLevel
-              ? "border-rose-400 text-slate-900"
-              : "border-white/70 text-slate-900"
-          }`}
-        >
-          <option value="">Select degree level</option>
-          {degreeLevels.map((level) => (
-            <option key={level} value={level}>
-              {level}
-            </option>
-          ))}
-        </select>
+        <GlassSelect
+          label="Degree level"
+          labelId="degreeLevel"
+          value={degreeLevel}
+          onValueChange={(nextValue) =>
+            setValue("degreeLevel", nextValue, { shouldValidate: true })
+          }
+          placeholder="Select degree level"
+          clearLabel="Select degree level"
+          options={degreeLevels.map((level) => ({
+            value: level,
+            label: level,
+          }))}
+        />
         {errors.degreeLevel && (
           <p className="text-[0.7rem] text-rose-400 mt-1">
             {errors.degreeLevel.message}
@@ -96,22 +99,20 @@ const EducationStep = () => {
         >
           Major / Program<span className="text-rose-400"> *</span>
         </label>
-        <select
-          id="majorOption"
-          {...register("majorOption")}
-          className={`input-glass text-sm ${
-            errors.majorOption
-              ? "border-rose-400 text-slate-900"
-              : "border-white/70 text-slate-900"
-          }`}
-        >
-          <option value="">Select major / program</option>
-          {majors.map((major) => (
-            <option key={major} value={major === "Other" ? "OTHER" : major}>
-              {major}
-            </option>
-          ))}
-        </select>
+        <GlassSelect
+          label="Major / Program"
+          labelId="majorOption"
+          value={majorOption}
+          onValueChange={(nextValue) =>
+            setValue("majorOption", nextValue, { shouldValidate: true })
+          }
+          placeholder="Select major / program"
+          clearLabel="Select major / program"
+          options={majors.map((major) => ({
+            value: major === "Other" ? "OTHER" : major,
+            label: major,
+          }))}
+        />
         {errors.majorOption && (
           <p className="text-[0.7rem] text-rose-400 mt-1">
             {errors.majorOption.message}
@@ -152,20 +153,20 @@ const EducationStep = () => {
           >
             Graduation year<span className="text-rose-400"> *</span>
           </label>
-          <select
-            id="graduationYear"
-            {...register("graduationYear")}
-            className={`input-glass text-sm ${
-              errors.graduationYear ? "border-rose-400" : "border-white/70"
-            }`}
-          >
-            <option value="">Select year</option>
-            {years.map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
+          <GlassSelect
+            label="Graduation year"
+            labelId="graduationYear"
+            value={graduationYear}
+            onValueChange={(nextValue) =>
+              setValue("graduationYear", nextValue, { shouldValidate: true })
+            }
+            placeholder="Select year"
+            clearLabel="Select year"
+            options={years.map((year) => ({
+              value: String(year),
+              label: String(year),
+            }))}
+          />
           {errors.graduationYear && (
             <p className="text-[0.7rem] text-rose-400 mt-1">
               {errors.graduationYear.message}

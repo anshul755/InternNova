@@ -6,6 +6,8 @@ import ThemeToggle from "../components/ThemeToggle.jsx";
 const midpoint = Math.ceil(companies.length / 2);
 const companiesRowOne = companies.slice(0, midpoint);
 const companiesRowTwo = companies.slice(midpoint);
+const logoCircleClassName =
+  "logo-circle group relative flex items-center justify-center w-32 h-32 flex-shrink-0 mx-4 rounded-full floating-bubble";
 
 const Landing = () => {
   return (
@@ -138,22 +140,22 @@ const Landing = () => {
                 href={company.careersUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative flex items-center justify-center w-32 h-32 flex-shrink-0 mx-4 bg-white/70 border border-white/60 rounded-full shadow-lg hover:scale-110 hover:shadow-2xl transition-all duration-300 floating-bubble"
+                className={logoCircleClassName}
                 style={{
                   animationDelay: `${idx * 0.4}s`,
                   animationDuration: `${8 + (idx % 5)}s`,
                 }}
                 title={company.name}
               >
-                <div className="w-20 h-20 flex items-center justify-center p-2">
+                <div className="logo-circle__media w-20 h-20 flex items-center justify-center p-2">
                   <img
                     src={company.logo}
                     alt={`${company.name} logo`}
-                    className="max-w-full max-h-full object-contain"
+                    className="logo-circle__img max-w-full max-h-full object-contain"
                     onError={(e) => {
                       e.target.style.display = "none";
                       const fallback = document.createElement("span");
-                      fallback.className = "text-2xl font-bold text-gray-700";
+                      fallback.className = "logo-circle__fallback";
                       fallback.textContent = company.name
                         .substring(0, 2)
                         .toUpperCase();
@@ -172,7 +174,7 @@ const Landing = () => {
                 href={company.careersUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative flex items-center justify-center w-32 h-32 flex-shrink-0 mx-4 bg-white/70 border border-white/60 rounded-full shadow-lg hover:scale-110 hover:shadow-2xl transition-all duration-300 floating-bubble"
+                className={logoCircleClassName}
                 style={{
                   animationDelay: `${(idx + companiesRowOne.length) * 0.4}s`,
                   animationDuration: `${
@@ -181,15 +183,15 @@ const Landing = () => {
                 }}
                 title={company.name}
               >
-                <div className="w-20 h-20 flex items-center justify-center p-2">
+                <div className="logo-circle__media w-20 h-20 flex items-center justify-center p-2">
                   <img
                     src={company.logo}
                     alt={`${company.name} logo`}
-                    className="max-w-full max-h-full object-contain"
+                    className="logo-circle__img max-w-full max-h-full object-contain"
                     onError={(e) => {
                       e.target.style.display = "none";
                       const fallback = document.createElement("span");
-                      fallback.className = "text-2xl font-bold text-gray-700";
+                      fallback.className = "logo-circle__fallback";
                       fallback.textContent = company.name
                         .substring(0, 2)
                         .toUpperCase();
@@ -211,22 +213,22 @@ const Landing = () => {
                   href={company.careersUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group relative flex items-center justify-center w-32 h-32 flex-shrink-0 mx-4 bg-white/70 border border-white/60 rounded-full shadow-lg hover:scale-110 hover:shadow-2xl transition-all duration-300 floating-bubble"
+                  className={logoCircleClassName}
                   style={{
                     animationDelay: `${idx * 0.4}s`,
                     animationDuration: `${8 + (idx % 5)}s`,
                   }}
                   title={company.name}
                 >
-                  <div className="w-20 h-20 flex items-center justify-center p-2">
+                  <div className="logo-circle__media w-20 h-20 flex items-center justify-center p-2">
                     <img
                       src={company.logo}
                       alt={`${company.name} logo`}
-                      className="max-w-full max-h-full object-contain"
+                      className="logo-circle__img max-w-full max-h-full object-contain"
                       onError={(e) => {
                         e.target.style.display = "none";
                         const fallback = document.createElement("span");
-                        fallback.className = "text-2xl font-bold text-gray-700";
+                        fallback.className = "logo-circle__fallback";
                         fallback.textContent = company.name
                           .substring(0, 2)
                           .toUpperCase();
@@ -245,7 +247,7 @@ const Landing = () => {
                   href={company.careersUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group relative flex items-center justify-center w-32 h-32 flex-shrink-0 mx-4 bg-white/70 border border-white/60 rounded-full shadow-lg hover:scale-110 hover:shadow-2xl transition-all duration-300 floating-bubble"
+                  className={logoCircleClassName}
                   style={{
                     animationDelay: `${(idx + companiesRowTwo.length) * 0.4}s`,
                     animationDuration: `${
@@ -254,15 +256,15 @@ const Landing = () => {
                   }}
                   title={company.name}
                 >
-                  <div className="w-20 h-20 flex items-center justify-center p-2">
+                  <div className="logo-circle__media w-20 h-20 flex items-center justify-center p-2">
                     <img
                       src={company.logo}
                       alt={`${company.name} logo`}
-                      className="max-w-full max-h-full object-contain"
+                      className="logo-circle__img max-w-full max-h-full object-contain"
                       onError={(e) => {
                         e.target.style.display = "none";
                         const fallback = document.createElement("span");
-                        fallback.className = "text-2xl font-bold text-gray-700";
+                        fallback.className = "logo-circle__fallback";
                         fallback.textContent = company.name
                           .substring(0, 2)
                           .toUpperCase();

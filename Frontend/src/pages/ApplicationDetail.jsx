@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
+import GlassSelect from "../components/GlassSelect.jsx";
 
 const STATUS_COLORS = {
   APPLIED: "bg-amber-50 text-amber-700 border-amber-200",
@@ -128,20 +129,25 @@ export default function ApplicationDetail() {
           {isCompany && application.status !== "WITHDRAWN" && (
             <div className="flex gap-3 items-center">
               <span className="text-sm text-slate-500">Update Status:</span>
-              <select
+              <GlassSelect
+                label="Update Status"
                 value={application.status}
-                onChange={(e) => handleUpdateStatus(e.target.value)}
+                onValueChange={(nextValue) => handleUpdateStatus(nextValue)}
                 disabled={!!updating}
-                className="bg-white/60 border border-white/60 text-slate-900 text-sm rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300 outline-none disabled:opacity-50"
-              >
-                <option value="APPLIED">Applied</option>
-                <option value="UNDER_REVIEW">Under Review</option>
-                <option value="SHORTLISTED">Shortlisted</option>
-                <option value="INTERVIEW">Interview</option>
-                <option value="OFFER">Offer</option>
-                <option value="HIRED">Hired</option>
-                <option value="REJECTED">Rejected</option>
-              </select>
+                placeholder="Update Status"
+                clearLabel="Update Status"
+                showClearOption={false}
+                className="w-[220px]"
+                options={[
+                  { value: "APPLIED", label: "Applied" },
+                  { value: "UNDER_REVIEW", label: "Under Review" },
+                  { value: "SHORTLISTED", label: "Shortlisted" },
+                  { value: "INTERVIEW", label: "Interview" },
+                  { value: "OFFER", label: "Offer" },
+                  { value: "HIRED", label: "Hired" },
+                  { value: "REJECTED", label: "Rejected" },
+                ]}
+              />
               {updating && (
                 <span className="text-xs text-slate-700 animate-pulse">
                   Updating...
