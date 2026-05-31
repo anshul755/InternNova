@@ -307,7 +307,7 @@ export default function Navbar() {
   ];
 
   const companyLinks = [
-    { label: "Jobs", to: "/jobs" },
+    { label: "My Jobs", to: "/company/jobs" },
     { label: "Post Job", to: "/jobs/create" },
     { label: "Applications", to: "/company/applications" },
   ];

@@ -21,6 +21,7 @@ import ApplicationManagement from "./pages/ApplicationManagement.jsx";
 import ApplicationDetail from "./pages/ApplicationDetail.jsx";
 import TalentDashboard from "./pages/TalentDashboard.jsx";
 import CompanyDashboard from "./pages/CompanyDashboard.jsx";
+import CompanyJobs from "./pages/CompanyJobs.jsx";
 import CompanyApplications from "./pages/CompanyApplications.jsx";
 import PostJob from "./pages/PostJob.jsx";
 import TalentProfileEdit from "./pages/TalentProfileEdit.jsx";
@@ -126,6 +127,14 @@ function App() {
           element={
             <RoleProtectedRoute role="Company">
               <CompanyDashboard />
+            </RoleProtectedRoute>
+          }
+        />
+        <Route
+          path="/company/jobs"
+          element={
+            <RoleProtectedRoute role="Company">
+              <CompanyJobs />
             </RoleProtectedRoute>
           }
         />
