@@ -1,9 +1,9 @@
 import React from "react";
 
 const SummaryRow = ({ label, value }) => (
-  <div className="flex justify-between gap-4 text-xs py-1.5 border-b border-slate-800/60 last:border-0">
-    <span className="text-slate-400 min-w-[120px]">{label}</span>
-    <span className="text-slate-100 text-right flex-1 break-words">
+  <div className="flex justify-between gap-4 text-xs py-1.5 border-b border-slate-200/60 last:border-0">
+    <span className="text-slate-500 min-w-[120px]">{label}</span>
+    <span className="text-slate-800 text-right flex-1 break-words">
       {Array.isArray(value) ? value.join(", ") : value || "—"}
     </span>
   </div>
@@ -12,24 +12,24 @@ const SummaryRow = ({ label, value }) => (
 const CompanySummaryStep = ({ values }) => {
   return (
     <div className="space-y-4">
-      <h2 className="text-sm font-semibold text-slate-100 mb-1">
+      <h2 className="text-sm font-semibold text-slate-900 mb-1">
         Step 5 - Review and submit
       </h2>
-      <p className="text-[0.75rem] text-slate-400 mb-3">
+      <p className="text-[0.75rem] text-slate-500 mb-3">
         Review your company information before submitting. You can go back to
         adjust any step.
       </p>
 
       <div className="grid grid-cols-1 gap-4 text-xs">
-        <div className="rounded-xl bg-slate-950/70 border border-slate-800 p-3 space-y-1.5">
-          <p className="text-[0.7rem] font-semibold text-slate-200 mb-1">
+        <div className="rounded-xl bg-white/70 border border-white/60 p-3 space-y-1.5">
+          <p className="text-[0.7rem] font-semibold text-slate-700 mb-1">
             Account
           </p>
           <SummaryRow label="Work email" value={values.email} />
         </div>
 
-        <div className="rounded-xl bg-slate-950/70 border border-slate-800 p-3 space-y-1.5">
-          <p className="text-[0.7rem] font-semibold text-slate-200 mb-1">
+        <div className="rounded-xl bg-white/70 border border-white/60 p-3 space-y-1.5">
+          <p className="text-[0.7rem] font-semibold text-slate-700 mb-1">
             Company basics
           </p>
           <SummaryRow label="Company name" value={values.companyName} />
@@ -38,16 +38,16 @@ const CompanySummaryStep = ({ values }) => {
           <SummaryRow label="Founded year" value={values.foundedYear} />
         </div>
 
-        <div className="rounded-xl bg-slate-950/70 border border-slate-800 p-3 space-y-1.5">
-          <p className="text-[0.7rem] font-semibold text-slate-200 mb-1">
+        <div className="rounded-xl bg-white/70 border border-white/60 p-3 space-y-1.5">
+          <p className="text-[0.7rem] font-semibold text-slate-700 mb-1">
             Description & website
           </p>
           <SummaryRow label="Description" value={values.companyDescription} />
           <SummaryRow label="Website" value={values.websiteUrl} />
         </div>
 
-        <div className="rounded-xl bg-slate-950/70 border border-slate-800 p-3 space-y-1.5">
-          <p className="text-[0.7rem] font-semibold text-slate-200 mb-1">
+        <div className="rounded-xl bg-white/70 border border-white/60 p-3 space-y-1.5">
+          <p className="text-[0.7rem] font-semibold text-slate-700 mb-1">
             Branding
           </p>
           <SummaryRow label="Logo URL" value={values.logoUrl} />

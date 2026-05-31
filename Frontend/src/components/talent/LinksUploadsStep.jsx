@@ -9,19 +9,18 @@ const LinksUploadsStep = () => {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-sm font-semibold text-slate-100 mb-1">
-        Step 5 · Links & uploads
+      <h2 className="text-sm font-semibold text-slate-900 mb-1">
+        Step 5 - Links & uploads
       </h2>
-      <p className="text-[0.75rem] text-slate-400 mb-3">
-        Add links and optional uploads. Files will be uploaded to your backend
-        via the existing /talent/v1 endpoint.
+      <p className="text-[0.75rem] text-slate-500 mb-3">
+        Add your professional links and upload optional files.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <label
             htmlFor="linkedinUrl"
-            className="block text-xs font-medium text-slate-300"
+            className="block text-xs font-medium text-slate-600"
           >
             LinkedIn profile<span className="text-rose-400"> *</span>
           </label>
@@ -29,10 +28,8 @@ const LinksUploadsStep = () => {
             id="linkedinUrl"
             type="url"
             {...register("linkedinUrl")}
-            className={`w-full rounded-lg bg-slate-950 border px-3 py-2 outline-none text-sm placeholder:text-slate-500 transition-colors ${
-              errors.linkedinUrl
-                ? "border-rose-500/80 focus:border-rose-400"
-                : "border-slate-700 focus:border-sky-400"
+            className={`input-glass text-sm ${
+              errors.linkedinUrl ? "border-rose-400" : "border-white/70"
             }`}
             placeholder="https://linkedin.com/in/username"
           />
@@ -46,7 +43,7 @@ const LinksUploadsStep = () => {
         <div className="space-y-1.5">
           <label
             htmlFor="githubUrl"
-            className="block text-xs font-medium text-slate-300"
+            className="block text-xs font-medium text-slate-600"
           >
             GitHub profile<span className="text-rose-400"> *</span>
           </label>
@@ -54,10 +51,8 @@ const LinksUploadsStep = () => {
             id="githubUrl"
             type="url"
             {...register("githubUrl")}
-            className={`w-full rounded-lg bg-slate-950 border px-3 py-2 outline-none text-sm placeholder:text-slate-500 transition-colors ${
-              errors.githubUrl
-                ? "border-rose-500/80 focus:border-rose-400"
-                : "border-slate-700 focus:border-sky-400"
+            className={`input-glass text-sm ${
+              errors.githubUrl ? "border-rose-400" : "border-white/70"
             }`}
             placeholder="https://github.com/username"
           />
@@ -72,7 +67,7 @@ const LinksUploadsStep = () => {
       <div className="space-y-1.5">
         <label
           htmlFor="portfolioUrl"
-          className="block text-xs font-medium text-slate-300"
+          className="block text-xs font-medium text-slate-600"
         >
           Portfolio / personal site
         </label>
@@ -80,10 +75,8 @@ const LinksUploadsStep = () => {
           id="portfolioUrl"
           type="url"
           {...register("portfolioUrl")}
-          className={`w-full rounded-lg bg-slate-950 border px-3 py-2 outline-none text-sm placeholder:text-slate-500 transition-colors ${
-            errors.portfolioUrl
-              ? "border-rose-500/80 focus:border-rose-400"
-              : "border-slate-700 focus:border-sky-400"
+          className={`input-glass text-sm ${
+            errors.portfolioUrl ? "border-rose-400" : "border-white/70"
           }`}
           placeholder="https://portfolio.com"
         />
@@ -98,7 +91,7 @@ const LinksUploadsStep = () => {
         <div className="space-y-1.5">
           <label
             htmlFor="avatarFile"
-            className="block text-xs font-medium text-slate-300"
+            className="block text-xs font-medium text-slate-600"
           >
             Avatar file (optional)
           </label>
@@ -107,14 +100,14 @@ const LinksUploadsStep = () => {
             type="file"
             accept="image/*"
             {...register("avatarFile")}
-            className="block w-full text-xs text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-slate-800 file:text-slate-100 hover:file:bg-slate-700"
+            className="block w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border file:border-white/60 file:text-xs file:font-medium file:bg-white/70 file:text-slate-700 hover:file:bg-white"
           />
         </div>
 
         <div className="space-y-1.5">
           <label
             htmlFor="resumeFile"
-            className="block text-xs font-medium text-slate-300"
+            className="block text-xs font-medium text-slate-600"
           >
             Resume file (optional)
           </label>
@@ -123,7 +116,7 @@ const LinksUploadsStep = () => {
             type="file"
             accept="application/pdf"
             {...register("resumeFile")}
-            className="block w-full text-xs text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-slate-800 file:text-slate-100 hover:file:bg-slate-700"
+            className="block w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border file:border-white/60 file:text-xs file:font-medium file:bg-white/70 file:text-slate-700 hover:file:bg-white"
           />
         </div>
       </div>

@@ -9,10 +9,10 @@ const PersonalInfoStep = () => {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-sm font-semibold text-slate-100 mb-1">
-        Step 2 · Personal information
+      <h2 className="text-sm font-semibold text-slate-900 mb-1">
+        Step 2 - Personal information
       </h2>
-      <p className="text-[0.75rem] text-slate-400 mb-3">
+      <p className="text-[0.75rem] text-slate-500 mb-3">
         Tell us a bit about yourself. This helps companies quickly understand
         who you are.
       </p>
@@ -20,7 +20,7 @@ const PersonalInfoStep = () => {
       <div className="space-y-1.5">
         <label
           htmlFor="name"
-          className="block text-xs font-medium text-slate-300"
+          className="block text-xs font-medium text-slate-600"
         >
           Full name<span className="text-rose-400"> *</span>
         </label>
@@ -28,10 +28,8 @@ const PersonalInfoStep = () => {
           id="name"
           type="text"
           {...register("name")}
-          className={`w-full rounded-lg bg-slate-950 border px-3 py-2 outline-none text-sm placeholder:text-slate-500 transition-colors ${
-            errors.name
-              ? "border-rose-500/80 focus:border-rose-400"
-              : "border-slate-700 focus:border-sky-400"
+          className={`input-glass text-sm ${
+            errors.name ? "border-rose-400" : "border-white/70"
           }`}
           placeholder="Alex Sharma"
         />
@@ -45,7 +43,7 @@ const PersonalInfoStep = () => {
       <div className="space-y-1.5">
         <label
           htmlFor="bio"
-          className="block text-xs font-medium text-slate-300"
+          className="block text-xs font-medium text-slate-600"
         >
           Short bio
         </label>
@@ -53,7 +51,7 @@ const PersonalInfoStep = () => {
           id="bio"
           rows={10}
           {...register("bio")}
-          className="w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-2 outline-none text-sm placeholder:text-slate-500 focus:border-sky-400 resize-none bio-scroll"
+          className="input-glass text-sm placeholder:text-slate-500 resize-none bio-scroll"
           placeholder="Summarize your interests, goals, and experience in 2-3 sentences."
         />
         {errors.bio && (
@@ -66,7 +64,7 @@ const PersonalInfoStep = () => {
       <div className="space-y-1.5">
         <label
           htmlFor="location"
-          className="block text-xs font-medium text-slate-300"
+          className="block text-xs font-medium text-slate-600"
         >
           Current location
         </label>
@@ -74,7 +72,7 @@ const PersonalInfoStep = () => {
           id="location"
           type="text"
           {...register("location")}
-          className="w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-2 outline-none text-sm placeholder:text-slate-500 focus:border-sky-400"
+          className="input-glass text-sm"
           placeholder="City, Country"
         />
         {errors.location && (

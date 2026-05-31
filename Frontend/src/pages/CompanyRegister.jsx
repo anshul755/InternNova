@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useAuth } from "../lib/AuthContext.jsx";
+import { CORE_API_BASE } from "../lib/serviceConfig.js";
 import CompanyAccountStep from "../components/company/CompanyAccountStep.jsx";
 import CompanyProfileStep from "../components/company/CompanyProfileStep.jsx";
 import CompanyDescriptionStep from "../components/company/CompanyDescriptionStep.jsx";
@@ -18,12 +20,10 @@ const passwordSchema = z
   .regex(/(?=.*[@#$%^&+=!_])/, "Must contain a special character");
 
 const baseSchema = z.object({
-  // Step 1
   email: z.string().email("Enter a valid email"),
   password: passwordSchema,
   confirmPassword: z.string(),
 
-  // Step 2
   companyName: z.string().min(1, "Company name is required"),
   companySize: z.string().min(1, "Company size is required"),
   companyType: z.string().min(1, "Company type is required"),
@@ -35,13 +35,11 @@ const baseSchema = z.object({
       return year >= 1800 && year <= 2100;
     }, "Founded year must be between 1800 and 2100"),
 
-  // Step 3
   companyDescription: z
     .string()
     .min(10, "Please add at least a short description"),
   websiteUrl: z.string().url("Enter a valid website URL"),
 
-  // Step 4
   logoUrl: z
     .string()
     .url("Enter a valid logo URL")
@@ -55,7 +53,7 @@ const schema = baseSchema.refine(
   {
     message: "Passwords do not match",
     path: ["confirmPassword"],
-  }
+  },
 );
 
 const steps = [
@@ -75,6 +73,8 @@ const stepRequiredFields = [
 ];
 
 const CompanyRegister = ({ modal = false }) => {
+  const { register: authRegister } = useAuth();
+  const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -143,10 +143,15 @@ const CompanyRegister = ({ modal = false }) => {
     setSubmitSuccess("");
 
     try {
-      const payload = {
+      const { userId } = await authRegister(
+        data.email,
+        data.password,
+        "Company",
+      );
+      const profilePayload = {
+        id: userId,
+        user: "Company",
         companyName: data.companyName,
-        email: data.email,
-        password: data.password,
         companySize: data.companySize,
         companyDescription: data.companyDescription,
         foundedYear: Number(data.foundedYear),
@@ -158,25 +163,25 @@ const CompanyRegister = ({ modal = false }) => {
       const formData = new FormData();
       formData.append(
         "data",
-        new Blob([JSON.stringify(payload)], { type: "application/json" })
+        new Blob([JSON.stringify(profilePayload)], {
+          type: "application/json",
+        }),
       );
 
       const logoFile = data.logoFile?.[0];
-      if (logoFile) {
-        formData.append("logo", logoFile);
-      }
+      if (logoFile) formData.append("logo", logoFile);
 
-      const response = await fetch("http://localhost:8080/company/v1", {
+      const response = await fetch(`${CORE_API_BASE}/company/v1`, {
         method: "POST",
         body: formData,
       });
 
       if (!response.ok) {
         const errorBody = await response.text();
-        throw new Error(errorBody || "Registration failed");
+        throw new Error(errorBody || "Profile creation failed");
       }
 
-      setSubmitSuccess("Company profile created successfully");
+      navigate("/verify-email", { state: { email: data.email } });
     } catch (err) {
       setSubmitError(err.message || "Something went wrong");
     } finally {
@@ -203,13 +208,13 @@ const CompanyRegister = ({ modal = false }) => {
   };
 
   const containerClasses = modal
-    ? "w-full text-white flex items-center justify-center px-[2vw] py-4 font-sans"
-    : "min-h-screen bg-[linear-gradient(135deg,#1923c4_0%,#0a5bff_40%,#0c1b66_100%)] text-white flex items-center justify-center px-[5vw] py-8 font-sans";
+    ? "w-full text-slate-900 flex items-center justify-center px-[2vw] py-4 font-sans"
+    : "min-h-screen text-slate-900 flex items-center justify-center px-[5vw] py-8 font-sans saas-section";
 
   return (
-    <div className={containerClasses}>
-      <div className="w-full max-w-6xl rounded-3xl bg-slate-950/70 border border-transparent overflow-hidden flex flex-col">
-        <div className="px-6 pt-6 pb-4 sm:px-10 border-b border-slate-800/80 bg-slate-950/80">
+    <div className={`${containerClasses} auth-flow`}>
+      <div className="w-full max-w-6xl rounded-3xl glass-panel border border-white/60 overflow-hidden flex flex-col">
+        <div className="px-6 pt-6 pb-4 sm:px-10 border-b border-white/50 bg-white/60">
           <ol className="flex flex-wrap lg:flex-nowrap gap-2 sm:gap-3 text-[0.7rem] sm:text-xs">
             {(() => {
               const values = getValues();
@@ -222,7 +227,8 @@ const CompanyRegister = ({ modal = false }) => {
                 const isActive = index === activeStep;
                 const requiredFields = stepRequiredFields[index] || [];
                 const hasError = requiredFields.some(
-                  (field) => fieldErrors[field] && fieldErrors[field].length > 0
+                  (field) =>
+                    fieldErrors[field] && fieldErrors[field].length > 0,
                 );
                 const isCompleted = index < activeStep && !hasError;
                 const isError = index < activeStep && hasError;
@@ -234,23 +240,23 @@ const CompanyRegister = ({ modal = false }) => {
                       onClick={() => handleStepClick(index)}
                       className={`flex items-center gap-2 px-3 py-2 rounded-full border transition-colors cursor-pointer select-none ${
                         isActive
-                          ? "bg-sky-500/20 border-sky-400 text-sky-100"
+                          ? "bg-emerald-500/15 border-emerald-400 text-emerald-700"
                           : isCompleted
-                          ? "bg-emerald-500/15 border-emerald-400 text-emerald-100"
-                          : isError
-                          ? "bg-rose-500/15 border-rose-400 text-rose-100"
-                          : "bg-slate-900/60 border-slate-700 text-slate-400"
+                            ? "bg-emerald-500/15 border-emerald-400 text-emerald-700"
+                            : isError
+                              ? "bg-rose-500/15 border-rose-400 text-rose-700"
+                              : "bg-white/70 border-white/60 text-slate-500"
                       }`}
                     >
                       <span
                         className={`flex h-5 w-5 items-center justify-center rounded-full text-[0.65rem] font-semibold ${
                           isActive
-                            ? "bg-sky-400 text-slate-950"
+                            ? "bg-emerald-400 text-slate-900"
                             : isCompleted
-                            ? "bg-emerald-400 text-slate-950"
-                            : isError
-                            ? "bg-rose-400 text-slate-950"
-                            : "bg-slate-800 text-slate-200"
+                              ? "bg-emerald-400 text-slate-900"
+                              : isError
+                                ? "bg-rose-400 text-slate-900"
+                                : "bg-white/70 text-slate-600"
                         }`}
                       >
                         {index + 1}
@@ -267,13 +273,13 @@ const CompanyRegister = ({ modal = false }) => {
         <div className="flex flex-col lg:flex-row">
           <section className="flex-1 px-6 py-8 sm:px-10">
             <header className="mb-6">
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
                 Company registration
               </p>
-              <h1 className="mt-2 text-xl sm:text-2xl font-semibold text-slate-50">
+              <h1 className="mt-2 text-xl sm:text-2xl font-semibold text-slate-900">
                 Create your InternNova company profile
               </h1>
-              <p className="mt-1.5 text-xs text-slate-400 max-w-sm">
+              <p className="mt-1.5 text-xs text-slate-500 max-w-sm">
                 Follow the steps to set up your employer account, share your
                 company story, and add your branding.
               </p>
@@ -285,18 +291,18 @@ const CompanyRegister = ({ modal = false }) => {
                 className="space-y-4 text-sm"
                 noValidate
               >
-                <div className="rounded-2xl bg-slate-900/60 border border-slate-800 px-4 py-5">
+                <div className="rounded-2xl bg-white/70 border border-white/60 px-4 py-5">
                   {renderStep()}
                 </div>
 
                 {submitError && (
-                  <p className="text-xs text-rose-400 bg-rose-950/60 border border-rose-800 rounded-md px-3 py-2">
+                  <p className="text-xs text-rose-600 bg-rose-100 border border-rose-200 rounded-md px-3 py-2">
                     {submitError}
                   </p>
                 )}
 
                 {submitSuccess && (
-                  <p className="text-xs text-emerald-300 bg-emerald-950/50 border border-emerald-700 rounded-md px-3 py-2">
+                  <p className="text-xs text-emerald-700 bg-emerald-100 border border-emerald-200 rounded-md px-3 py-2">
                     {submitSuccess}
                   </p>
                 )}
@@ -308,8 +314,8 @@ const CompanyRegister = ({ modal = false }) => {
                     disabled={activeStep === 0 || submitting}
                     className={`inline-flex items-center justify-center gap-2 rounded-lg border px-4 py-2 text-xs font-medium transition-colors ${
                       activeStep === 0 || submitting
-                        ? "border-slate-700 text-slate-600 cursor-not-allowed"
-                        : "border-slate-600 text-slate-200 hover:bg-slate-800/80"
+                        ? "border-white/60 text-slate-400 cursor-not-allowed"
+                        : "border-white/70 text-slate-700 hover:bg-white/70"
                     }`}
                   >
                     Back
@@ -321,7 +327,7 @@ const CompanyRegister = ({ modal = false }) => {
                         type="button"
                         onClick={handleNext}
                         disabled={submitting}
-                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-sky-400 text-slate-950 font-medium text-xs sm:text-sm px-4 py-2 hover:bg-sky-300 transition-transform hover:-translate-y-[1px] shadow-[0_10px_30px_rgba(56,189,248,0.45)]"
+                        className="btn-primary text-xs sm:text-sm px-4 py-2"
                       >
                         Next
                       </button>
@@ -331,7 +337,7 @@ const CompanyRegister = ({ modal = false }) => {
                       <button
                         type="submit"
                         disabled={submitting}
-                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-400 text-slate-950 font-medium text-xs sm:text-sm px-4 py-2 hover:bg-emerald-300 transition-transform hover:-translate-y-[1px] shadow-[0_10px_30px_rgba(52,211,153,0.45)] disabled:opacity-60 disabled:cursor-not-allowed"
+                        className="btn-primary text-xs sm:text-sm px-4 py-2 disabled:opacity-60 disabled:cursor-not-allowed"
                       >
                         {submitting
                           ? "Submitting..."
@@ -345,20 +351,20 @@ const CompanyRegister = ({ modal = false }) => {
           </section>
 
           {activeStep === 0 && (
-            <aside className="hidden lg:flex w-[40%] flex-col justify-between bg-[radial-gradient(circle_at_top,_#38bdf8_0,_transparent_55%),_radial-gradient(circle_at_bottom,_#22c55e_0,_transparent_55%)] p-8 text-sm text-slate-50">
+            <aside className="hidden lg:flex w-[40%] flex-col justify-between bg-white/60 border-l border-white/60 p-8 text-sm text-slate-700">
               <div>
                 <h2 className="text-lg font-semibold">Built for lean teams</h2>
-                <p className="mt-2 text-slate-100/85">
+                <p className="mt-2 text-slate-600">
                   Post internships, review applicants, and coordinate interviews
                   without another heavy HR system.
                 </p>
               </div>
 
-              <p className="mt-6 text-[0.8rem] text-slate-100/80">
+              <p className="mt-6 text-[0.8rem] text-slate-600">
                 Already registered?{" "}
                 <Link
                   to="/login"
-                  className="text-sky-100 underline underline-offset-4 decoration-sky-200 hover:text-white"
+                  className="text-emerald-700 underline underline-offset-4 decoration-emerald-300 hover:text-emerald-800"
                 >
                   Log in
                 </Link>
