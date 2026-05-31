@@ -161,7 +161,7 @@ body {
     sans-serif;
   color: var(--app-text);
   background: var(--app-bg);
-  background-attachment: fixed;
+  background-attachment: scroll;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overflow-x: hidden;

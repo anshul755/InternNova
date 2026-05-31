@@ -152,6 +152,8 @@ const Landing = () => {
                     src={company.logo}
                     alt={`${company.name} logo`}
                     className="logo-circle__img max-w-full max-h-full object-contain"
+                    loading="lazy"
+                    decoding="async"
                     onError={(e) => {
                       e.target.style.display = "none";
                       const fallback = document.createElement("span");
@@ -188,6 +190,8 @@ const Landing = () => {
                     src={company.logo}
                     alt={`${company.name} logo`}
                     className="logo-circle__img max-w-full max-h-full object-contain"
+                    loading="lazy"
+                    decoding="async"
                     onError={(e) => {
                       e.target.style.display = "none";
                       const fallback = document.createElement("span");
@@ -225,6 +229,8 @@ const Landing = () => {
                       src={company.logo}
                       alt={`${company.name} logo`}
                       className="logo-circle__img max-w-full max-h-full object-contain"
+                      loading="lazy"
+                      decoding="async"
                       onError={(e) => {
                         e.target.style.display = "none";
                         const fallback = document.createElement("span");
@@ -261,6 +267,8 @@ const Landing = () => {
                       src={company.logo}
                       alt={`${company.name} logo`}
                       className="logo-circle__img max-w-full max-h-full object-contain"
+                      loading="lazy"
+                      decoding="async"
                       onError={(e) => {
                         e.target.style.display = "none";
                         const fallback = document.createElement("span");
@@ -320,16 +328,31 @@ const Landing = () => {
 
         .animate-scroll-left {
           animation: scroll-left 55s linear infinite;
+          will-change: transform;
+          transform: translateZ(0);
         }
 
         .animate-scroll-right {
           animation: scroll-right 55s linear infinite;
+          will-change: transform;
+          transform: translateZ(0);
         }
 
         .floating-bubble {
           animation-name: float-bubble;
           animation-timing-function: ease-in-out;
           animation-iteration-count: infinite;
+          will-change: transform;
+          transform: translateZ(0);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .animate-scroll-left,
+          .animate-scroll-right,
+          .floating-bubble {
+            animation: none !important;
+            transform: none !important;
+          }
         }
       `}</style>
     </div>

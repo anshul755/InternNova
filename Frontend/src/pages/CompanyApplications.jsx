@@ -15,6 +15,16 @@ const STATUS_COLORS = {
   WITHDRAWN: "bg-slate-100 text-slate-600 border-slate-200",
 };
 
+const PIPELINE_STAGES = [
+  "APPLIED",
+  "UNDER_REVIEW",
+  "SHORTLISTED",
+  "INTERVIEW",
+  "OFFER",
+  "HIRED",
+  "REJECTED",
+];
+
 export default function CompanyApplications() {
   const { user } = useAuth();
   const { id: routeJobId } = useParams();
@@ -28,6 +38,8 @@ export default function CompanyApplications() {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [updatingId, setUpdatingId] = useState("");
+  const [draggedApplicationId, setDraggedApplicationId] = useState("");
+  const [dragOverStage, setDragOverStage] = useState("");
 
   useEffect(() => {
     if (!user?.id) return;
@@ -86,22 +98,50 @@ export default function CompanyApplications() {
   }
 
   async function updateStatus(applicationId, newStatus) {
+    const currentApplication = applications.find(
+      (app) => String(app.id) === String(applicationId),
+    );
+
+    if (!currentApplication || currentApplication.status === newStatus) {
+      return;
+    }
+
+    const previousApplications = applications;
     setUpdatingId(applicationId);
     try {
+      setApplications((prev) =>
+        prev.map((app) =>
+          String(app.id) === String(applicationId)
+            ? { ...app, status: newStatus }
+            : app,
+        ),
+      );
+
       await api.put(`/applications/v1/${applicationId}/status`, {
         status: newStatus,
         recruiterNotes: "",
       });
-      setApplications((prev) =>
-        prev.map((a) =>
-          a.id === applicationId ? { ...a, status: newStatus } : a,
-        ),
-      );
     } catch (err) {
+      setApplications(previousApplications);
       alert(err.message || "Failed to update application status");
     } finally {
       setUpdatingId("");
     }
+  }
+
+  function handleDragStart(applicationId) {
+    setDraggedApplicationId(String(applicationId));
+  }
+
+  function handleDragEnd() {
+    setDraggedApplicationId("");
+    setDragOverStage("");
+  }
+
+  function handleDrop(applicationId, nextStatus) {
+    setDragOverStage("");
+    setDraggedApplicationId("");
+    updateStatus(applicationId, nextStatus);
   }
 
   const selectedJob = jobs.find(
@@ -142,24 +182,29 @@ export default function CompanyApplications() {
         </div>
       );
     } else {
-      const pipelineStages = [
-        "APPLIED",
-        "UNDER_REVIEW",
-        "SHORTLISTED",
-        "INTERVIEW",
-        "OFFER",
-        "HIRED",
-        "REJECTED",
-      ];
-
       applicationsContent = (
         <div className="flex overflow-x-auto gap-4 pb-4 snap-x">
-          {pipelineStages.map((stage) => {
+          {PIPELINE_STAGES.map((stage) => {
             const appsInStage = applications.filter((a) => a.status === stage);
             return (
               <div
                 key={stage}
-                className="glass-card min-w-[300px] flex flex-col flex-1 shrink-0 snap-start"
+                onDragOver={(event) => event.preventDefault()}
+                onDragEnter={() => setDragOverStage(stage)}
+                onDragLeave={() =>
+                  setDragOverStage((current) =>
+                    current === stage ? "" : current,
+                  )
+                }
+                onDrop={(event) => {
+                  event.preventDefault();
+                  const applicationId =
+                    event.dataTransfer.getData("text/plain");
+                  if (applicationId) {
+                    handleDrop(applicationId, stage);
+                  }
+                }}
+                className={`glass-card min-w-[300px] flex flex-col flex-1 shrink-0 snap-start transition-all ${dragOverStage === stage ? "ring-2 ring-emerald-300 shadow-lg shadow-emerald-200/40" : ""}`}
               >
                 <div className="p-3 border-b border-white/40 flex justify-between items-center bg-white/60 rounded-t-xl">
                   <span className="font-semibold text-sm text-slate-700">
@@ -178,7 +223,17 @@ export default function CompanyApplications() {
                     appsInStage.map((app) => (
                       <div
                         key={app.id}
-                        className="bg-white/70 border border-white/60 rounded-lg p-4 hover:border-white/80 transition-colors relative group"
+                        draggable
+                        onDragStart={(event) => {
+                          event.dataTransfer.effectAllowed = "move";
+                          event.dataTransfer.setData(
+                            "text/plain",
+                            String(app.id),
+                          );
+                          handleDragStart(app.id);
+                        }}
+                        onDragEnd={handleDragEnd}
+                        className={`bg-white/70 border border-white/60 rounded-lg p-4 hover:border-white/80 transition-colors relative group cursor-grab active:cursor-grabbing ${draggedApplicationId === String(app.id) ? "opacity-60" : ""}`}
                       >
                         <Link to={`/applications/${app.id}`} className="block">
                           <h3 className="font-semibold text-sm text-slate-900 hover:text-slate-950 truncate pr-6">
@@ -212,11 +267,14 @@ export default function CompanyApplications() {
                           clearLabel="Update status"
                           showClearOption={false}
                           className="mt-3"
-                          options={pipelineStages.map((s) => ({
+                          options={PIPELINE_STAGES.map((s) => ({
                             value: s,
                             label: s.replace("_", " "),
                           }))}
                         />
+                        <p className="mt-2 text-[0.7rem] text-slate-400">
+                          Drag this card to another column to change status.
+                        </p>
                       </div>
                     ))
                   )}

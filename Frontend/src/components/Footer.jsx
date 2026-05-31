@@ -7,6 +7,11 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
   const wrapperClass = "saas-footer mt-auto";
 
+  const isCompany = user?.role === "Company";
+  const platformLink = isCompany
+    ? { to: "/company/jobs", label: "My Jobs" }
+    : { to: "/jobs", label: "Browse Jobs" };
+
   const headingClass =
     "text-xs font-semibold text-slate-700 uppercase tracking-wider mb-3";
 
@@ -44,8 +49,8 @@ export default function Footer() {
             <h4 className={headingClass}>Platform</h4>
             <ul className="space-y-2">
               <li>
-                <Link to="/jobs" className={linkClass}>
-                  Browse Jobs
+                <Link to={platformLink.to} className={linkClass}>
+                  {platformLink.label}
                 </Link>
               </li>
               {!user && (
