@@ -1,16 +1,25 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '../lib/AuthContext';
-import { api } from '../lib/api';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { useAuth } from "../lib/AuthContext";
+import { api } from "../lib/api";
+import { Link } from "react-router-dom";
+import { DashboardSkeleton } from "../components/Skeleton.jsx";
+import {
+  IoBriefcaseOutline,
+  IoDocumentTextOutline,
+  IoBookmarkOutline,
+  IoPersonOutline,
+  IoCheckmarkCircleOutline,
+  IoTimeOutline,
+  IoStatsChartOutline,
+} from "react-icons/io5";
 
 const TalentDashboard = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
   const [profile, setProfile] = useState(null);
   const [applications, setApplications] = useState([]);
   const [recentJobs, setRecentJobs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (user) fetchDashboardData();
@@ -22,17 +31,19 @@ const TalentDashboard = () => {
         .get(`/talent/v1/${user.id}`)
         .then((res) => res.json())
         .catch((err) => {
-          const isNotFound = String(err?.message || '').includes('404');
+          const isNotFound = String(err?.message || "").includes("404");
           if (isNotFound) return null;
           throw err;
         });
 
       const appsPromise = api
-        .get(`/applications/v1/student/${user.id}?page=0&size=5&sortBy=appliedAt&sortDir=desc`)
+        .get(
+          `/applications/v1/student/${user.id}?page=0&size=5&sortBy=appliedAt&sortDir=desc`,
+        )
         .then((res) => res.json());
 
       const jobsPromise = api
-        .get('/jobs/v1?page=0&size=5&sortBy=createdAt&sortDir=desc')
+        .get("/jobs/v1?page=0&size=5&sortBy=createdAt&sortDir=desc")
         .then((res) => res.json());
 
       const [profileData, appsData, jobsData] = await Promise.all([
@@ -42,269 +53,345 @@ const TalentDashboard = () => {
       ]);
 
       setProfile(profileData);
-      setApplications(Array.isArray(appsData) ? appsData : (appsData.content || []));
-      setRecentJobs(Array.isArray(jobsData) ? jobsData : (jobsData.content || []));
+      setApplications(
+        Array.isArray(appsData) ? appsData : appsData.content || [],
+      );
+      setRecentJobs(
+        Array.isArray(jobsData) ? jobsData : jobsData.content || [],
+      );
     } catch (err) {
-      setError(err.message || 'Failed to load dashboard data');
+      setError(err.message || "Failed to load dashboard data");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login', { replace: true });
-  };
-
   const getStatusColor = (status) => {
     switch (status) {
-      case 'APPLIED': return 'text-yellow-400';
-      case 'UNDER_REVIEW': return 'text-blue-400';
-      case 'SHORTLISTED': return 'text-purple-400';
-      case 'INTERVIEW': return 'text-indigo-400';
-      case 'OFFER': return 'text-green-400';
-      case 'HIRED': return 'text-teal-400';
-      case 'REJECTED': return 'text-red-400';
-      case 'WITHDRAWN': return 'text-gray-400';
-      default: return 'text-gray-400';
+      case "APPLIED":
+        return "text-amber-600";
+      case "UNDER_REVIEW":
+        return "text-emerald-600";
+      case "SHORTLISTED":
+        return "text-lime-600";
+      case "INTERVIEW":
+        return "text-teal-600";
+      case "OFFER":
+        return "text-green-700";
+      case "HIRED":
+        return "text-emerald-700";
+      case "REJECTED":
+        return "text-rose-600";
+      case "WITHDRAWN":
+        return "text-slate-500";
+      default:
+        return "text-slate-500";
     }
   };
 
   const getStatusBg = (status) => {
     switch (status) {
-      case 'APPLIED': return 'bg-yellow-400/10';
-      case 'UNDER_REVIEW': return 'bg-blue-400/10';
-      case 'SHORTLISTED': return 'bg-purple-400/10';
-      case 'INTERVIEW': return 'bg-indigo-400/10';
-      case 'OFFER': return 'bg-green-400/10';
-      case 'HIRED': return 'bg-teal-400/10';
-      case 'REJECTED': return 'bg-red-400/10';
-      case 'WITHDRAWN': return 'bg-gray-400/10';
-      default: return 'bg-gray-400/10';
+      case "APPLIED":
+        return "bg-amber-50 border-amber-200";
+      case "UNDER_REVIEW":
+        return "bg-emerald-50 border-emerald-200";
+      case "SHORTLISTED":
+        return "bg-lime-50 border-lime-200";
+      case "INTERVIEW":
+        return "bg-teal-50 border-teal-200";
+      case "OFFER":
+        return "bg-green-50 border-green-200";
+      case "HIRED":
+        return "bg-emerald-100 border-emerald-200";
+      case "REJECTED":
+        return "bg-rose-50 border-rose-200";
+      case "WITHDRAWN":
+        return "bg-slate-50 border-slate-200";
+      default:
+        return "bg-slate-50 border-slate-200";
     }
   };
 
   const stats = {
-    applied: applications.filter(a => a.status === 'APPLIED').length,
-    inProgress: applications.filter(a => ['UNDER_REVIEW', 'SHORTLISTED', 'INTERVIEW'].includes(a.status)).length,
-    rejected: applications.filter(a => a.status === 'REJECTED').length,
-    offers: applications.filter(a => ['OFFER', 'HIRED'].includes(a.status)).length,
+    applied: applications.filter((a) => a.status === "APPLIED").length,
+    inProgress: applications.filter((a) =>
+      ["UNDER_REVIEW", "SHORTLISTED", "INTERVIEW"].includes(a.status),
+    ).length,
+    rejected: applications.filter((a) => a.status === "REJECTED").length,
+    offers: applications.filter((a) => ["OFFER", "HIRED"].includes(a.status))
+      .length,
     total: applications.length,
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-slate-400">Loading dashboard...</p>
-        </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <DashboardSkeleton />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-400 mb-4">{error}</p>
-          <button
-            onClick={fetchDashboardData}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm transition-colors"
-          >
-            Retry
-          </button>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
+          <div className="glass-card text-center max-w-md p-6">
+            <p className="text-rose-500 mb-4">{error}</p>
+            <button onClick={fetchDashboardData} className="btn-primary">
+              Retry
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
-      <div className="border-b border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-xl font-bold text-blue-400">InternNova</h1>
-              <span className="text-slate-600">|</span>
-              <span className="text-slate-300">Talent Dashboard</span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-slate-400">{user?.email}</span>
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 text-sm bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-2xl font-semibold text-slate-900">
+          Welcome back{profile?.name ? `, ${profile.name}` : ""}
+        </h1>
+        <p className="text-sm text-slate-500 mt-1">
+          Here's your internship journey at a glance.
+        </p>
+      </div>
+
+      {/* Stat Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+        {[
+          {
+            label: "Applied",
+            value: stats.applied,
+            icon: IoDocumentTextOutline,
+            color: "text-amber-600",
+            bgColor: "bg-amber-50",
+            iconBg: "bg-amber-100",
+          },
+          {
+            label: "In Progress",
+            value: stats.inProgress,
+            icon: IoTimeOutline,
+            color: "text-emerald-700",
+            bgColor: "bg-emerald-50",
+            iconBg: "bg-emerald-100",
+          },
+          {
+            label: "Offers",
+            value: stats.offers,
+            icon: IoCheckmarkCircleOutline,
+            color: "text-green-700",
+            bgColor: "bg-green-50",
+            iconBg: "bg-green-100",
+          },
+          {
+            label: "Total",
+            value: stats.total,
+            icon: IoStatsChartOutline,
+            color: "text-slate-700",
+            bgColor: "bg-slate-50",
+            iconBg: "bg-slate-100",
+          },
+        ].map(({ label, value, icon: Icon, color, iconBg }) => (
+          <div key={label} className="glass-card p-5">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs text-slate-500 uppercase tracking-wide font-medium">
+                {label}
+              </span>
+              <div
+                className={`w-8 h-8 rounded-lg ${iconBg} flex items-center justify-center`}
               >
-                Logout
-              </button>
+                <Icon className={`w-4 h-4 ${color}`} />
+              </div>
+            </div>
+            <p className={`text-2xl font-bold ${color}`}>{value}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Main Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column — Profile + Quick Actions */}
+        <div className="space-y-6">
+          {/* Profile Card */}
+          <div className="glass-card p-6">
+            <h2 className="text-base font-semibold text-slate-900 mb-4">
+              Your Profile
+            </h2>
+            {profile ? (
+              <div className="space-y-3">
+                <div>
+                  <p className="text-xs text-slate-500">Name</p>
+                  <p className="text-sm text-slate-700 font-medium">
+                    {profile.name}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500">University</p>
+                  <p className="text-sm text-slate-700">{profile.university}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500">Major</p>
+                  <p className="text-sm text-slate-700">{profile.major}</p>
+                </div>
+                {profile.cgpa && (
+                  <div>
+                    <p className="text-xs text-slate-500">CGPA</p>
+                    <p className="text-sm text-slate-700">{profile.cgpa}/10</p>
+                  </div>
+                )}
+                {profile.skills?.length > 0 && (
+                  <div>
+                    <p className="text-xs text-slate-500 mb-2">Skills</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {profile.skills.map((skill) => (
+                        <span
+                          key={skill}
+                          className="px-2.5 py-1 bg-brand-100 text-slate-900 rounded-lg text-xs font-medium border border-brand-200"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="text-slate-500 text-sm">
+                Profile not found. Please complete your profile.
+              </p>
+            )}
+            <Link
+              to="/profile/edit"
+              className="btn-primary mt-4 w-full !text-sm"
+            >
+              <IoPersonOutline className="w-4 h-4" />
+              Edit Profile
+            </Link>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="glass-card p-6">
+            <h2 className="text-base font-semibold text-slate-900 mb-4">
+              Quick Actions
+            </h2>
+            <div className="grid grid-cols-1 gap-2.5">
+              <Link
+                to="/jobs"
+                className="flex items-center gap-3 p-3 bg-brand-100 hover:bg-brand-200 border border-brand-200 rounded-xl text-sm text-slate-900 font-medium transition-colors"
+              >
+                <IoBriefcaseOutline className="w-4 h-4" />
+                Browse Jobs
+              </Link>
+              <Link
+                to="/applications"
+                className="flex items-center gap-3 p-3 bg-white/70 hover:bg-white/80 border border-white/60 rounded-xl text-sm text-slate-700 transition-colors"
+              >
+                <IoDocumentTextOutline className="w-4 h-4" />
+                My Applications
+              </Link>
+              <Link
+                to="/saved-jobs"
+                className="flex items-center gap-3 p-3 bg-white/70 hover:bg-white/80 border border-white/60 rounded-xl text-sm text-slate-700 transition-colors"
+              >
+                <IoBookmarkOutline className="w-4 h-4" />
+                Saved Jobs
+              </Link>
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="space-y-6">
-            <div className="bg-slate-900 rounded-xl p-6 border border-slate-800">
-              <h2 className="text-lg font-semibold mb-4">Your Profile</h2>
-              {profile ? (
-                <div className="space-y-3">
-                  <div>
-                    <p className="text-xs text-slate-400">Name</p>
-                    <p className="text-slate-200">{profile.name}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-400">University</p>
-                    <p className="text-slate-200">{profile.university}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-400">Major</p>
-                    <p className="text-slate-200">{profile.major}</p>
-                  </div>
-                  {profile.cgpa && (
-                    <div>
-                      <p className="text-xs text-slate-400">CGPA</p>
-                      <p className="text-slate-200">{profile.cgpa}/10</p>
-                    </div>
-                  )}
-                  {profile.skills?.length > 0 && (
-                    <div>
-                      <p className="text-xs text-slate-400 mb-2">Skills</p>
-                      <div className="flex flex-wrap gap-2">
-                        {profile.skills.map((skill) => (
-                          <span key={skill} className="px-2 py-1 bg-blue-500/20 text-blue-300 rounded-md text-xs">
-                            {skill}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <p className="text-slate-400 text-sm">Profile not found. Please complete your profile.</p>
-              )}
-              <Link
-                to="/profile/edit"
-                className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors inline-block text-center"
-              >
-                Edit Profile
-              </Link>
-            </div>
-            <div className="bg-slate-900 rounded-xl p-6 border border-slate-800">
-              <h2 className="text-lg font-semibold mb-4">Application Stats</h2>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-yellow-400">{stats.applied}</p>
-                  <p className="text-xs text-slate-400">Applied</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-blue-400">{stats.inProgress}</p>
-                  <p className="text-xs text-slate-400">In Progress</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-green-400">{stats.offers}</p>
-                  <p className="text-xs text-slate-400">Offers/Hired</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-slate-200">{stats.total}</p>
-                  <p className="text-xs text-slate-400">Total</p>
-                </div>
-              </div>
-            </div>
+        {/* Center Column — Recent Applications */}
+        <div className="glass-card p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-base font-semibold text-slate-900">
+              Recent Applications
+            </h2>
+            <Link
+              to="/applications"
+              className="text-xs text-slate-700 hover:text-slate-900 font-medium transition-colors"
+            >
+              View All
+            </Link>
           </div>
-          <div className="bg-slate-900 rounded-xl p-6 border border-slate-800">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">Recent Applications</h2>
-              <Link to="/applications" className="text-sm text-blue-400 hover:text-blue-300">
-                View All
-              </Link>
-            </div>
-            <div className="space-y-4">
-              {applications.length > 0 ? applications.map(app => (
-                <div key={app.id} className="p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+          <div className="space-y-3">
+            {applications.length > 0 ? (
+              applications.map((app) => (
+                <div
+                  key={app.id}
+                  className="p-3.5 bg-white/60 rounded-xl border border-white/50 hover:border-white/70 transition-colors"
+                >
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-medium text-slate-200 text-sm">{app.jobTitle}</h3>
-                    <span className={`px-2 py-1 rounded-md text-xs font-medium ${getStatusBg(app.status)} ${getStatusColor(app.status)}`}>
-                      {app.status}
+                    <h3 className="font-medium text-slate-800 text-sm">
+                      {app.jobTitle}
+                    </h3>
+                    <span
+                      className={`px-2 py-0.5 rounded-lg text-xs font-medium border ${getStatusBg(app.status)} ${getStatusColor(app.status)}`}
+                    >
+                      {app.status?.replace(/_/g, " ")}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-400">{app.companyName}</p>
+                  <p className="text-xs text-slate-500">{app.companyName}</p>
                   {app.appliedAt && (
-                    <p className="text-xs text-slate-500 mt-2">
+                    <p className="text-xs text-slate-400 mt-2">
                       Applied: {new Date(app.appliedAt).toLocaleDateString()}
                     </p>
                   )}
                 </div>
-              )) : (
-                <div className="text-center py-8">
-                  <p className="text-slate-400 mb-4">No applications yet</p>
-                  <Link
-                    to="/jobs"
-                    className="text-sm bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors"
-                  >
-                    Browse Jobs
-                  </Link>
-                </div>
-              )}
-            </div>
-          </div>
-          <div className="space-y-6">
-            <div className="bg-slate-900 rounded-xl p-6 border border-slate-800">
-              <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
-              <div className="grid grid-cols-1 gap-3">
-                <Link
-                  to="/jobs"
-                  className="p-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-center text-white transition-colors"
-                >
+              ))
+            ) : (
+              <div className="text-center py-10">
+                <IoBriefcaseOutline className="w-8 h-8 text-slate-300 mx-auto mb-3" />
+                <p className="text-slate-400 mb-4 text-sm">
+                  No applications yet
+                </p>
+                <Link to="/jobs" className="btn-primary !text-sm">
                   Browse Jobs
                 </Link>
-                <Link
-                  to="/applications"
-                  className="p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-center text-slate-300 transition-colors"
-                >
-                  My Applications
-                </Link>
-                <Link
-                  to="/saved-jobs"
-                  className="p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-center text-slate-300 transition-colors"
-                >
-                  Saved Jobs
-                </Link>
-                <Link
-                  to="/profile/edit"
-                  className="p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-center text-slate-300 transition-colors"
-                >
-                  Update Profile
-                </Link>
               </div>
-            </div>
+            )}
+          </div>
+        </div>
 
-            <div className="bg-slate-900 rounded-xl p-6 border border-slate-800">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-semibold">Recent Job Posts</h2>
-                <Link to="/jobs" className="text-sm text-blue-400 hover:text-blue-300">
-                  View All
+        {/* Right Column — Recent Jobs */}
+        <div className="glass-card p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-base font-semibold text-slate-900">
+              Recent Job Posts
+            </h2>
+            <Link
+              to="/jobs"
+              className="text-xs text-slate-700 hover:text-slate-900 font-medium transition-colors"
+            >
+              View All →
+            </Link>
+          </div>
+          <div className="space-y-3">
+            {recentJobs.length > 0 ? (
+              recentJobs.map((job) => (
+                <Link
+                  key={job.id}
+                  to={`/jobs/${job.id}`}
+                  className="block p-3.5 bg-white/60 rounded-xl border border-white/50 hover:border-white/70 hover:shadow-sm transition-all group"
+                >
+                  <h3 className="font-medium text-slate-800 text-sm mb-1 group-hover:text-emerald-600 transition-colors">
+                    {job.title}
+                  </h3>
+                  <p className="text-xs text-slate-500">{job.location}</p>
+                  {job.salaryMin && job.salaryMax && (
+                    <p className="text-xs text-emerald-600 mt-2 font-medium">
+                      ${job.salaryMin.toLocaleString()} – $
+                      {job.salaryMax.toLocaleString()}
+                    </p>
+                  )}
                 </Link>
-              </div>
-              <div className="space-y-4">
-                {recentJobs.length > 0 ? recentJobs.map(job => (
-                  <div key={job.id} className="p-4 bg-slate-800/50 rounded-lg border border-slate-700">
-                    <h3 className="font-medium text-slate-200 text-sm mb-1">{job.title}</h3>
-                    <p className="text-xs text-slate-400">{job.location}</p>
-                    <div className="flex justify-between items-center mt-3">
-                      <span className="text-xs text-slate-500">
-                        {job.salaryMin && job.salaryMax ? `$${job.salaryMin.toLocaleString()} - $${job.salaryMax.toLocaleString()}` : ''}
-                      </span>
-                      <Link to={`/jobs/${job.id}`} className="text-xs text-blue-400 hover:text-blue-300">
-                        View Details
-                      </Link>
-                    </div>
-                  </div>
-                )) : (
-                  <p className="text-slate-500 text-sm text-center py-4">No jobs available</p>
-                )}
-              </div>
-            </div>
+              ))
+            ) : (
+              <p className="text-slate-500 text-sm text-center py-8">
+                No jobs available
+              </p>
+            )}
           </div>
         </div>
       </div>

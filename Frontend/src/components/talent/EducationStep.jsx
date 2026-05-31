@@ -1,5 +1,6 @@
 import React from "react";
 import { useFormContext } from "react-hook-form";
+import GlassSelect from "../GlassSelect.jsx";
 
 const years = Array.from({ length: 2100 - 1990 + 1 }, (_, i) => 1990 + i);
 
@@ -22,24 +23,28 @@ const EducationStep = () => {
   const {
     register,
     watch,
+    setValue,
     formState: { errors },
   } = useFormContext();
 
   const selectedMajor = watch("majorOption");
+  const degreeLevel = watch("degreeLevel");
+  const majorOption = watch("majorOption");
+  const graduationYear = watch("graduationYear");
 
   return (
     <div className="space-y-4">
-      <h2 className="text-sm font-semibold text-slate-100 mb-1">
-        Step 3 · Education
+      <h2 className="text-sm font-semibold text-slate-900 mb-1">
+        Step 3 - Education
       </h2>
-      <p className="text-[0.75rem] text-slate-400 mb-3">
+      <p className="text-[0.75rem] text-slate-500 mb-3">
         Share your current or most recent education details.
       </p>
 
       <div className="space-y-1.5">
         <label
           htmlFor="university"
-          className="block text-xs font-medium text-slate-300"
+          className="block text-xs font-medium text-slate-600"
         >
           University<span className="text-rose-400"> *</span>
         </label>
@@ -47,10 +52,8 @@ const EducationStep = () => {
           id="university"
           type="text"
           {...register("university")}
-          className={`w-full rounded-lg bg-slate-950 border px-3 py-2 outline-none text-sm placeholder:text-slate-500 transition-colors ${
-            errors.university
-              ? "border-rose-500/80 focus:border-rose-400"
-              : "border-slate-700 focus:border-sky-400"
+          className={`input-glass text-sm ${
+            errors.university ? "border-rose-400" : "border-white/70"
           }`}
           placeholder="Indian Institute of Technology, Delhi"
         />
@@ -64,26 +67,24 @@ const EducationStep = () => {
       <div className="space-y-1.5">
         <label
           htmlFor="degreeLevel"
-          className="block text-xs font-medium text-slate-300"
+          className="block text-xs font-medium text-slate-600"
         >
           Degree level<span className="text-rose-400"> *</span>
         </label>
-        <select
-          id="degreeLevel"
-          {...register("degreeLevel")}
-          className={`w-full rounded-lg bg-slate-950 border px-3 py-2 outline-none text-sm transition-colors ${
-            errors.degreeLevel
-              ? "border-rose-500/80 focus:border-rose-400 text-slate-100"
-              : "border-slate-700 focus:border-sky-400 text-slate-100"
-          }`}
-        >
-          <option value="">Select degree level</option>
-          {degreeLevels.map((level) => (
-            <option key={level} value={level}>
-              {level}
-            </option>
-          ))}
-        </select>
+        <GlassSelect
+          label="Degree level"
+          labelId="degreeLevel"
+          value={degreeLevel}
+          onValueChange={(nextValue) =>
+            setValue("degreeLevel", nextValue, { shouldValidate: true })
+          }
+          placeholder="Select degree level"
+          clearLabel="Select degree level"
+          options={degreeLevels.map((level) => ({
+            value: level,
+            label: level,
+          }))}
+        />
         {errors.degreeLevel && (
           <p className="text-[0.7rem] text-rose-400 mt-1">
             {errors.degreeLevel.message}
@@ -94,26 +95,24 @@ const EducationStep = () => {
       <div className="space-y-1.5">
         <label
           htmlFor="majorOption"
-          className="block text-xs font-medium text-slate-300"
+          className="block text-xs font-medium text-slate-600"
         >
           Major / Program<span className="text-rose-400"> *</span>
         </label>
-        <select
-          id="majorOption"
-          {...register("majorOption")}
-          className={`w-full rounded-lg bg-slate-950 border px-3 py-2 outline-none text-sm transition-colors ${
-            errors.majorOption
-              ? "border-rose-500/80 focus:border-rose-400 text-slate-100"
-              : "border-slate-700 focus:border-sky-400 text-slate-100"
-          }`}
-        >
-          <option value="">Select major / program</option>
-          {majors.map((major) => (
-            <option key={major} value={major === "Other" ? "OTHER" : major}>
-              {major}
-            </option>
-          ))}
-        </select>
+        <GlassSelect
+          label="Major / Program"
+          labelId="majorOption"
+          value={majorOption}
+          onValueChange={(nextValue) =>
+            setValue("majorOption", nextValue, { shouldValidate: true })
+          }
+          placeholder="Select major / program"
+          clearLabel="Select major / program"
+          options={majors.map((major) => ({
+            value: major === "Other" ? "OTHER" : major,
+            label: major,
+          }))}
+        />
         {errors.majorOption && (
           <p className="text-[0.7rem] text-rose-400 mt-1">
             {errors.majorOption.message}
@@ -125,7 +124,7 @@ const EducationStep = () => {
         <div className="space-y-1.5">
           <label
             htmlFor="majorOther"
-            className="block text-xs font-medium text-slate-300"
+            className="block text-xs font-medium text-slate-600"
           >
             Other major / program<span className="text-rose-400"> *</span>
           </label>
@@ -133,10 +132,8 @@ const EducationStep = () => {
             id="majorOther"
             type="text"
             {...register("majorOther")}
-            className={`w-full rounded-lg bg-slate-950 border px-3 py-2 outline-none text-sm placeholder:text-slate-500 transition-colors ${
-              errors.majorOther
-                ? "border-rose-500/80 focus:border-rose-400"
-                : "border-slate-700 focus:border-sky-400"
+            className={`input-glass text-sm ${
+              errors.majorOther ? "border-rose-400" : "border-white/70"
             }`}
             placeholder="e.g. B.Sc Data Science"
           />
@@ -152,26 +149,24 @@ const EducationStep = () => {
         <div className="space-y-1.5">
           <label
             htmlFor="graduationYear"
-            className="block text-xs font-medium text-slate-300"
+            className="block text-xs font-medium text-slate-600"
           >
             Graduation year<span className="text-rose-400"> *</span>
           </label>
-          <select
-            id="graduationYear"
-            {...register("graduationYear")}
-            className={`w-full rounded-lg bg-slate-950 border px-3 py-2 outline-none text-sm transition-colors ${
-              errors.graduationYear
-                ? "border-rose-500/80 focus:border-rose-400"
-                : "border-slate-700 focus:border-sky-400"
-            }`}
-          >
-            <option value="">Select year</option>
-            {years.map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
+          <GlassSelect
+            label="Graduation year"
+            labelId="graduationYear"
+            value={graduationYear}
+            onValueChange={(nextValue) =>
+              setValue("graduationYear", nextValue, { shouldValidate: true })
+            }
+            placeholder="Select year"
+            clearLabel="Select year"
+            options={years.map((year) => ({
+              value: String(year),
+              label: String(year),
+            }))}
+          />
           {errors.graduationYear && (
             <p className="text-[0.7rem] text-rose-400 mt-1">
               {errors.graduationYear.message}
@@ -182,7 +177,7 @@ const EducationStep = () => {
         <div className="space-y-1.5">
           <label
             htmlFor="cgpa"
-            className="block text-xs font-medium text-slate-300"
+            className="block text-xs font-medium text-slate-600"
           >
             CGPA (0.0 - 10.0)<span className="text-rose-400"> *</span>
           </label>
@@ -193,10 +188,8 @@ const EducationStep = () => {
             min="0"
             max="10"
             {...register("cgpa")}
-            className={`w-full rounded-lg bg-slate-950 border px-3 py-2 outline-none text-sm placeholder:text-slate-500 transition-colors ${
-              errors.cgpa
-                ? "border-rose-500/80 focus:border-rose-400"
-                : "border-slate-700 focus:border-sky-400"
+            className={`input-glass text-sm ${
+              errors.cgpa ? "border-rose-400" : "border-white/70"
             }`}
             placeholder="8.5"
           />
