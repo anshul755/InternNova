@@ -1,6 +1,7 @@
 package com.internNova.InternNova.entity;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -30,4 +31,7 @@ public class Application {
     private String jobTitle;
     private String companyName;
     private String jobLocation;
+
+    // Structured resume produced by the AI parser step, stored as-is for later use.
+    private Map<String, Object> parsedResume;
 }

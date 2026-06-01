@@ -1,0 +1,12 @@
+{
+  "title": "AI/ML Intern",
+  "description": "Help build InternNova's resume-screening pipeline: parsing, fraud detection, and candidate-job matching with LLMs.",
+  "requirements": "Comfortable with Python and REST APIs. Some ML exposure. Bonus: LLM / LangChain / LangGraph experience.",
+  "responsibilities": "Build and test pipeline nodes, write FastAPI endpoints, evaluate model output quality.",
+  "skillsRequired": ["Python", "FastAPI", "LangChain", "Machine Learning"],
+  "location": "Remote",
+  "remoteOption": true,
+  "jobType": "INTERNSHIP",
+  "duration": "6 months",
+  "selectionCriteria": "Strong DSA fundamentals and at least one real, shipped LLM project."
+}
