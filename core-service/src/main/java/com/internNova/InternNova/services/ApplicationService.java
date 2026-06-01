@@ -46,6 +46,9 @@ public class ApplicationService {
     @Autowired
     private CloudinaryService cloudinaryService;
 
+    @Autowired
+    private ApplicationEvaluationService applicationEvaluationService;
+
     public Application createApplication(ApplicationCreateDTO applicationCreateDTO) {
         return createApplication(applicationCreateDTO, null);
     }
@@ -92,9 +95,13 @@ public class ApplicationService {
         application.setStatus(ApplicationState.APPLIED);
 
         Application savedApplication = applicationRepository.save(application);
-        
+
         jobService.incrementApplicationCount(applicationCreateDTO.getJobId());
-        
+
+        // Fire-and-forget AI screening: parses the resume and moves the application to
+        // SHORTLISTED / UNDER_REVIEW / REJECTED off the request thread. Stays APPLIED if it fails.
+        applicationEvaluationService.evaluate(savedApplication, job);
+
         return savedApplication;
     }
 
