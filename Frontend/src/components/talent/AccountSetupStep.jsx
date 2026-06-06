@@ -1,11 +1,15 @@
 import React from "react";
+import { useState } from "react";
 import { useFormContext } from "react-hook-form";
+import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5";
 
 const AccountSetupStep = () => {
   const {
     register,
     formState: { errors },
   } = useFormContext();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   return (
     <div className="space-y-4">
@@ -48,15 +52,29 @@ const AccountSetupStep = () => {
           >
             Password<span className="text-rose-400"> *</span>
           </label>
-          <input
-            id="password"
-            type="password"
-            {...register("password")}
-            className={`input-glass text-sm ${
-              errors.password ? "border-rose-400" : "border-white/70"
-            }`}
-            placeholder="8+ chars, Aa1@#$_"
-          />
+          <div className="relative">
+            <input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              {...register("password")}
+              className={`input-glass pr-12 text-sm ${
+                errors.password ? "border-rose-400" : "border-white/70"
+              }`}
+              placeholder="8+ chars, Aa1@#$_"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute inset-y-0 right-0 flex items-center justify-center px-3 text-slate-500 hover:text-slate-700"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? (
+                <IoEyeOffOutline className="w-5 h-5" />
+              ) : (
+                <IoEyeOutline className="w-5 h-5" />
+              )}
+            </button>
+          </div>
           {errors.password && (
             <p className="text-[0.7rem] text-rose-400 mt-1">
               {errors.password.message}
@@ -71,15 +89,31 @@ const AccountSetupStep = () => {
           >
             Confirm password<span className="text-rose-400"> *</span>
           </label>
-          <input
-            id="confirmPassword"
-            type="password"
-            {...register("confirmPassword")}
-            className={`input-glass text-sm ${
-              errors.confirmPassword ? "border-rose-400" : "border-white/70"
-            }`}
-            placeholder="Re-enter password"
-          />
+          <div className="relative">
+            <input
+              id="confirmPassword"
+              type={showConfirmPassword ? "text" : "password"}
+              {...register("confirmPassword")}
+              className={`input-glass pr-12 text-sm ${
+                errors.confirmPassword ? "border-rose-400" : "border-white/70"
+              }`}
+              placeholder="Re-enter password"
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword((prev) => !prev)}
+              className="absolute inset-y-0 right-0 flex items-center justify-center px-3 text-slate-500 hover:text-slate-700"
+              aria-label={
+                showConfirmPassword ? "Hide password" : "Show password"
+              }
+            >
+              {showConfirmPassword ? (
+                <IoEyeOffOutline className="w-5 h-5" />
+              ) : (
+                <IoEyeOutline className="w-5 h-5" />
+              )}
+            </button>
+          </div>
           {errors.confirmPassword && (
             <p className="text-[0.7rem] text-rose-400 mt-1">
               {errors.confirmPassword.message}

@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
+import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5";
 
 const passwordRule = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 
@@ -18,6 +19,8 @@ export default function ForgotPassword() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const passwordHint = useMemo(
     () =>
@@ -222,16 +225,32 @@ export default function ForgotPassword() {
               >
                 New password
               </label>
-              <input
-                id="newPassword"
-                type="password"
-                autoComplete="new-password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="input-glass text-sm"
-                placeholder="Enter new password"
-                required
-              />
+              <div className="relative">
+                <input
+                  id="newPassword"
+                  type={showNewPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="input-glass pr-12 text-sm"
+                  placeholder="Enter new password"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword((prev) => !prev)}
+                  className="absolute inset-y-0 right-0 flex items-center justify-center px-3 text-slate-500 hover:text-slate-700"
+                  aria-label={
+                    showNewPassword ? "Hide password" : "Show password"
+                  }
+                >
+                  {showNewPassword ? (
+                    <IoEyeOffOutline className="w-5 h-5" />
+                  ) : (
+                    <IoEyeOutline className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
             </div>
 
             <div className="space-y-1.5">
@@ -241,16 +260,32 @@ export default function ForgotPassword() {
               >
                 Confirm password
               </label>
-              <input
-                id="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="input-glass text-sm"
-                placeholder="Re-enter new password"
-                required
-              />
+              <div className="relative">
+                <input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="input-glass pr-12 text-sm"
+                  placeholder="Re-enter new password"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((prev) => !prev)}
+                  className="absolute inset-y-0 right-0 flex items-center justify-center px-3 text-slate-500 hover:text-slate-700"
+                  aria-label={
+                    showConfirmPassword ? "Hide password" : "Show password"
+                  }
+                >
+                  {showConfirmPassword ? (
+                    <IoEyeOffOutline className="w-5 h-5" />
+                  ) : (
+                    <IoEyeOutline className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
             </div>
 
             <p className="text-[0.7rem] text-slate-500">{passwordHint}</p>

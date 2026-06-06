@@ -14,6 +14,7 @@ export default function AppLayout() {
   const location = useLocation();
   const isLanding = location.pathname === "/" || location.pathname === "";
   const isAuthModalRoute = [
+    "/register",
     "/login",
     "/register/user",
     "/register/talent",
