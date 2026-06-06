@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useTheme } from "../lib/ThemeContext.jsx";
 import { api } from "../lib/api.js";
+import { resolveLogoUrl } from "../lib/media.js";
 import ThemeToggle from "./ThemeToggle.jsx";
 import {
   IoMenu,
@@ -43,6 +44,10 @@ function UserDropdown({ user, onLogout, light, displayName, avatarUrl }) {
   const ref = useRef(null);
 
   useEffect(() => {
+    setImgError(false);
+  }, [avatarUrl]);
+
+  useEffect(() => {
     const handler = (e) => {
       if (ref.current && !ref.current.contains(e.target)) setOpen(false);
     };
@@ -50,7 +55,7 @@ function UserDropdown({ user, onLogout, light, displayName, avatarUrl }) {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const isCompany = user?.role === "Company";
+  const isCompany = user?.role?.toLowerCase() === "company";
   const initial = user?.email?.[0]?.toUpperCase() ?? "?";
 
   const menuItems = isCompany
@@ -233,32 +238,16 @@ export default function Navbar() {
 
       try {
         const profilePath =
-          user.role === "Company"
+          user.role?.toLowerCase() === "company"
             ? `/company/v1/${user.id}`
             : `/talent/v1/${user.id}`;
         const res = await api.get(profilePath);
         const profile = await res.json();
         const nextName =
-          user.role === "Company" ? profile?.companyName : profile?.name;
+          user.role?.toLowerCase() === "company" ? profile?.companyName : profile?.name;
 
         // Try common avatar/logo fields returned by the backend
-        const candidateAvatar =
-          (user.role === "Company"
-            ? profile?.logoUrl ||
-              profile?.logo ||
-              profile?.logo_url ||
-              profile?.imageUrl
-            : profile?.avatarUrl ||
-              profile?.avatar ||
-              profile?.avatar_url ||
-              profile?.imageUrl ||
-              profile?.photoUrl ||
-              profile?.photo) ||
-          // fallbacks from user object
-          user?.logoUrl ||
-          user?.avatarUrl ||
-          user?.photoUrl ||
-          null;
+        const candidateAvatar = resolveLogoUrl(profile, profile?.data, user);
 
         if (!cancelled) {
           setDisplayName(nextName || fallbackName);
@@ -292,7 +281,7 @@ export default function Navbar() {
   };
 
   const contextLabel =
-    user?.role === "Company" ? "Company Dashboard" : "Talent Dashboard";
+    user?.role?.toLowerCase() === "company" ? "Company Dashboard" : "Talent Dashboard";
 
   const landingLinks = [
     { label: "Features", href: "#features" },
@@ -313,7 +302,7 @@ export default function Navbar() {
   ];
 
   const navLinks = isAuthenticated
-    ? user?.role === "Company"
+    ? user?.role?.toLowerCase() === "company"
       ? companyLinks
       : talentLinks
     : [];

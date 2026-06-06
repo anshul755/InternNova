@@ -227,7 +227,7 @@ export default function CompanyJobs() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-[1.1fr_0.9fr] gap-6">
-        <div className="glass-card p-6">
+        <div className="glass-card card-scroll-shell p-6 xl:h-[calc(100vh-14rem)]">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between mb-6">
             <div>
               <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-slate-500 mb-2">
@@ -260,7 +260,7 @@ export default function CompanyJobs() {
           </div>
 
           {filteredJobs.length > 0 ? (
-            <div className="space-y-4">
+            <div className="card-scroll-region space-y-4 xl:flex-1">
               {filteredJobs.map((job) => (
                 <article
                   key={job.id}
