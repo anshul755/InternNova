@@ -1,0 +1,135 @@
+{
+  "applicationId": "a",
+  "studentId": "s",
+  "jobId": "j",
+  "is_fake": false,
+  "fake_confidence": 0.0,
+  "fake_reasons": [],
+  "json": {
+    "name": "Dev Jagdish Chavda",
+    "email": "devchavda732@gmail.com",
+    "phone": "+91 85116 01980",
+    "location": "Anand, Gujarat, India",
+    "links": {
+      "linkedin": "www.linkedin.com/in/dev-chavda-134660312/",
+      "github": "github.com/devvchavda",
+      "portfolio": null,
+      "others": [
+        "leetcode.com/u/devchavda11"
+      ]
+    },
+    "summary": null,
+    "skills": [
+      "Python",
+      "Java",
+      "C++",
+      "SQL",
+      "LLM Agents",
+      "Tool-Using Agents",
+      "RAG",
+      "LangChain",
+      "LangGraph",
+      "Embeddings",
+      "Vector Search",
+      "scikit-learn",
+      "Pandas",
+      "NumPy",
+      "Matplotlib",
+      "FastAPI",
+      "REST APIs",
+      "PostgreSQL",
+      "MySQL",
+      "MongoDB",
+      "Firestore",
+      "FAISS",
+      "AWS S3",
+      "Git",
+      "GitHub",
+      "Docker",
+      "VS Code",
+      "Claude Code",
+      "Antigravity",
+      "Data Structures & Algorithms",
+      "Object-Oriented Programming",
+      "Database Management Systems",
+      "Operating Systems",
+      "Machine Learning"
+    ],
+    "education": [
+      {
+        "institution": "Birla Vishvakarma Mahavidyalaya (BVM), Anand, Gujarat",
+        "degree": "B.Tech. in Information Technology, Honours in Data Science",
+        "field_of_study": null,
+        "start": "2023",
+        "end": "2027",
+        "gpa": "9.17 / 10"
+      },
+      {
+        "institution": "Purohit Science School (GSEB), Jamnagar, Gujarat",
+        "degree": "Class XII",
+        "field_of_study": null,
+        "start": null,
+        "end": "2023",
+        "gpa": "67%"
+      },
+      {
+        "institution": "Sunshine School (GSEB), Jamnagar, Gujarat",
+        "degree": "Class X",
+        "field_of_study": null,
+        "start": null,
+        "end": "2021",
+        "gpa": "92%"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Sales Gaatha",
+        "role": "Backend and AI/ML Intern",
+        "start": "Mar 2026",
+        "end": "Present",
+        "location": "Remote",
+        "description": "Designed and shipped a multi-agent LLM assistant for internal company use covering question-answering over sales and hierarchy data, high-reasoning strategy planning with read-only database tools, and action-taking via internal services - exposed behind authenticated FastAPI REST endpoints with strict context-level security.\nBuilt a history-based cart recommendation feature for retailer orders that surfaces relevant products from each retailer's past purchase patterns.\nImplemented an in-app chat system for the company's field sales team using Firebase Cloud Messaging (FCM) with a fan-out delivery model, avoiding the operational overhead of running a WebSocket server."
+      }
+    ],
+    "projects": [
+      {
+        "name": "DevX AI - Conversational AI Assistant",
+        "description": "Designed and deployed an end-to-end, general-purpose conversational assistant supporting multi-turn interactions over a FastAPI backend. Implemented contextual memory so the assistant carries information across turns and produces coherent, intent-aware responses. Added tool orchestration so the assistant can call external tools when needed to answer questions outside the LLM's own knowledge.",
+        "tech": [
+          "Python",
+          "FastAPI"
+        ],
+        "link": null
+      },
+      {
+        "name": "AI-Based Image Searcher",
+        "description": "Built a fully-offline desktop application that retrieves images from personal folders using natural-language queries, running entirely on-device via Ollama. Used a vision-language model to generate multiple text descriptions per image (short caption, paragraph description, detailed summary) and indexed those description chunks along with image metadata in a FAISS vector store. At query time, retrieved the most relevant description chunks from FAISS and surfaced the corresponding images as recommendations to the user.",
+        "tech": [
+          "Python",
+          "FAISS",
+          "Ollama",
+          "Vision-Language Models"
+        ],
+        "link": null
+      },
+      {
+        "name": "Agentic Honey Pot System",
+        "description": "Built a chat endpoint where an LLM agent engages suspected scammers in conversation, keeping the dialogue alive while extracting intent and identity signals from each exchange. Scored 84 / 100 and finished Top 2% (Rank 13) at the HCL GUVI Hackathon, AI India Impact Summit 2026, Delhi.",
+        "tech": [
+          "Python",
+          "LLM Agents"
+        ],
+        "link": null
+      }
+    ],
+    "certifications": [
+      "NPTEL - Data Science for Engineers, IIT Madras (Score: 88%)",
+      "India AI Impact Buildathon 2026 - Certificate of Finalist"
+    ],
+    "achievements": [
+      "Top 2% (Rank 13) at the HCL GUVI Hackathon, AI India Impact Summit 2026 in Delhi, for building an Agentic Honey Pot System.",
+      "Solved 800+ Data Structures and Algorithms problems on LeetCode."
+    ],
+    "spoken_languages": []
+  }
+}

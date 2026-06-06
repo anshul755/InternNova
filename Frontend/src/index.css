@@ -16,17 +16,17 @@
   --app-glow:
     radial-gradient(
       60% 60% at 12% 10%,
-      rgba(164, 224, 98, 0.24) 0%,
+      rgba(164, 224, 98, 0.14) 0%,
       transparent 70%
     ),
     radial-gradient(
       70% 70% at 88% 20%,
-      rgba(124, 200, 74, 0.16) 0%,
+      rgba(124, 200, 74, 0.08) 0%,
       transparent 68%
     ),
     radial-gradient(
       85% 80% at 50% 92%,
-      rgba(168, 224, 99, 0.12) 0%,
+      rgba(168, 224, 99, 0.06) 0%,
       transparent 70%
     );
   --app-noise: repeating-linear-gradient(
@@ -171,6 +171,32 @@ body {
     background 300ms ease;
 }
 
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #8fd66a transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #b9ea86 0%, #7cc84a 100%);
+  border: 2px solid transparent;
+  border-radius: 9999px;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #a8e063 0%, #5fb63d 100%);
+  background-clip: padding-box;
+}
+
 body::before,
 body::after {
   content: "";
@@ -181,13 +207,13 @@ body::after {
 
 body::before {
   background: var(--app-glow);
-  opacity: 1;
+  opacity: 0.35;
   z-index: -2;
 }
 
 body::after {
   background-image: var(--app-noise);
-  opacity: 0.18;
+  opacity: 0.08;
   mix-blend-mode: soft-light;
   z-index: -1;
 }
@@ -246,6 +272,51 @@ textarea {
   box-shadow: var(--app-shadow);
 }
 
+.card-scroll-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.card-scroll-region {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  overflow-y: scroll;
+  padding-right: 0.35rem;
+  scrollbar-gutter: stable;
+  overscroll-behavior: contain;
+}
+
+.dashboard-card-scroll {
+  min-height: 0;
+}
+
+.card-scroll-region::-webkit-scrollbar {
+  width: 8px;
+}
+
+.card-scroll-region::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.card-scroll-region::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #b9ea86 0%, #87cf58 100%);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.card-scroll-region::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #a8e063 0%, #7cc84a 100%);
+  background-clip: padding-box;
+}
+
+.card-scroll-region {
+  scrollbar-width: thin;
+  scrollbar-color: #9fdc7f transparent;
+}
+
 .glass-panel {
   background: var(--app-glass-strong);
   border: 1px solid var(--app-border-strong);
@@ -254,6 +325,67 @@ textarea {
   backdrop-filter: blur(20px);
   box-shadow: var(--app-shadow-strong);
 }
+
+/* Dashboard-specific refinements to provide a clean, industrial-grade
+   dark/light appearance with improved contrast and consistent surfaces. */
+.dashboard-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  padding: 1.5rem;
+  /* use a slightly toned surface instead of full-white to improve contrast */
+  background: var(--app-glass-strong);
+  border: 1px solid rgba(15,23,42,0.06);
+}
+.dashboard-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--app-glow);
+  opacity: .08; /* reduce glow in light mode so titles stay readable */
+  mix-blend-mode: overlay;
+}
+.dashboard-hero .hero-title {
+  color: var(--app-text);
+}
+.dashboard-profile-card {
+  border-radius: 20px;
+  padding: 1.25rem;
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(15,23,42,0.06);
+  box-shadow: 0 8px 24px rgba(15,23,42,0.06);
+}
+.dashboard-profile-card .muted {
+  color: var(--app-text-muted);
+}
+
+/* Dark theme overrides for dashboard surfaces */
+html[data-theme="dark"] .dashboard-hero {
+  background: linear-gradient(180deg, rgba(6,10,8,0.48), rgba(8,14,10,0.6));
+  border: 1px solid rgba(255,255,255,0.04);
+}
+html[data-theme="dark"] .dashboard-hero::before {
+  opacity: .14;
+}
+html[data-theme="dark"] .dashboard-profile-card {
+  background: rgba(18,24,20,0.6);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+/* Tighter, more consistent glass-card for dashboard */
+.glass-card {
+  background: var(--app-glass);
+  border: 1px solid var(--app-border);
+  border-radius: 18px;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 8px 30px rgba(15,23,42,0.08);
+}
+
+/* Utility tweaks for better button contrast inside panels */
+.panel-cta .btn-primary { box-shadow: 0 10px 30px rgba(124,200,74,0.12); }
+.panel-cta .btn-secondary { border-color: rgba(15,23,42,0.06); }
 
 .glass-select__trigger {
   display: inline-flex;
@@ -1055,6 +1187,7 @@ html[data-theme="dark"] .border-slate-200 {
 /* Hide scrollbars visually but keep scroll behavior */
 .no-scrollbar {
   -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .no-scrollbar::-webkit-scrollbar {

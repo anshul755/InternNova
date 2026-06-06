@@ -1,16 +1,20 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
-import { Link } from "react-router-dom";
 import { DashboardSkeleton } from "../components/Skeleton.jsx";
 import {
-  IoBriefcaseOutline,
-  IoDocumentTextOutline,
   IoBookmarkOutline,
-  IoPersonOutline,
+  IoBriefcaseOutline,
   IoCheckmarkCircleOutline,
-  IoTimeOutline,
+  IoDocumentTextOutline,
+  IoLocationOutline,
+  IoPersonOutline,
+  IoRocketOutline,
+  IoSearchOutline,
   IoStatsChartOutline,
+  IoTimeOutline,
+  IoTrendingUpOutline,
 } from "react-icons/io5";
 
 const TalentDashboard = () => {
@@ -69,59 +73,63 @@ const TalentDashboard = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case "APPLIED":
-        return "text-amber-600";
+        return "text-amber-700 dark:text-amber-400";
       case "UNDER_REVIEW":
-        return "text-emerald-600";
+        return "text-emerald-700 dark:text-emerald-400";
       case "SHORTLISTED":
-        return "text-lime-600";
+        return "text-lime-700 dark:text-lime-400";
       case "INTERVIEW":
-        return "text-teal-600";
+        return "text-teal-700 dark:text-teal-400";
       case "OFFER":
-        return "text-green-700";
+        return "text-green-700 dark:text-green-400";
       case "HIRED":
-        return "text-emerald-700";
+        return "text-emerald-700 dark:text-emerald-400";
       case "REJECTED":
-        return "text-rose-600";
+        return "text-rose-700 dark:text-rose-400";
       case "WITHDRAWN":
-        return "text-slate-500";
+        return "text-slate-600 dark:text-slate-400";
       default:
-        return "text-slate-500";
+        return "text-slate-600 dark:text-slate-400";
     }
   };
 
   const getStatusBg = (status) => {
     switch (status) {
       case "APPLIED":
-        return "bg-amber-50 border-amber-200";
+        return "bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-700/50";
       case "UNDER_REVIEW":
-        return "bg-emerald-50 border-emerald-200";
+        return "bg-emerald-50 dark:bg-emerald-900/30 border-emerald-200 dark:border-emerald-700/50";
       case "SHORTLISTED":
-        return "bg-lime-50 border-lime-200";
+        return "bg-lime-50 dark:bg-lime-900/30 border-lime-200 dark:border-lime-700/50";
       case "INTERVIEW":
-        return "bg-teal-50 border-teal-200";
+        return "bg-teal-50 dark:bg-teal-900/30 border-teal-200 dark:border-teal-700/50";
       case "OFFER":
-        return "bg-green-50 border-green-200";
+        return "bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-700/50";
       case "HIRED":
-        return "bg-emerald-100 border-emerald-200";
+        return "bg-emerald-100 dark:bg-emerald-800/40 border-emerald-200 dark:border-emerald-600/50";
       case "REJECTED":
-        return "bg-rose-50 border-rose-200";
+        return "bg-rose-50 dark:bg-rose-900/30 border-rose-200 dark:border-rose-700/50";
       case "WITHDRAWN":
-        return "bg-slate-50 border-slate-200";
+        return "bg-slate-50 dark:bg-slate-900/30 border-slate-200 dark:border-slate-700/50";
       default:
-        return "bg-slate-50 border-slate-200";
+        return "bg-slate-50 dark:bg-slate-900/30 border-slate-200 dark:border-slate-700/50";
     }
   };
 
-  const stats = {
-    applied: applications.filter((a) => a.status === "APPLIED").length,
-    inProgress: applications.filter((a) =>
-      ["UNDER_REVIEW", "SHORTLISTED", "INTERVIEW"].includes(a.status),
-    ).length,
-    rejected: applications.filter((a) => a.status === "REJECTED").length,
-    offers: applications.filter((a) => ["OFFER", "HIRED"].includes(a.status))
-      .length,
-    total: applications.length,
-  };
+  const stats = useMemo(
+    () => ({
+      applied: applications.filter((a) => a.status === "APPLIED").length,
+      inProgress: applications.filter((a) =>
+        ["UNDER_REVIEW", "SHORTLISTED", "INTERVIEW"].includes(a.status),
+      ).length,
+      offers: applications.filter((a) => ["OFFER", "HIRED"].includes(a.status))
+        .length,
+      total: applications.length,
+    }),
+    [applications],
+  );
+
+  const featuredJob = recentJobs[0];
 
   if (loading) {
     return (
@@ -148,253 +156,250 @@ const TalentDashboard = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-slate-900">
-          Welcome back{profile?.name ? `, ${profile.name}` : ""}
-        </h1>
-        <p className="text-sm text-slate-500 mt-1">
-          Here's your internship journey at a glance.
-        </p>
-      </div>
+      <section className="dashboard-hero mb-8">
+        <div className="relative grid gap-8 lg:grid-cols-[1.35fr_0.65fr]">
+          <div className="flex flex-col justify-center">
+            <p className="text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+              Talent workspace
+            </p>
+            <h1 className="hero-title mt-4 text-4xl font-bold leading-tight sm:text-5xl">
+              Welcome back{profile?.name ? `, ${profile.name}` : ""}
+            </h1>
+            <p className="mt-4 max-w-2xl text-base opacity-80">
+              Follow your applications, keep your profile sharp, and discover
+              roles worth applying to next.
+            </p>
+            <div className="panel-cta mt-8 flex flex-wrap gap-4">
+              <Link to="/jobs" className="btn-primary">
+                <IoSearchOutline className="h-5 w-5" />
+                Browse jobs
+              </Link>
+              <Link to="/saved-jobs" className="btn-secondary">
+                <IoBookmarkOutline className="h-5 w-5" />
+                Saved jobs
+              </Link>
+              <Link to="/applications" className="btn-secondary">
+                <IoDocumentTextOutline className="h-5 w-5" />
+                Applications
+              </Link>
+            </div>
+          </div>
 
-      {/* Stat Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-        {[
-          {
-            label: "Applied",
-            value: stats.applied,
-            icon: IoDocumentTextOutline,
-            color: "text-amber-600",
-            bgColor: "bg-amber-50",
-            iconBg: "bg-amber-100",
-          },
-          {
-            label: "In Progress",
-            value: stats.inProgress,
-            icon: IoTimeOutline,
-            color: "text-emerald-700",
-            bgColor: "bg-emerald-50",
-            iconBg: "bg-emerald-100",
-          },
-          {
-            label: "Offers",
-            value: stats.offers,
-            icon: IoCheckmarkCircleOutline,
-            color: "text-green-700",
-            bgColor: "bg-green-50",
-            iconBg: "bg-green-100",
-          },
-          {
-            label: "Total",
-            value: stats.total,
-            icon: IoStatsChartOutline,
-            color: "text-slate-700",
-            bgColor: "bg-slate-50",
-            iconBg: "bg-slate-100",
-          },
-        ].map(({ label, value, icon: Icon, color, iconBg }) => (
-          <div key={label} className="glass-card p-5">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs text-slate-500 uppercase tracking-wide font-medium">
-                {label}
-              </span>
-              <div
-                className={`w-8 h-8 rounded-lg ${iconBg} flex items-center justify-center`}
-              >
-                <Icon className={`w-4 h-4 ${color}`} />
+          <div className="dashboard-profile-card flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider opacity-60">
+                  Profile signal
+                </p>
+                <h2 className="mt-1 text-xl font-bold">
+                  {profile ? "Ready to apply" : "Profile needed"}
+                </h2>
+              </div>
+              <div className="logo-circle flex h-14 w-14 items-center justify-center rounded-2xl text-emerald-600 dark:text-emerald-400">
+                <IoPersonOutline className="h-6 w-6" />
               </div>
             </div>
-            <p className={`text-2xl font-bold ${color}`}>{value}</p>
-          </div>
-        ))}
-      </div>
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column — Profile + Quick Actions */}
-        <div className="space-y-6">
-          {/* Profile Card */}
-          <div className="glass-card p-6">
-            <h2 className="text-base font-semibold text-slate-900 mb-4">
-              Your Profile
-            </h2>
-            {profile ? (
-              <div className="space-y-3">
-                <div>
-                  <p className="text-xs text-slate-500">Name</p>
-                  <p className="text-sm text-slate-700 font-medium">
-                    {profile.name}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500">University</p>
-                  <p className="text-sm text-slate-700">{profile.university}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500">Major</p>
-                  <p className="text-sm text-slate-700">{profile.major}</p>
-                </div>
-                {profile.cgpa && (
-                  <div>
-                    <p className="text-xs text-slate-500">CGPA</p>
-                    <p className="text-sm text-slate-700">{profile.cgpa}/10</p>
-                  </div>
-                )}
-                {profile.skills?.length > 0 && (
-                  <div>
-                    <p className="text-xs text-slate-500 mb-2">Skills</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {profile.skills.map((skill) => (
-                        <span
-                          key={skill}
-                          className="px-2.5 py-1 bg-brand-100 text-slate-900 rounded-lg text-xs font-medium border border-brand-200"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <p className="text-slate-500 text-sm">
-                Profile not found. Please complete your profile.
+            <div className="mt-6 space-y-2 font-medium opacity-80">
+              <p>
+                {profile?.university || "Add university"}{" "}
+                {profile?.major ? `- ${profile.major}` : ""}
               </p>
-            )}
+              {profile?.cgpa && <p>CGPA: {profile.cgpa}/10</p>}
+            </div>
+
+            <div className="mt-6 flex flex-wrap gap-2">
+              {(profile?.skills || []).slice(0, 5).map((skill) => (
+                <span
+                  key={skill}
+                  className="rounded-full bg-black/5 dark:bg-white/10 px-3 py-1 text-xs font-semibold"
+                >
+                  {skill}
+                </span>
+              ))}
+              {!profile?.skills?.length && (
+                <span className="rounded-full bg-black/5 dark:bg-white/10 px-3 py-1 text-xs font-semibold">
+                  Add skills
+                </span>
+              )}
+            </div>
+
             <Link
               to="/profile/edit"
-              className="btn-primary mt-4 w-full !text-sm"
+              className="btn-primary w-full mt-6"
             >
-              <IoPersonOutline className="w-4 h-4" />
-              Edit Profile
+              Update profile
             </Link>
           </div>
+        </div>
+      </section>
 
-          {/* Quick Actions */}
-          <div className="glass-card p-6">
-            <h2 className="text-base font-semibold text-slate-900 mb-4">
-              Quick Actions
-            </h2>
-            <div className="grid grid-cols-1 gap-2.5">
-              <Link
-                to="/jobs"
-                className="flex items-center gap-3 p-3 bg-brand-100 hover:bg-brand-200 border border-brand-200 rounded-xl text-sm text-slate-900 font-medium transition-colors"
+      <section className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {[
+          [
+            "Applied",
+            stats.applied,
+            IoDocumentTextOutline,
+            "text-amber-600 dark:text-amber-400",
+            "bg-amber-500/10",
+          ],
+          [
+            "In progress",
+            stats.inProgress,
+            IoTimeOutline,
+            "text-emerald-600 dark:text-emerald-400",
+            "bg-emerald-500/10",
+          ],
+          [
+            "Offers",
+            stats.offers,
+            IoCheckmarkCircleOutline,
+            "text-lime-600 dark:text-lime-400",
+            "bg-lime-500/10",
+          ],
+          [
+            "Total",
+            stats.total,
+            IoStatsChartOutline,
+            "text-slate-600 dark:text-slate-400",
+            "bg-black/5 dark:bg-white/10",
+          ],
+        ].map(([label, value, Icon, iconColor, iconBg]) => (
+          <div
+            key={label}
+            className="glass-card p-5 transition-transform hover:-translate-y-1"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm font-medium opacity-70">{label}</p>
+              <div
+                className={`flex h-10 w-10 items-center justify-center rounded-xl ${iconBg} ${iconColor}`}
               >
-                <IoBriefcaseOutline className="w-4 h-4" />
-                Browse Jobs
-              </Link>
+                <Icon className="h-5 w-5" />
+              </div>
+            </div>
+            <p className="mt-4 text-3xl font-bold">{value}</p>
+          </div>
+        ))}
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+        <div className="space-y-6">
+          <div className="glass-panel p-6">
+            <div className="flex items-center justify-between gap-4 border-b border-black/5 dark:border-white/5 pb-5">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                  Application trail
+                </p>
+                <h2 className="mt-1 text-2xl font-bold">Recent activity</h2>
+              </div>
               <Link
                 to="/applications"
-                className="flex items-center gap-3 p-3 bg-white/70 hover:bg-white/80 border border-white/60 rounded-xl text-sm text-slate-700 transition-colors"
+                className="text-sm font-semibold opacity-70 transition-opacity hover:opacity-100"
               >
-                <IoDocumentTextOutline className="w-4 h-4" />
-                My Applications
+                View all
               </Link>
-              <Link
-                to="/saved-jobs"
-                className="flex items-center gap-3 p-3 bg-white/70 hover:bg-white/80 border border-white/60 rounded-xl text-sm text-slate-700 transition-colors"
-              >
-                <IoBookmarkOutline className="w-4 h-4" />
-                Saved Jobs
-              </Link>
+            </div>
+
+            <div className="card-scroll-region relative mt-6 max-h-[30rem] space-y-4 overflow-y-auto pr-2">
+              {applications.length > 0 ? (
+                applications.map((app, index) => (
+                  <article key={app.id} className="relative pl-8">
+                    <div className="absolute left-2 top-2 h-full w-px bg-black/10 dark:bg-white/10" />
+                    <div className="absolute left-0 top-2 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 ring-4 ring-emerald-500/20" />
+                    <div className="glass-card p-4 transition-colors hover:border-emerald-500/30">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-wider opacity-60">
+                            Step {index + 1}
+                          </p>
+                          <h3 className="mt-1 font-bold">{app.jobTitle}</h3>
+                          <p className="mt-1 text-sm opacity-70">
+                            {app.companyName || "Company"}
+                          </p>
+                        </div>
+                        <span
+                          className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusBg(
+                            app.status,
+                          )} ${getStatusColor(app.status)}`}
+                        >
+                          {app.status?.replace(/_/g, " ")}
+                        </span>
+                      </div>
+                      {app.appliedAt && (
+                        <p className="mt-3 text-xs opacity-50">
+                          Applied {new Date(app.appliedAt).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
+                  </article>
+                ))
+              ) : (
+                <div className="rounded-3xl border border-dashed border-black/20 bg-black/5 p-10 text-center dark:border-white/20 dark:bg-white/5">
+                  <IoRocketOutline className="mx-auto h-10 w-10 opacity-40" />
+                  <h3 className="mt-4 text-lg font-bold">
+                    No applications yet
+                  </h3>
+                  <p className="mt-2 text-sm opacity-70">
+                    Browse roles and send your first application.
+                  </p>
+                  <Link to="/jobs" className="btn-primary mt-6 inline-flex">
+                    Browse jobs
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Center Column — Recent Applications */}
-        <div className="glass-card p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-base font-semibold text-slate-900">
-              Recent Applications
-            </h2>
-            <Link
-              to="/applications"
-              className="text-xs text-slate-700 hover:text-slate-900 font-medium transition-colors"
-            >
-              View All
-            </Link>
-          </div>
-          <div className="space-y-3">
-            {applications.length > 0 ? (
-              applications.map((app) => (
-                <div
-                  key={app.id}
-                  className="p-3.5 bg-white/60 rounded-xl border border-white/50 hover:border-white/70 transition-colors"
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-medium text-slate-800 text-sm">
-                      {app.jobTitle}
-                    </h3>
-                    <span
-                      className={`px-2 py-0.5 rounded-lg text-xs font-medium border ${getStatusBg(app.status)} ${getStatusColor(app.status)}`}
-                    >
-                      {app.status?.replace(/_/g, " ")}
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-500">{app.companyName}</p>
-                  {app.appliedAt && (
-                    <p className="text-xs text-slate-400 mt-2">
-                      Applied: {new Date(app.appliedAt).toLocaleDateString()}
-                    </p>
-                  )}
-                </div>
-              ))
-            ) : (
-              <div className="text-center py-10">
-                <IoBriefcaseOutline className="w-8 h-8 text-slate-300 mx-auto mb-3" />
-                <p className="text-slate-400 mb-4 text-sm">
-                  No applications yet
+        <div className="space-y-6">
+          <div className="glass-panel p-6">
+            <div className="flex items-center justify-between gap-4 border-b border-black/5 pb-5 dark:border-white/5">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                  Job radar
                 </p>
-                <Link to="/jobs" className="btn-primary !text-sm">
-                  Browse Jobs
-                </Link>
+                <h2 className="mt-1 text-2xl font-bold">Fresh postings</h2>
               </div>
-            )}
-          </div>
-        </div>
+              <Link
+                to="/jobs"
+                className="text-sm font-semibold opacity-70 transition-opacity hover:opacity-100"
+              >
+                View all
+              </Link>
+            </div>
 
-        {/* Right Column — Recent Jobs */}
-        <div className="glass-card p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-base font-semibold text-slate-900">
-              Recent Job Posts
-            </h2>
-            <Link
-              to="/jobs"
-              className="text-xs text-slate-700 hover:text-slate-900 font-medium transition-colors"
-            >
-              View All →
-            </Link>
-          </div>
-          <div className="space-y-3">
-            {recentJobs.length > 0 ? (
-              recentJobs.map((job) => (
-                <Link
-                  key={job.id}
-                  to={`/jobs/${job.id}`}
-                  className="block p-3.5 bg-white/60 rounded-xl border border-white/50 hover:border-white/70 hover:shadow-sm transition-all group"
-                >
-                  <h3 className="font-medium text-slate-800 text-sm mb-1 group-hover:text-emerald-600 transition-colors">
-                    {job.title}
-                  </h3>
-                  <p className="text-xs text-slate-500">{job.location}</p>
-                  {job.salaryMin && job.salaryMax && (
-                    <p className="text-xs text-emerald-600 mt-2 font-medium">
-                      ${job.salaryMin.toLocaleString()} – $
-                      {job.salaryMax.toLocaleString()}
-                    </p>
-                  )}
-                </Link>
-              ))
-            ) : (
-              <p className="text-slate-500 text-sm text-center py-8">
-                No jobs available
-              </p>
-            )}
+            <div className="card-scroll-region mt-6 grid max-h-[28rem] gap-3 overflow-y-auto pr-2 md:grid-cols-2">
+              {recentJobs.length > 0 ? (
+                recentJobs.map((job) => (
+                  <Link
+                    key={job.id}
+                    to={`/jobs/${job.id}`}
+                    className="glass-card flex flex-col justify-between p-4 transition-colors hover:border-emerald-500/40"
+                  >
+                    <div>
+                      <IoBriefcaseOutline className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                      <h3 className="mt-4 font-bold">{job.title}</h3>
+                      <p className="mt-2 text-sm opacity-70">
+                        {job.location || "Location not set"}
+                      </p>
+                    </div>
+                    {job.salaryMin && job.salaryMax && (
+                      <p className="mt-4 text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                        ${job.salaryMin.toLocaleString()} - $
+                        {job.salaryMax.toLocaleString()}
+                      </p>
+                    )}
+                  </Link>
+                ))
+              ) : (
+                <div className="rounded-3xl bg-black/5 p-8 text-center text-sm opacity-70 dark:bg-white/5 md:col-span-2">
+                  No jobs available
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 };

@@ -1,26 +1,20 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../lib/AuthContext.jsx";
-import { useTheme } from "../lib/ThemeContext.jsx";
+import { getPostLoginRoute, useAuth } from "../lib/AuthContext.jsx";
+import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5";
 
 const Login = ({ modal = false }) => {
   const { login } = useAuth();
-  const { isDark } = useTheme();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("user");
-  const [formValues, setFormValues] = useState({
-    userEmail: "",
-    userPassword: "",
-    companyEmail: "",
-    companyPassword: "",
-  });
-  const [errors, setErrors] = useState({ user: "", company: "" });
+  const [formValues, setFormValues] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormValues((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, user: "", company: "" }));
+    setError("");
   };
 
   const validateEmail = (email) => {
@@ -30,45 +24,28 @@ const Login = ({ modal = false }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const email =
-      activeTab === "user" ? formValues.userEmail : formValues.companyEmail;
-    const password =
-      activeTab === "user"
-        ? formValues.userPassword
-        : formValues.companyPassword;
-    const errorKey = activeTab === "user" ? "user" : "company";
+    const { email, password } = formValues;
 
     if (!validateEmail(email) || password.trim().length < 6) {
-      setErrors((prev) => ({
-        ...prev,
-        [errorKey]:
-          "Please enter a valid email and password (min 6 characters).",
-      }));
+      setError("Please enter a valid email and password (min 6 characters).");
       return;
     }
 
     setSubmitting(true);
-    setErrors({ user: "", company: "" });
+    setError("");
     try {
-      await login(email, password);
-      navigate("/dashboard", { replace: true });
+      const loggedInUser = await login(email, password);
+      navigate(getPostLoginRoute(loggedInUser?.role), { replace: true });
     } catch (err) {
-      setErrors((prev) => ({
-        ...prev,
-        [errorKey]: err.message || "Login failed.",
-      }));
+      setError(err.message || "Login failed.");
     } finally {
       setSubmitting(false);
     }
   };
 
-  const isUserActive = activeTab === "user";
-
   const containerClasses = modal
     ? "w-full text-slate-900 flex items-center justify-center px-[2vw] py-4 font-sans"
     : "min-h-screen text-slate-900 flex items-center justify-center px-[5vw] py-8 font-sans saas-section";
-
-  const tabClass = (active) => `auth-tab ${active ? "auth-tab--active" : ""}`;
 
   const panelClass = modal
     ? "w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-8 rounded-3xl auth-panel overflow-hidden"
@@ -122,139 +99,82 @@ const Login = ({ modal = false }) => {
               Welcome back to InternNova
             </h2>
             <p className="mt-1.5 text-xs text-slate-500">
-              Choose how you want to log in: as a student or as a company.
+              Use your email and password. We will route you to the right
+              dashboard automatically.
             </p>
           </header>
-          <div className="auth-tabs flex text-xs mb-6">
-            <button
-              type="button"
-              onClick={() => setActiveTab("user")}
-              className={tabClass(isUserActive)}
-            >
-              User
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("company")}
-              className={tabClass(!isUserActive)}
-            >
-              Company
-            </button>
-          </div>
           <form onSubmit={handleSubmit} className="space-y-5 text-sm">
-            {isUserActive ? (
-              <div className="space-y-4">
-                <div className="space-y-1.5">
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="email"
+                  className="block text-xs font-medium text-slate-600"
+                >
+                  Email
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  value={formValues.email}
+                  onChange={handleChange}
+                  className={`input-glass ${error ? "border-rose-400" : ""}`}
+                  placeholder="you@example.com"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
                   <label
-                    htmlFor="userEmail"
+                    htmlFor="password"
                     className="block text-xs font-medium text-slate-600"
                   >
-                    Email
+                    Password
                   </label>
-                  <input
-                    id="userEmail"
-                    name="userEmail"
-                    type="email"
-                    autoComplete="email"
-                    value={formValues.userEmail}
-                    onChange={handleChange}
-                    className={`input-glass ${errors.user ? "border-rose-400" : ""}`}
-                    placeholder="you@studentmail.com"
-                    required
-                  />
+                  <Link
+                    to="/forgot-password"
+                    className="text-[0.7rem] text-emerald-600 hover:text-emerald-700 dark:text-emerald-300 dark:hover:text-emerald-200"
+                  >
+                    Forgot password?
+                  </Link>
                 </div>
-
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <label
-                      htmlFor="userPassword"
-                      className="block text-xs font-medium text-slate-600"
-                    >
-                      Password
-                    </label>
-                    <Link
-                      to="/forgot-password"
-                      className="text-[0.7rem] text-emerald-600 hover:text-emerald-700 dark:text-emerald-300 dark:hover:text-emerald-200"
-                    >
-                      Forgot password?
-                    </Link>
-                  </div>
+                <div className="relative">
                   <input
-                    id="userPassword"
-                    name="userPassword"
-                    type="password"
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
                     autoComplete="current-password"
-                    value={formValues.userPassword}
+                    value={formValues.password}
                     onChange={handleChange}
-                    className={`input-glass ${errors.user ? "border-rose-400" : ""}`}
+                    className={`input-glass pr-12 ${error ? "border-rose-400" : ""}`}
                     placeholder="Enter your password"
                     required
                   />
-                </div>
-
-                {errors.user && (
-                  <p className="text-xs text-rose-600 bg-rose-100 border border-rose-200 rounded-md px-3 py-2 dark:bg-rose-950/35 dark:border-rose-900/40 dark:text-rose-200">
-                    {errors.user}
-                  </p>
-                )}
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="space-y-1.5">
-                  <label
-                    htmlFor="companyEmail"
-                    className="block text-xs font-medium text-slate-600"
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute inset-y-0 right-0 flex items-center justify-center px-3 text-slate-500 hover:text-slate-700"
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
                   >
-                    Company email
-                  </label>
-                  <input
-                    id="companyEmail"
-                    name="companyEmail"
-                    type="email"
-                    autoComplete="email"
-                    value={formValues.companyEmail}
-                    onChange={handleChange}
-                    className={`input-glass ${errors.company ? "border-rose-400" : ""}`}
-                    placeholder="talent@yourcompany.com"
-                    required
-                  />
+                    {showPassword ? (
+                      <IoEyeOffOutline className="w-5 h-5" />
+                    ) : (
+                      <IoEyeOutline className="w-5 h-5" />
+                    )}
+                  </button>
                 </div>
-
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <label
-                      htmlFor="companyPassword"
-                      className="block text-xs font-medium text-slate-600"
-                    >
-                      Password
-                    </label>
-                    <Link
-                      to="/forgot-password"
-                      className="text-[0.7rem] text-emerald-600 hover:text-emerald-700 dark:text-emerald-300 dark:hover:text-emerald-200"
-                    >
-                      Forgot password?
-                    </Link>
-                  </div>
-                  <input
-                    id="companyPassword"
-                    name="companyPassword"
-                    type="password"
-                    autoComplete="current-password"
-                    value={formValues.companyPassword}
-                    onChange={handleChange}
-                    className={`input-glass ${errors.company ? "border-rose-400" : ""}`}
-                    placeholder="Enter your password"
-                    required
-                  />
-                </div>
-
-                {errors.company && (
-                  <p className="text-xs text-rose-600 bg-rose-100 border border-rose-200 rounded-md px-3 py-2 dark:bg-rose-950/35 dark:border-rose-900/40 dark:text-rose-200">
-                    {errors.company}
-                  </p>
-                )}
               </div>
-            )}
+
+              {error && (
+                <p className="text-xs text-rose-600 bg-rose-100 border border-rose-200 rounded-md px-3 py-2 dark:bg-rose-950/35 dark:border-rose-900/40 dark:text-rose-200">
+                  {error}
+                </p>
+              )}
+            </div>
 
             <button
               type="submit"
@@ -272,27 +192,15 @@ const Login = ({ modal = false }) => {
             </button>
           </form>
           <div className="mt-5 flex flex-col gap-1.5 text-[0.78rem] text-slate-500">
-            {isUserActive ? (
-              <p>
-                New here?{" "}
-                <Link
-                  to="/register/user"
-                  className="text-emerald-600 hover:text-emerald-700 font-medium"
-                >
-                  Create an account
-                </Link>
-              </p>
-            ) : (
-              <p>
-                Hiring interns?{" "}
-                <Link
-                  to="/register/company"
-                  className="text-emerald-600 hover:text-emerald-700 font-medium"
-                >
-                  Register company
-                </Link>
-              </p>
-            )}
+            <p>
+              New here?{" "}
+              <Link
+                to="/register"
+                className="text-emerald-600 hover:text-emerald-700 font-medium"
+              >
+                Create an account
+              </Link>
+            </p>
 
             <p className="text-[0.7rem] text-slate-500 mt-1">
               By continuing, you agree to InternNova&apos;s terms of use and

@@ -62,6 +62,8 @@ public class CompanyController {
             return ResponseEntity.ok(company);
         } catch (IOException e) {
             return ResponseEntity.badRequest().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
         }
     }
 

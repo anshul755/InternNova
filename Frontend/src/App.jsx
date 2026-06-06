@@ -11,6 +11,7 @@ import AppLayout from "./components/AppLayout.jsx";
 import Landing from "./pages/Landing.jsx";
 import Login from "./pages/Login.jsx";
 import CompanyRegister from "./pages/CompanyRegister.jsx";
+import RegisterChoice from "./pages/RegisterChoice.jsx";
 import TalentRegister from "./pages/TalentRegister.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import VerifyEmail from "./pages/VerifyEmail.jsx";
@@ -222,6 +223,7 @@ function App() {
         />
 
         {/* Auth pages */}
+        <Route path="/register" element={<RegisterChoice />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
