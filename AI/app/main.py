@@ -12,6 +12,7 @@ from fastapi.responses import JSONResponse
 
 from app.api.pipeline import router as pipeline_router
 from app.features.parser.extractor import ExtractionError
+from app.features.resume_generator import ProfileNotFoundError, ResumeGenerationError
 
 app = FastAPI(title="InternNova AI Service", version="0.1.0")
 app.include_router(pipeline_router)
@@ -20,6 +21,17 @@ app.include_router(pipeline_router)
 @app.exception_handler(ExtractionError)
 async def extraction_error_handler(request: Request, exc: ExtractionError) -> JSONResponse:
     return JSONResponse(status_code=422, content={"detail": str(exc)})
+
+
+@app.exception_handler(ProfileNotFoundError)
+async def profile_not_found_handler(request: Request, exc: ProfileNotFoundError) -> JSONResponse:
+    return JSONResponse(status_code=404, content={"detail": str(exc)})
+
+
+@app.exception_handler(ResumeGenerationError)
+async def resume_generation_error_handler(request: Request, exc: ResumeGenerationError) -> JSONResponse:
+    # Upstream/compile failure (core-service unreachable, LaTeX compile error).
+    return JSONResponse(status_code=502, content={"detail": str(exc)})
 
 
 @app.get("/health", tags=["meta"])
