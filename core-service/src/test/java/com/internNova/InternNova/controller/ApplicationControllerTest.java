@@ -27,6 +27,8 @@ import com.internNova.InternNova.dto.ApplicationCreateDTO;
 import com.internNova.InternNova.dto.ApplicationResponseDTO;
 import com.internNova.InternNova.entity.Application;
 import com.internNova.InternNova.enums.ApplicationState;
+import com.internNova.InternNova.security.JwtUtil;
+import com.internNova.InternNova.security.TalentAuthInterceptor;
 import com.internNova.InternNova.services.ApplicationService;
 
 @WebMvcTest(ApplicationController.class)
@@ -37,6 +39,12 @@ class ApplicationControllerTest {
 
     @MockBean
     private ApplicationService applicationService;
+
+    @MockBean
+    private TalentAuthInterceptor talentAuthInterceptor;
+
+    @MockBean
+    private JwtUtil jwtUtil;
 
     private ObjectMapper objectMapper;
     private Application testApplication;
@@ -288,7 +296,7 @@ class ApplicationControllerTest {
         mockMvc.perform(get("/applications/v1/stats/job/job1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalApplications").value(10))
-                .andExpect(jsonPath("$.pendingApplications").value(2))
+                .andExpect(jsonPath("$.appliedApplications").value(2))
                 .andExpect(jsonPath("$.shortlistedApplications").value(1))
                 .andExpect(jsonPath("$.rejectedApplications").value(0));
 

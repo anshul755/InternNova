@@ -28,6 +28,7 @@ import com.internNova.InternNova.repository.CompanyRepository;
 import com.internNova.InternNova.repository.JobRepository;
 import com.internNova.InternNova.repository.TalentRepository;
 import com.internNova.InternNova.services.CloudinaryService;
+import com.internNova.InternNova.services.ApplicationEvaluationService;
 
 @ExtendWith(MockitoExtension.class)
 class ApplicationServiceTest {
@@ -49,6 +50,9 @@ class ApplicationServiceTest {
 
     @Mock
     private CloudinaryService cloudinaryService;
+
+    @Mock
+    private ApplicationEvaluationService applicationEvaluationService;
 
     @InjectMocks
     private ApplicationService applicationService;
