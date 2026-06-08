@@ -6,6 +6,8 @@ import org.springframework.web.client.RestClient;
 
 import com.internNova.InternNova.dto.EvaluateRequestDTO;
 import com.internNova.InternNova.dto.EvaluateResponseDTO;
+import com.internNova.InternNova.dto.GenerateResumeRequestDTO;
+import com.internNova.InternNova.dto.GenerateResumeResponseDTO;
 
 /**
  * Thin HTTP client for the internal AI pipeline service. The only thing in
@@ -27,5 +29,13 @@ public class AiPipelineClient {
                 .body(request)
                 .retrieve()
                 .body(EvaluateResponseDTO.class);
+    }
+
+    public GenerateResumeResponseDTO generateResume(GenerateResumeRequestDTO request) {
+        return restClient.post()
+                .uri("/pipeline/v1/generate-resume")
+                .body(request)
+                .retrieve()
+                .body(GenerateResumeResponseDTO.class);
     }
 }

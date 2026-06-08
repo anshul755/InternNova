@@ -1,17 +1,23 @@
 package com.internNova.InternNova.controller;
 
+import com.internNova.InternNova.client.AiPipelineClient;
+import com.internNova.InternNova.dto.GenerateResumeRequestDTO;
+import com.internNova.InternNova.dto.GenerateResumeResponseDTO;
 import com.internNova.InternNova.dto.TalentDTO;
 import com.internNova.InternNova.entity.*;
 import com.internNova.InternNova.services.TalentService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/talent/v1")
@@ -19,6 +25,9 @@ public class TalentController {
 
     @Autowired
     private TalentService talentService;
+
+    @Autowired
+    private AiPipelineClient aiPipelineClient;
 
     @Value("${service.internal-token}")
     private String internalToken;
@@ -324,6 +333,33 @@ public class TalentController {
 
         return ResponseEntity.status(401).body(
                 "{\"success\":false,\"message\":\"Authentication required\"}");
+    }
+
+    @PostMapping("/resume")
+    public ResponseEntity<?> generateResume(@RequestBody GenerateResumeRequestDTO body,
+                                            HttpServletRequest request) {
+        String userId = getAuthUserId(request);
+        if (userId == null) return authRequired();
+        // Trust the authenticated user — never let the client choose whose resume to build.
+        body.setTalentId(userId);
+        try {
+            GenerateResumeResponseDTO result = aiPipelineClient.generateResume(body);
+            return ResponseEntity.ok(result);
+        } catch (RestClientResponseException e) {
+            // Surface the AI service's status + message (404 no profile, 502 compile failed).
+            String message = e.getResponseBodyAsString();
+            try {
+                var node = new ObjectMapper().readTree(message);
+                if (node.has("detail")) message = node.get("detail").asText();
+            } catch (Exception ignored) {
+            }
+            return ResponseEntity.status(e.getStatusCode())
+                    .body(Map.of("success", false, "message", message));
+        } catch (Exception e) {
+            return ResponseEntity.status(502).body(Map.of(
+                    "success", false,
+                    "message", "Resume service is unavailable. Please try again."));
+        }
     }
 
     private ResponseEntity<String> authRequired() {
