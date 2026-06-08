@@ -1,10 +1,12 @@
 r"""LaTeX template builders.
 
-Two registered styles, both authored for `pdflatex` + stock TeX Live packages:
+Two registered styles, both authored as a single self-contained `.tex` for `pdflatex`
++ stock TeX Live packages (LaTeX.Online compiles one file, so no custom `.cls`):
 
-  - classic : ATS-friendly, single column (modelled on the ATS-friendly sample).
-  - modern  : two-column with a shaded sidebar (modelled on the two-sided sample),
-              built with `paracol`.
+  - classic : Trey Hunner "Medium Length Professional CV" recreated by inlining the
+              resume.cls macros (\name/\address/rSection/rSubsection) onto `article`.
+  - modern  : the `deedy-resume-openfont` look recreated with a two-column minipage
+              layout, Lato typeface, and colored section headers (no fontspec/XeLaTeX).
 
 Each builder takes the deterministic `ContactInfo` plus the LLM-written `ResumeContent`
 and returns a complete `.tex` string. Every field is passed through `esc()` / `esc_url()`
@@ -21,102 +23,130 @@ from app.features.resume_generator.schemas import (
     TemplateStyle,
 )
 
-DOT = r" $\cdot$ "
+DIAMOND = r" $\diamond$ "
+BULLDOT = r" $\bullet$ "
 
 
-def _bullets(items: List[str]) -> str:
-    """A compact itemize, or empty string when there are no bullets."""
+def _ul(items: List[str], env: str = "itemize") -> str:
+    """A bullet list in the given list environment, or '' when there are no items."""
     rows = [esc(b) for b in items if b and b.strip()]
     if not rows:
         return ""
     body = "\n".join(rf"  \item {r}" for r in rows)
-    return "\\begin{itemize}\n" + body + "\n\\end{itemize}"
+    return f"\\begin{{{env}}}\n{body}\n\\end{{{env}}}"
 
 
-def _link(label: str, url: str) -> str:
-    """`label: \\href{url}{display}` where display is the url without its scheme."""
-    display = str(url).split("://", 1)[-1].rstrip("/")
-    return rf"{label}: \href{{{esc_url(url)}}}{{{esc(display)}}}"
+def _href(url: str, display: str = "") -> str:
+    """\\href{url}{display}; display defaults to the url without its scheme."""
+    text = display or str(url).split("://", 1)[-1].rstrip("/")
+    return rf"\href{{{esc_url(url)}}}{{{esc(text)}}}"
 
 
-def _contact_links(c: ContactInfo) -> List[str]:
-    out: List[str] = []
-    if c.linkedin:
-        out.append(_link("LinkedIn", c.linkedin))
-    if c.github:
-        out.append(_link("GitHub", c.github))
-    if c.portfolio:
-        out.append(_link("Portfolio", c.portfolio))
-    return out
+def _split_name(full: str) -> tuple:
+    """Split a full name into (first, rest) for the two-tone modern header."""
+    parts = (full or "Candidate").strip().split(None, 1)
+    return (parts[0], parts[1] if len(parts) > 1 else "")
 
 
-# ── classic (ATS, single column) ──────────────────────────────────────────────
+# ── classic — Trey Hunner resume.cls, inlined onto article ────────────────────
 
 _CLASSIC_PREAMBLE = r"""\documentclass[11pt,a4paper]{article}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage[margin=0.6in]{geometry}
+\usepackage[left=0.45in,top=0.35in,right=0.45in,bottom=0.35in]{geometry}
+\usepackage{array}
 \usepackage{enumitem}
-\usepackage{titlesec}
 \usepackage[hidelinks]{hyperref}
-\usepackage{xcolor}
+\usepackage{titlesec}
 
-\setlist[itemize]{leftmargin=1.4em,topsep=2pt,itemsep=1pt,parsep=0pt}
-\titleformat{\section}{\large\bfseries\scshape}{}{0em}{}[\titlerule]
-\titlespacing{\section}{0pt}{8pt}{4pt}
 \pagestyle{empty}
+\setcounter{secnumdepth}{0}
 \setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+
+% --- name + address header (resume.cls style) ---
+\newcommand{\resname}[1]{\begin{center}{\Huge\bfseries #1}\end{center}\vspace{1pt}}
+\newcommand{\resaddress}[1]{\begin{center}\small #1\end{center}}
+
+% --- rSection: uppercase bold heading + full-width rule ---
+\titleformat{\section}{\large\bfseries}{}{0em}{\MakeUppercase}[\vspace{-6pt}\rule{\linewidth}{0.8pt}]
+\titlespacing{\section}{0pt}{10pt}{4pt}
+
+% --- compact bullet lists with a diamond/cdot marker ---
+\setlist[itemize]{leftmargin=1.5em,labelsep=0.5em,label=$\cdot$,topsep=2pt,itemsep=1pt,parsep=0pt}
 """
 
 
-def _classic_header(c: ContactInfo) -> str:
-    line1 = [esc(x) for x in (c.location, c.phone) if x]
-    if c.email:
-        line1.append(rf"\href{{mailto:{esc_url(c.email)}}}{{{esc(c.email)}}}")
-    contact = DOT.join(line1)
-    links = DOT.join(_contact_links(c))
-    parts = [
-        r"\begin{center}",
-        rf"{{\LARGE \textbf{{{esc(c.name)}}}}}\\[4pt]",
-    ]
-    if contact:
-        parts.append(rf"{contact}\\[2pt]")
-    if links:
-        parts.append(links)
-    parts.append(r"\end{center}")
-    return "\n".join(parts)
-
-
-def _classic_entry(title: str, right: str, subtitle: str, bullets: List[str]) -> str:
-    lines = []
+def _classic_entry(title: str, right: str, subtitle: str, bullets: List[str],
+                   right_raw: bool = False) -> str:
+    """resume.cls rSubsection: title \\hfill date, italic subtitle, then bullets."""
     head = rf"\textbf{{{esc(title)}}}"
     if right:
-        head += rf"\hfill {esc(right)}"
-    lines.append(head + r"\\")
+        head += rf"\hfill {right if right_raw else esc(right)}"
+    lines = [head + r"\\*[2pt]"]
     if subtitle:
         lines.append(rf"\textit{{{esc(subtitle)}}}")
-    b = _bullets(bullets)
+    b = _ul(bullets)
     if b:
         lines.append(b)
-    lines.append(r"\vspace{4pt}")
+    lines.append(r"\vspace{5pt}")
     return "\n".join(lines)
 
 
 def build_classic(contact: ContactInfo, content: ResumeContent) -> str:
-    parts = [_CLASSIC_PREAMBLE, r"\begin{document}", _classic_header(contact)]
+    parts: List[str] = [_CLASSIC_PREAMBLE, r"\begin{document}"]
+
+    # header
+    parts.append(rf"\resname{{{esc(contact.name)}}}")
+    line1 = [esc(contact.location)] if contact.location else []
+    contact_bits = []
+    if contact.phone:
+        contact_bits.append(esc(contact.phone))
+    if contact.email:
+        contact_bits.append(rf"\href{{mailto:{esc_url(contact.email)}}}{{{esc(contact.email)}}}")
+    links = []
+    if contact.linkedin:
+        links.append(_href(contact.linkedin))
+    if contact.github:
+        links.append(_href(contact.github))
+    if contact.portfolio:
+        links.append(_href(contact.portfolio))
+    if line1:
+        parts.append(rf"\resaddress{{{line1[0]}}}")
+    if contact_bits:
+        parts.append(rf"\resaddress{{{DIAMOND.join(contact_bits)}}}")
+    if links:
+        parts.append(rf"\resaddress{{{DIAMOND.join(links)}}}")
 
     if content.summary and content.summary.strip():
         parts.append(r"\section{Summary}")
         parts.append(esc(content.summary))
 
+    if content.education:
+        parts.append(r"\section{Education}")
+        for ed in content.education:
+            head = rf"\textbf{{{esc(ed.institution)}}}"
+            if ed.dateRange:
+                head += rf"\hfill {esc(ed.dateRange)}"
+            block = [head + r"\\*[2pt]"]
+            sub = ", ".join(x for x in (ed.degree, ed.details) if x)
+            if sub:
+                block.append(esc(sub))
+            block.append(r"\vspace{5pt}")
+            parts.append("\n".join(block))
+
     if content.skillGroups:
-        parts.append(r"\section{Skills}")
+        parts.append(r"\section{Skills \& Interests}")
         rows = [
-            rf"\textbf{{{esc(g.category)}}}: {esc(', '.join(g.skills))}\\"
+            rf"{esc(g.category)} & {esc(', '.join(g.skills))}\\"
             for g in content.skillGroups
             if g.skills
         ]
-        parts.append("\n".join(rows))
+        parts.append(
+            r"\begin{tabular}{ @{} >{\bfseries}l @{\hspace{4ex}} "
+            r"p{0.78\textwidth} }"
+            + "\n" + "\n".join(rows) + "\n" + r"\end{tabular}"
+        )
 
     if content.experience:
         parts.append(r"\section{Experience}")
@@ -127,191 +157,186 @@ def build_classic(contact: ContactInfo, content: ResumeContent) -> str:
     if content.projects:
         parts.append(r"\section{Projects}")
         for p in content.projects:
-            right = ""
-            if p.link:
-                display = str(p.link).split("://", 1)[-1].rstrip("/")
-                right = rf"\href{{{esc_url(p.link)}}}{{{esc(display)}}}"
-            sub = p.subtitle or ""
-            # link goes on the right; render entry manually to allow a raw href there
-            head = rf"\textbf{{{esc(p.name)}}}"
-            if right:
-                head += rf"\hfill {right}"
-            block = [head + r"\\"]
-            if sub:
-                block.append(rf"\textit{{{esc(sub)}}}")
-            b = _bullets(p.bullets)
-            if b:
-                block.append(b)
-            block.append(r"\vspace{4pt}")
-            parts.append("\n".join(block))
-
-    if content.education:
-        parts.append(r"\section{Education}")
-        for ed in content.education:
-            sub = ", ".join(x for x in (ed.degree, ed.details) if x)
-            parts.append(_classic_entry(ed.institution, ed.dateRange or "", sub, []))
+            right = _href(p.link) if p.link else ""
+            parts.append(
+                _classic_entry(p.name, right, p.subtitle or "", p.bullets, right_raw=True)
+            )
 
     if content.certifications:
         parts.append(r"\section{Certifications}")
         rows = []
-        for cert in content.certifications:
-            meta = ", ".join(x for x in (cert.issuer, cert.date) if x)
-            line = esc(cert.name) + (rf" \textit{{({esc(meta)})}}" if meta else "")
-            rows.append(rf"\item {line}")
-        parts.append("\\begin{itemize}\n" + "\n".join(rows) + "\n\\end{itemize}")
+        for c in content.certifications:
+            meta = ", ".join(x for x in (c.issuer, c.date) if x)
+            rows.append(esc(c.name) + (rf" \textit{{({esc(meta)})}}" if meta else ""))
+        parts.append(_ul(rows))
 
     if content.achievements:
         parts.append(r"\section{Achievements}")
-        rows = [rf"\item {esc(a)}" for a in content.achievements if a and a.strip()]
-        if rows:
-            parts.append("\\begin{itemize}\n" + "\n".join(rows) + "\n\\end{itemize}")
+        parts.append(_ul(content.achievements))
 
     parts.append(r"\end{document}")
     return "\n".join(parts)
 
 
-# ── modern (two-column, shaded sidebar) ───────────────────────────────────────
+# ── modern — deedy-resume-openfont look, recreated for pdflatex ───────────────
 
-_MODERN_PREAMBLE = r"""\documentclass[11pt,a4paper]{article}
+_MODERN_PREAMBLE = r"""\documentclass[a4paper]{article}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage[margin=0pt]{geometry}
-\usepackage{paracol}
+\usepackage[left=0.55in,top=0.5in,right=0.55in,bottom=0.5in]{geometry}
+\usepackage[default]{lato}
+\renewcommand{\familydefault}{\sfdefault}
 \usepackage{xcolor}
 \usepackage{enumitem}
+\usepackage{titlesec}
 \usepackage[hidelinks]{hyperref}
 
-\definecolor{accent}{RGB}{37,99,135}
-\definecolor{sidebar}{RGB}{238,242,245}
-\definecolor{sidetext}{RGB}{40,46,52}
+\definecolor{primary}{HTML}{2B2B2B}
+\definecolor{headings}{HTML}{6A6A6A}
+\definecolor{subheadings}{HTML}{333333}
+\definecolor{accent}{HTML}{2A7DAA}
 
-\setlength{\parindent}{0pt}
 \pagestyle{empty}
-\setlist[itemize]{leftmargin=1.1em,topsep=2pt,itemsep=1pt,parsep=0pt}
+\setcounter{secnumdepth}{0}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\hypersetup{colorlinks=true,urlcolor=accent}
 
-% Section headers
-\newcommand{\sidesection}[1]{\par\vspace{9pt}{\bfseries\color{accent}\large #1}\par
-  \vspace{1pt}\textcolor{accent}{\rule{\linewidth}{0.6pt}}\par\vspace{3pt}}
-\newcommand{\mainsection}[1]{\par\vspace{11pt}{\bfseries\color{accent}\Large #1}\par
-  \vspace{1pt}\textcolor{accent}{\rule{\linewidth}{1pt}}\par\vspace{4pt}}
+% deedy-style section header: uppercase, colored, ruled
+\titleformat{\section}{\Large\bfseries\color{headings}}{}{0em}{\MakeUppercase}[\textcolor{accent}{\titlerule[1pt]}]
+\titlespacing{\section}{0pt}{10pt}{4pt}
+\titleformat{\subsection}{\bfseries\color{subheadings}}{}{0em}{}
+\titlespacing{\subsection}{0pt}{4pt}{1pt}
+
+\newcommand{\runsub}[1]{{\bfseries\color{primary} #1}}
+\newcommand{\descript}[1]{{\scshape\color{accent} #1}}
+\newcommand{\loc}[1]{{\small\itshape\color{subheadings} #1}}
+
+\newlist{tight}{itemize}{1}
+\setlist[tight]{leftmargin=1.1em,labelsep=0.4em,label=$\bullet$,topsep=1pt,itemsep=1pt,parsep=0pt}
 """
 
 
-def _modern_sidebar(contact: ContactInfo, content: ResumeContent) -> str:
+def _modern_entry(title: str, descript: str, location: str, bullets: List[str],
+                  link: str = "") -> str:
+    head = rf"\runsub{{{esc(title)}}}"
+    if descript:
+        head += rf"~\descript{{| {esc(descript)}}}"
+    lines = [head + r"\\*"]
+    loc_bits = []
+    if location:
+        loc_bits.append(rf"\loc{{{esc(location)}}}")
+    if link:
+        loc_bits.append(_href(link))
+    if loc_bits:
+        lines.append(" \\hfill ".join(loc_bits) + r"\\*[1pt]" if len(loc_bits) > 1
+                     else loc_bits[0] + r"\\*[1pt]")
+    b = _ul(bullets, env="tight")
+    if b:
+        lines.append(b)
+    lines.append(r"\vspace{5pt}")
+    return "\n".join(lines)
+
+
+def _modern_left(contact: ContactInfo, content: ResumeContent) -> str:
     parts: List[str] = []
 
-    # Contact
-    contact_rows = []
-    if contact.location:
-        contact_rows.append(esc(contact.location))
-    if contact.phone:
-        contact_rows.append(esc(contact.phone))
-    if contact.email:
-        contact_rows.append(rf"\href{{mailto:{esc_url(contact.email)}}}{{{esc(contact.email)}}}")
-    if contact_rows:
-        parts.append(r"\sidesection{Contact}")
-        parts.append(r"\\".join(contact_rows))
-
-    links = _contact_links(contact)
-    if links:
-        parts.append(r"\sidesection{Links}")
-        parts.append(r"\\".join(links))
-
     if content.education:
-        parts.append(r"\sidesection{Education}")
+        parts.append(r"\section{Education}")
         for ed in content.education:
-            block = [rf"\textbf{{{esc(ed.institution)}}}\\"]
-            extra = [esc(x) for x in (ed.degree, ed.dateRange, ed.details) if x]
-            if extra:
-                block.append(r"\\".join(extra))
-            parts.append("\n".join(block) + r"\\[4pt]")
+            parts.append(rf"\runsub{{{esc(ed.institution)}}}\\*")
+            meta = [esc(x) for x in (ed.degree, ed.dateRange, ed.details) if x]
+            if meta:
+                parts.append(r"\loc{" + r" \\ ".join(meta) + r"}")
+            parts.append(r"\vspace{6pt}")
+
+    links = []
+    if contact.linkedin:
+        links.append(("LinkedIn", contact.linkedin))
+    if contact.github:
+        links.append(("GitHub", contact.github))
+    if contact.portfolio:
+        links.append(("Portfolio", contact.portfolio))
+    if links:
+        parts.append(r"\section{Links}")
+        parts.append(r" \\ ".join(rf"{lbl}:~~{_href(url)}" for lbl, url in links))
+        parts.append(r"\vspace{2pt}")
 
     if content.skillGroups:
-        parts.append(r"\sidesection{Skills}")
+        parts.append(r"\section{Skills}")
         for g in content.skillGroups:
             if not g.skills:
                 continue
-            parts.append(rf"\textbf{{{esc(g.category)}}}\\")
-            parts.append(esc(", ".join(g.skills)) + r"\\[3pt]")
+            parts.append(rf"\subsection{{{esc(g.category)}}}")
+            parts.append(BULLDOT.join(esc(s) for s in g.skills))
+            parts.append(r"\vspace{4pt}")
 
-    if content.certifications:
-        parts.append(r"\sidesection{Certifications}")
-        rows = []
-        for cert in content.certifications:
-            meta = ", ".join(x for x in (cert.issuer, cert.date) if x)
-            rows.append(esc(cert.name) + (rf" ({esc(meta)})" if meta else ""))
-        parts.append(r"\\".join(rows))
-
-    if content.achievements:
-        parts.append(r"\sidesection{Achievements}")
-        rows = [rf"\item {esc(a)}" for a in content.achievements if a and a.strip()]
-        if rows:
-            parts.append("\\begin{itemize}\n" + "\n".join(rows) + "\n\\end{itemize}")
+    if content.experience:
+        parts.append(r"\section{Experience}")
+        for e in content.experience:
+            title = e.company or e.role
+            descript = e.role if (e.company and e.role) else ""
+            parts.append(_modern_entry(title, descript, e.dateRange or e.location or "",
+                                       e.bullets))
 
     return "\n".join(parts)
 
 
-def _modern_main(contact: ContactInfo, content: ResumeContent) -> str:
-    parts: List[str] = [rf"{{\Huge \bfseries {esc(contact.name)}}}\par\vspace{{4pt}}"]
-
-    if content.summary and content.summary.strip():
-        parts.append(r"\mainsection{Profile}")
-        parts.append(esc(content.summary))
-
-    if content.experience:
-        parts.append(r"\mainsection{Experience}")
-        for e in content.experience:
-            title = ", ".join(x for x in (e.role, e.company) if x)
-            head = rf"\textbf{{{esc(title)}}}"
-            if e.dateRange:
-                head += rf"\hfill {esc(e.dateRange)}"
-            block = [head + r"\\"]
-            if e.location:
-                block.append(rf"\textit{{{esc(e.location)}}}")
-            b = _bullets(e.bullets)
-            if b:
-                block.append(b)
-            block.append(r"\vspace{4pt}")
-            parts.append("\n".join(block))
+def _modern_right(content: ResumeContent) -> str:
+    parts: List[str] = []
 
     if content.projects:
-        parts.append(r"\mainsection{Projects}")
+        parts.append(r"\section{Projects}")
         for p in content.projects:
-            head = rf"\textbf{{{esc(p.name)}}}"
-            if p.link:
-                display = str(p.link).split("://", 1)[-1].rstrip("/")
-                head += rf"\hfill \href{{{esc_url(p.link)}}}{{{esc(display)}}}"
-            block = [head + r"\\"]
-            if p.subtitle:
-                block.append(rf"\textit{{{esc(p.subtitle)}}}")
-            b = _bullets(p.bullets)
-            if b:
-                block.append(b)
-            block.append(r"\vspace{4pt}")
-            parts.append("\n".join(block))
+            parts.append(_modern_entry(p.name, p.subtitle or "", "", p.bullets, link=p.link or ""))
+
+    if content.certifications:
+        parts.append(r"\section{Certifications}")
+        rows = []
+        for c in content.certifications:
+            meta = ", ".join(x for x in (c.issuer, c.date) if x)
+            rows.append(esc(c.name) + (rf" \loc{{({esc(meta)})}}" if meta else ""))
+        parts.append(_ul(rows, env="tight"))
+        parts.append(r"\vspace{4pt}")
+
+    if content.achievements:
+        parts.append(r"\section{Achievements}")
+        parts.append(_ul(content.achievements, env="tight"))
 
     return "\n".join(parts)
 
 
 def build_modern(contact: ContactInfo, content: ResumeContent) -> str:
+    first, last = _split_name(contact.name)
+    head_bits = []
+    if contact.email:
+        head_bits.append(rf"\href{{mailto:{esc_url(contact.email)}}}{{{esc(contact.email)}}}")
+    if contact.phone:
+        head_bits.append(esc(contact.phone))
+    if contact.location:
+        head_bits.append(esc(contact.location))
+    contact_line = BULLDOT.join(head_bits)
+
+    name_tex = rf"{{\color{{primary}} {esc(first)}}}"
+    if last:
+        name_tex += rf" {{\bfseries\color{{accent}} {esc(last)}}}"
+
     body = [
         _MODERN_PREAMBLE,
         r"\begin{document}",
-        r"\columnratio{0.34}",
-        r"\setlength{\columnsep}{0pt}",
-        r"\begin{paracol}{2}",
-        r"\backgroundcolor{c[0]}{sidebar}",
-        # left column: padded sidebar
-        r"\color{sidetext}\hspace{0.18in}\begin{minipage}{\dimexpr\linewidth-0.36in\relax}"
-        r"\vspace{0.3in}",
-        _modern_sidebar(contact, content),
-        r"\vspace{0.3in}\end{minipage}",
-        r"\switchcolumn",
-        # right column: padded main
-        r"\hspace{0.12in}\begin{minipage}{\dimexpr\linewidth-0.5in\relax}\vspace{0.3in}",
-        _modern_main(contact, content),
-        r"\vspace{0.3in}\end{minipage}",
-        r"\end{paracol}",
+        # name header
+        r"\begin{center}",
+        rf"{{\fontsize{{32}}{{36}}\selectfont {name_tex}}}\\[3pt]",
+        rf"{{\small\color{{subheadings}} {contact_line}}}",
+        r"\end{center}",
+        r"\vspace{2pt}\textcolor{accent}{\rule{\textwidth}{1.2pt}}\vspace{8pt}",
+        # two columns
+        r"\begin{minipage}[t]{0.32\textwidth}",
+        _modern_left(contact, content),
+        r"\end{minipage}\hfill",
+        r"\begin{minipage}[t]{0.63\textwidth}",
+        _modern_right(content),
+        r"\end{minipage}",
         r"\end{document}",
     ]
     return "\n".join(body)
