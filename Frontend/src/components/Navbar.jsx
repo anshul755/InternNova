@@ -5,6 +5,7 @@ import { useTheme } from "../lib/ThemeContext.jsx";
 import { api } from "../lib/api.js";
 import { resolveLogoUrl } from "../lib/media.js";
 import ThemeToggle from "./ThemeToggle.jsx";
+import ResumeGeneratorButton from "./talent/ResumeGeneratorButton.jsx";
 import {
   IoMenu,
   IoClose,
@@ -301,6 +302,9 @@ export default function Navbar() {
     { label: "Applications", to: "/company/applications" },
   ];
 
+  const isTalent =
+    isAuthenticated && user?.role?.toLowerCase() !== "company";
+
   const navLinks = isAuthenticated
     ? user?.role?.toLowerCase() === "company"
       ? companyLinks
@@ -378,6 +382,7 @@ export default function Navbar() {
                   {label}
                 </NavLink>
               ))}
+          {isTalent && <ResumeGeneratorButton light={useLight} />}
         </div>
 
         {/* Right — Auth actions */}
@@ -477,6 +482,12 @@ export default function Navbar() {
                     {label}
                   </NavLink>
                 ))}
+
+            {isTalent && (
+              <div className="border-t border-white/40 mt-1 pt-1">
+                <ResumeGeneratorButton compact />
+              </div>
+            )}
 
             {!isAuthenticated && (
               <div className="flex flex-col gap-2 mt-3 pt-3 border-t border-white/[0.06]">

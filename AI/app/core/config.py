@@ -46,6 +46,18 @@ class Settings(BaseSettings):
     # PDF download guard
     max_pdf_mb: int = 20
 
+    # core-service (Spring Boot) — the resume generator fetches the talent's full
+    # profile from here. Internal, server-to-server: authenticated with a shared
+    # X-Service-Token rather than an end-user JWT (see TalentController.getFullProfile).
+    core_service_base_url: str = "http://localhost:8080"
+    internal_service_token: str = "dev-internal-token"
+    core_request_timeout: int = 30
+
+    # LaTeX.Online compile endpoint — turns assembled .tex into a PDF without a
+    # local TeX install. Overridable to a self-hosted instance.
+    latex_compile_url: str = "https://latexonline.cc/compile"
+    latex_compile_timeout: int = 90
+
     @classmethod
     def settings_customise_sources(
         cls,
