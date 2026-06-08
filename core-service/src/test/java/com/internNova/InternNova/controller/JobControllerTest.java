@@ -27,6 +27,8 @@ import com.internNova.InternNova.dto.JobCreateDTO;
 import com.internNova.InternNova.dto.JobUpdateDTO;
 import com.internNova.InternNova.entity.Job;
 import com.internNova.InternNova.enums.OpportunityType;
+import com.internNova.InternNova.security.JwtUtil;
+import com.internNova.InternNova.security.TalentAuthInterceptor;
 import com.internNova.InternNova.services.JobService;
 
 @WebMvcTest(JobController.class)
@@ -37,6 +39,12 @@ class JobControllerTest {
 
     @MockBean
     private JobService jobService;
+
+    @MockBean
+    private TalentAuthInterceptor talentAuthInterceptor;
+
+    @MockBean
+    private JwtUtil jwtUtil;
 
     private ObjectMapper objectMapper;
     private Job testJob;
