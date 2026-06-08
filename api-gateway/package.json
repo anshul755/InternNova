@@ -1,0 +1,34 @@
+{
+  "name": "api-gateway",
+  "version": "1.0.0",
+  "description": "API Gateway — single entry point connecting frontend to auth-service, core-service, and ai-service",
+  "keywords": [
+    "internnova",
+    "api-gateway",
+    "proxy"
+  ],
+  "homepage": "https://github.com/anshul755/InternNova#readme",
+  "bugs": {
+    "url": "https://github.com/anshul755/InternNova/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anshul755/InternNova.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "express-rate-limit": "^7.3.1",
+    "helmet": "^7.1.0",
+    "http-proxy-middleware": "^3.0.5"
+  }
+}
