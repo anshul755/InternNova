@@ -5,19 +5,60 @@ profile text is passed through `esc()` before it lands in the template, so a str
 `&`, `%`, `_`, `#`, or `$` in someone's name or bullet point can't break the compile.
 """
 
+import re
+
 # Typographic Unicode the LLM commonly emits that default pdflatex (inputenc utf8)
 # cannot compile — normalised to plain ASCII equivalents BEFORE escaping. Accented
 # letters (José, Müller, …) are intentionally left alone; inputenc handles those.
 _NORMALIZE = {
+    # hyphens / dashes / minus (pdflatex only likes the plain ASCII hyphen)
     "‐": "-", "‑": "-", "‒": "-", "–": "--", "—": "---",
-    "―": "---", "−": "-",  # hyphens / dashes / minus
-    "‘": "'", "’": "'", "‚": "'", "‛": "'",  # single quotes
-    "“": "''", "”": "''", "„": "''",  # double quotes
-    "…": "...",  # ellipsis
-    "•": "-", "‣": "-", "●": "-", "·": "-", "⁃": "-",  # bullets
-    " ": " ", " ": " ", " ": " ", "​": "",  # spaces
-    "→": "->", "⇒": "=>", "←": "<-",  # arrows
-    "™": "(TM)", "®": "(R)", "©": "(C)",  # symbols
+    "―": "---", "−": "-", "⁻": "-", "₋": "-",
+    # single quotes
+    "‘": "'", "’": "'", "‚": "'", "‛": "'", "′": "'", "‵": "'",
+    # double quotes
+    "“": "''", "”": "''", "„": "''", "‟": "''", "″": "''",
+    # ellipsis
+    "…": "...", "⋯": "...", "⋮": "...",
+    # bullets (llm loves fancy bullets in resume content)
+    "•": "-", "‣": "-", "●": "-", "·": "-", "⁃": "-",
+    "◦": "-", "◾": "-", "▸": "-", "▹": "-", "▪": "-", "▫": "-",
+    "◆": "-", "◇": "-", "►": "-",
+    # spaces (zero-width, thin, narrow, figure, etc.)
+    " ": " ", " ": " ", " ": " ", "​": "", " ": " ",
+    " ": " ", " ": " ", " ": " ", " ": " ",
+    "‌": "",  # zero-width non-joiner
+    "‍": "",  # zero-width joiner
+    "﻿": "",  # BOM / zero-width no-break space
+    # arrows
+    "→": "->", "⇒": "=>", "←": "<-", "⇐": "<=",
+    "↔": "<->", "↑": "^", "↓": "v",
+    "➔": "->", "➤": "->", "➜": "->", "↗": "->",
+    # symbols
+    "™": "(TM)", "®": "(R)", "©": "(C)",
+    "°": " degrees ",  # degree sign (often in temperatures, coordinates, etc.)
+    "±": "+/-",
+    "×": "x",  # multiplication sign (often used instead of letter x)
+    "÷": "/",
+    "≤": "<=", "≥": ">=",
+    "≠": "!=",
+    "≈": "~=",
+    "∞": "infinity",
+    "√": "sqrt",
+    # fractions & ligatures that inputenc chokes on
+    "¼": "1/4", "½": "1/2", "¾": "3/4",
+    "⅓": "1/3", "⅔": "2/3",
+    "ﬁ": "fi", "ﬂ": "fl", "ﬃ": "ffi", "ﬄ": "ffl",
+    "ĳ": "ij", "Ĳ": "IJ",
+    # currency
+    "€": "EUR ", "£": "GBP ", "¥": "JPY ",
+    "₹": "INR ",
+    # common technical symbols
+    "ℕ": "N", "ℝ": "R", "ℤ": "Z", "ℂ": "C",
+    "µ": "micro",  # micro sign (often used in ug/ml etc.)
+    "Ω": "Ohm", "Ω": "Ohm",
+    # line/carriage-return control chars (shouldn't appear but be defensive)
+    "\r": "", "\v": "",
 }
 
 
@@ -82,6 +123,20 @@ def validate_tex(tex: str) -> None:
     if opens != closes:
         raise ValidationError(
             f"Unbalanced braces in assembled .tex ({opens} '{{' vs {closes} '}}')"
+        )
+    # Catch empty arguments to formatting commands — these silently break LaTeX.
+    for cmd in (r"\textit", r"\textbf", r"\textsc", r"\loc", r"\runsub",
+                r"\descript", r"\resname", r"\resaddress", r"\MakeUppercase"):
+        if cmd + "{}" in tex or cmd + "{ }" in tex:
+            raise ValidationError(
+                f"Empty argument to {cmd!r} in assembled .tex — "
+                "this causes a LaTeX compilation error."
+            )
+    # Catch runaway backslashes in content (unescaped \ followed by non-command chars)
+    if re.search(r"\\[^a-zA-Z\\{}\[\]*&\s]", tex):
+        raise ValidationError(
+            "Assembled .tex contains a lone backslash before a non-command character — "
+            "an unescaped backslash may have slipped through."
         )
 
 

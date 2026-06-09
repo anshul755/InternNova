@@ -68,6 +68,11 @@ async def _write_content(state: ResumeState) -> dict:
         user += JOB_BLOCK_TEMPLATE.format(
             title=data.jobTitle or "(unspecified)", description=data.jobDescription
         )
+    elif data.jobTitle and data.jobTitle.strip():
+        user += JOB_BLOCK_TEMPLATE.format(
+            title=data.jobTitle.strip(),
+            description="(No description provided — tailor using the title alone: emphasise skills and experience relevant to this role.)",
+        )
 
     # json_schema (Groq native structured outputs) rather than the default tool-calling:
     # gpt-oss models intermittently emit a renamed tool that Groq's validator rejects.

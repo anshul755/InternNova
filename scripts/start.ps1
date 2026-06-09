@@ -13,14 +13,16 @@ foreach ($path in @($runtimeRoot, $pidRoot, $logRoot)) {
     }
 }
 
+# Services are started in dependency order:
+#   AI / Core / Auth (no deps) -> API Gateway -> Frontend
 $services = @(
     @{
-        Name = "frontend"
-        DisplayName = "Frontend"
-        WorkingDirectory = Join-Path $projectRoot "Frontend"
-        Command = "npm.cmd"
-        Arguments = @("run", "dev", "--", "--host", "0.0.0.0", "--port", "5173", "--strictPort")
-        Port = 5173
+        Name = "ai-service"
+        DisplayName = "AI Service"
+        WorkingDirectory = Join-Path $projectRoot "AI"
+        Command = Join-Path $projectRoot "AI\.venv\Scripts\python.exe"
+        Arguments = @("-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000")
+        Port = 8000
     },
     @{
         Name = "core-service"
@@ -29,6 +31,10 @@ $services = @(
         Command = ".\mvnw.cmd"
         Arguments = @("spring-boot:run")
         Port = 8080
+        Env = @{
+            # Share JWT secret with auth-service so tokens can be verified
+            JWT_ACCESS_SECRET = "change_me_to_a_very_long_random_secret_at_least_32_chars"
+        }
     },
     @{
         Name = "auth-service"
@@ -37,6 +43,22 @@ $services = @(
         Command = "npm.cmd"
         Arguments = @("run", "dev")
         Port = 5001
+    },
+    @{
+        Name = "api-gateway"
+        DisplayName = "API Gateway"
+        WorkingDirectory = Join-Path $projectRoot "api-gateway"
+        Command = "npm.cmd"
+        Arguments = @("run", "dev")
+        Port = 4000
+    },
+    @{
+        Name = "frontend"
+        DisplayName = "Frontend"
+        WorkingDirectory = Join-Path $projectRoot "Frontend"
+        Command = "npm.cmd"
+        Arguments = @("run", "dev", "--", "--host", "0.0.0.0", "--port", "5173", "--strictPort")
+        Port = 5173
     }
 )
 
@@ -116,6 +138,11 @@ function Assert-ServicePrerequisites {
 function Resolve-ServiceCommand {
     param([hashtable]$Service)
 
+    # Absolute paths are used as-is
+    if (Test-Path -LiteralPath $Service.Command) {
+        return $Service.Command
+    }
+
     if ($Service.Command -like ".\*") {
         return (Join-Path $Service.WorkingDirectory ($Service.Command -replace '^\.\\', ''))
     }
@@ -145,6 +172,15 @@ function Start-ServiceProcess {
 
     $resolvedCommand = Resolve-ServiceCommand -Service $Service
 
+    # Save + set per-process env vars so the child inherits them
+    $savedEnv = @{}
+    if ($Service.ContainsKey("Env")) {
+        foreach ($key in $Service.Env.Keys) {
+            $savedEnv[$key] = [Environment]::GetEnvironmentVariable($key, "Process")
+            [Environment]::SetEnvironmentVariable($key, $Service.Env[$key], "Process")
+        }
+    }
+
     try {
         $process = Start-Process `
             -FilePath $resolvedCommand `
@@ -157,6 +193,12 @@ function Start-ServiceProcess {
     }
     catch {
         throw "Failed to start $($Service.DisplayName) using '$resolvedCommand'. $($_.Exception.Message)"
+    }
+    finally {
+        # Restore previous env values
+        foreach ($key in $savedEnv.Keys) {
+            [Environment]::SetEnvironmentVariable($key, $savedEnv[$key], "Process")
+        }
     }
 
     $trackedProcess = $process

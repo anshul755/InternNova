@@ -14,6 +14,7 @@ here — this module IS the "escape LaTeX special characters" + "assemble .tex" 
 new style by writing a builder and registering it in `TEMPLATES`.
 """
 
+import re
 from typing import Callable, Dict, List
 
 from app.features.resume_generator.latex import esc, esc_url
@@ -36,9 +37,64 @@ def _ul(items: List[str], env: str = "itemize") -> str:
     return f"\\begin{{{env}}}\n{body}\n\\end{{{env}}}"
 
 
+# ── link helpers ──────────────────────────────────────────────────────────────
+
+# Canonical platform names keyed by domain pattern — first match wins.
+_PLATFORM_LABELS = [
+    (r"github\.com", "GitHub"),
+    (r"gitlab\.com", "GitLab"),
+    (r"bitbucket\.org", "Bitbucket"),
+    (r"linkedin\.com", "LinkedIn"),
+    (r"leetcode\.com", "LeetCode"),
+    (r"codeforces\.(com|ru)", "Codeforces"),
+    (r"hackerrank\.com", "HackerRank"),
+    (r"codepen\.io", "CodePen"),
+    (r"dev\.to", "Dev.to"),
+    (r"medium\.com", "Medium"),
+    (r"dribbble\.com", "Dribbble"),
+    (r"behance\.net", "Behance"),
+    (r"figma\.com", "Figma"),
+    (r"stackoverflow\.com", "Stack Overflow"),
+    (r"netlify\.(com|app)", "Netlify"),
+    (r"vercel\.(com|app)", "Vercel"),
+    (r"heroku\.(com|app)", "Heroku"),
+    (r"firebase\.(com|app)", "Firebase"),
+    (r"pages\.dev", "Cloudflare"),
+    (r"twitter\.com", "Twitter"),
+    (r"x\.com", "X"),
+]
+
+
+def _link_label(url: str) -> str:
+    """Return a human-friendly platform label for *url*.
+
+    Matches known platforms (GitHub, GitLab, …); for unrecognised hosts falls back to
+    the bare domain (e.g. ``example.com``) so the label stays compact and meaningful.
+    """
+    if not url:
+        return "Link"
+    text = str(url).strip()
+    # Extract the host part (ignore scheme, path, query, fragment).
+    host = text
+    if "://" in host:
+        host = host.split("://", 1)[1]
+    host = host.split("/", 1)[0].split("?")[0].split("#")[0].lower().strip()
+    if not host:
+        return "Link"
+    for pattern, label in _PLATFORM_LABELS:
+        if re.search(pattern, host):
+            return label
+    # Generic fallback: bare domain, minus any `www.` prefix.
+    return re.sub(r"^www\.", "", host)
+
+
 def _href(url: str, display: str = "") -> str:
-    """\\href{url}{display}; display defaults to the url without its scheme."""
-    text = display or str(url).split("://", 1)[-1].rstrip("/")
+    r"""Return ``\href{url}{display}`` for safe insertion into a LaTeX document.
+
+    When *display* is omitted a platform label is derived from the URL (e.g. "GitHub")
+    so that inline links stay compact and professional looking.
+    """
+    text = display or _link_label(url)
     return rf"\href{{{esc_url(url)}}}{{{esc(text)}}}"
 
 

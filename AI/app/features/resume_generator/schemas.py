@@ -128,32 +128,39 @@ class SkillGroup(BaseModel):
 
 
 class ExperienceItem(BaseModel):
-    company: str = Field(description="Employer/organisation name, taken from the profile.")
-    role: str = Field(description="Job title/role, taken from the profile.")
+    company: str = Field(description="Employer/organisation name, taken verbatim from the profile.")
+    role: str = Field(description="Job title/role, taken verbatim from the profile.")
     location: Optional[str] = Field(default=None, description="Location if known, else null.")
     dateRange: Optional[str] = Field(
         default=None,
-        description="Human date range like 'Jun 2023 - Present', built from start/end; null if unknown.",
+        description="Human date range like 'Jun 2023 – Present', built from start/end; null if unknown.",
     )
     bullets: List[str] = Field(
         default_factory=list,
         description=(
-            "2-4 concise, action-verb achievement bullets, rewritten from the profile's "
-            "bullet points. Quantify ONLY with numbers already present. Never invent metrics."
+            "2-4 concise, single-line, action-verb achievement bullets rewritten from the "
+            "profile's bullet points. When a target job is provided, emphasise accomplishments "
+            "and skills that match the job's requirements — surface teamwork, performance, or "
+            "domain-specific bullets as relevant. Quantify ONLY with numbers already present "
+            "in the profile. Never invent metrics, percentages, or counts."
         ),
     )
 
 
 class ProjectItem(BaseModel):
-    name: str = Field(description="Project name from the profile.")
+    name: str = Field(description="Project name, taken verbatim from the profile.")
     subtitle: Optional[str] = Field(
         default=None,
-        description="Optional one-line tech/role subtitle, e.g. 'React, Node.js' from the tech stack.",
+        description="Optional one-line tech/role subtitle, e.g. 'React, Node.js' from the tech stack. When a target job is provided, highlight the tech most relevant to that job.",
     )
     link: Optional[str] = Field(default=None, description="A live or repo URL if present, else null.")
     bullets: List[str] = Field(
         default_factory=list,
-        description="1-3 concise bullets describing what was built/achieved, grounded in the profile.",
+        description=(
+            "1-3 concise, single-line, action-verb bullets describing what was built/achieved, "
+            "grounded in the profile's highlights/description. When a target job is provided, "
+            "slant bullets toward skills and outcomes the job values."
+        ),
     )
 
 
@@ -183,21 +190,49 @@ class ResumeContent(BaseModel):
     summary: str = Field(
         description=(
             "A 2-3 sentence professional summary grounded in the candidate's real "
-            "background. When a job description is provided, slant emphasis toward it "
-            "WITHOUT claiming skills or experience the profile does not show."
+            "background. When a target job is provided, explicitly name the role and "
+            "frame the candidate as a natural fit — slant emphasis toward it WITHOUT "
+            "claiming skills or experience the profile does not show. When no target "
+            "job is provided, write a balanced, general-purpose summary."
         )
     )
     skillGroups: List[SkillGroup] = Field(
         default_factory=list,
-        description="The candidate's skills organised into 2-5 sensible groups.",
+        description=(
+            "The candidate's skills organised into 2-5 sensible groups (e.g. Languages, "
+            "Frameworks, Tools, Cloud, Data). When a target job is provided, order groups "
+            "so the most job-relevant ones appear first. Use group names that match the "
+            "job description's language where truthful."
+        ),
     )
-    experience: List[ExperienceItem] = Field(default_factory=list)
-    projects: List[ProjectItem] = Field(default_factory=list)
+    experience: List[ExperienceItem] = Field(
+        default_factory=list,
+        description=(
+            "Work experience entries. When a target job is provided, order so the most "
+            "job-relevant roles appear first. Otherwise use reverse-chronological order."
+        ),
+    )
+    projects: List[ProjectItem] = Field(
+        default_factory=list,
+        description=(
+            "Project entries. When a target job is provided, order so projects most "
+            "relevant to the role appear first. Otherwise use reverse-chronological."
+        ),
+    )
     education: List[EducationItem] = Field(default_factory=list)
-    certifications: List[CertItem] = Field(default_factory=list)
+    certifications: List[CertItem] = Field(
+        default_factory=list,
+        description=(
+            "Certifications. When a target job is provided, list job-relevant "
+            "certifications first."
+        ),
+    )
     achievements: List[str] = Field(
         default_factory=list,
-        description="Short one-line achievements/awards, grounded in the profile.",
+        description=(
+            "Short one-line achievements/awards, grounded in the profile. When a target "
+            "job is provided, order so the most job-relevant achievements appear first."
+        ),
     )
 
 
