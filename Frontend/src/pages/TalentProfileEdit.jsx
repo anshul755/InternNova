@@ -2,6 +2,13 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
+import CrudSection from "../components/talent/CrudSection.jsx";
+import {
+  IoBriefcaseOutline,
+  IoCodeSlashOutline,
+  IoRibbonOutline,
+  IoTrophyOutline,
+} from "react-icons/io5";
 
 const EMPTY_FORM = {
   name: "",
@@ -31,6 +38,12 @@ export default function TalentProfileEdit() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  // Sub-entity lists (managed separately via CrudSection)
+  const [experience, setExperience] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [certifications, setCertifications] = useState([]);
+  const [achievements, setAchievements] = useState([]);
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -56,6 +69,10 @@ export default function TalentProfileEdit() {
             : "",
           resumeUrl: data.resumeUrl || "",
         });
+        setExperience(Array.isArray(data.experience) ? data.experience : []);
+        setProjects(Array.isArray(data.projects) ? data.projects : []);
+        setCertifications(Array.isArray(data.certifications) ? data.certifications : []);
+        setAchievements(Array.isArray(data.achievements) ? data.achievements : []);
       } catch (err) {
         const isNotFound = String(err?.message || "").includes("404");
         if (!isNotFound) {
@@ -338,6 +355,69 @@ export default function TalentProfileEdit() {
             placeholder="Tell us about yourself..."
             rows={4}
             className={inputClass}
+          />
+        </div>
+
+        {/* ── Profile Sections (Experience, Projects, Certifications, Achievements) ── */}
+        <div className="space-y-3">
+          <CrudSection
+            title="Experience"
+            icon={IoBriefcaseOutline}
+            items={experience}
+            onItemsChange={setExperience}
+            apiPath="/talent/v1/experience"
+            fields={[
+              { name: "company", label: "Company", placeholder: "e.g. Google", required: true },
+              { name: "role", label: "Role", placeholder: "e.g. Frontend Intern", required: true },
+              { name: "location", label: "Location", placeholder: "e.g. Bangalore, India" },
+              { name: "startDate", label: "Start Date", type: "date" },
+              { name: "endDate", label: "End Date", type: "date" },
+              { name: "isCurrent", label: "I currently work here", type: "checkbox" },
+              { name: "bulletPoints", label: "Key Contributions", type: "tags", placeholder: "Built X, Improved Y by 30%, Led Z initiative" },
+            ]}
+          />
+
+          <CrudSection
+            title="Projects"
+            icon={IoCodeSlashOutline}
+            items={projects}
+            onItemsChange={setProjects}
+            apiPath="/talent/v1/projects"
+            fields={[
+              { name: "name", label: "Project Name", placeholder: "e.g. Campus Connect", required: true },
+              { name: "description", label: "Description", type: "textarea", placeholder: "What problem did it solve?" },
+              { name: "techStack", label: "Tech Stack", type: "tags", placeholder: "React, Node.js, MongoDB" },
+              { name: "liveUrl", label: "Live URL", type: "url", placeholder: "https://..." },
+              { name: "repoUrl", label: "Repository URL", type: "url", placeholder: "https://github.com/..." },
+              { name: "highlights", label: "Highlights", type: "tags", placeholder: "10k+ users, Featured on Product Hunt" },
+            ]}
+          />
+
+          <CrudSection
+            title="Certifications"
+            icon={IoRibbonOutline}
+            items={certifications}
+            onItemsChange={setCertifications}
+            apiPath="/talent/v1/certifications"
+            fields={[
+              { name: "name", label: "Certification Name", placeholder: "e.g. AWS Solutions Architect", required: true },
+              { name: "issuer", label: "Issuer", placeholder: "e.g. Amazon Web Services" },
+              { name: "issueDate", label: "Issue Date", type: "date" },
+              { name: "credentialUrl", label: "Credential URL", type: "url", placeholder: "https://..." },
+            ]}
+          />
+
+          <CrudSection
+            title="Achievements"
+            icon={IoTrophyOutline}
+            items={achievements}
+            onItemsChange={setAchievements}
+            apiPath="/talent/v1/achievements"
+            fields={[
+              { name: "title", label: "Title", placeholder: "e.g. Won Smart India Hackathon", required: true },
+              { name: "description", label: "Description", type: "textarea", placeholder: "Brief description of the achievement" },
+              { name: "year", label: "Year", placeholder: "e.g. 2025" },
+            ]}
           />
         </div>
 
