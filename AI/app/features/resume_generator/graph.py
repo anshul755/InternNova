@@ -20,7 +20,9 @@ from app.features.resume_generator.compiler import compile_tex
 from app.features.resume_generator.latex import validate_tex
 from app.features.resume_generator.profile_client import fetch_talent_profile
 from app.features.resume_generator.prompts import (
+    CLASSIC_DIRECTIVE,
     JOB_BLOCK_TEMPLATE,
+    MODERN_DIRECTIVE,
     SYSTEM_PROMPT,
     USER_PROMPT_TEMPLATE,
 )
@@ -29,6 +31,7 @@ from app.features.resume_generator.schemas import (
     GenerateResumeInput,
     ResumeContent,
     TalentProfile,
+    TemplateStyle,
 )
 from app.features.resume_generator.templates import render_template
 
@@ -73,6 +76,12 @@ async def _write_content(state: ResumeState) -> dict:
             title=data.jobTitle.strip(),
             description="(No description provided — tailor using the title alone: emphasise skills and experience relevant to this role.)",
         )
+
+    # Template directive comes LAST so it has the final word on length: modern has a
+    # hard one-page limit, classic (ATS) may run longer.
+    user += (
+        MODERN_DIRECTIVE if data.template == TemplateStyle.modern else CLASSIC_DIRECTIVE
+    )
 
     # json_schema (Groq native structured outputs) rather than the default tool-calling:
     # gpt-oss models intermittently emit a renamed tool that Groq's validator rejects.
