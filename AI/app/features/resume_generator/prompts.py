@@ -56,6 +56,30 @@ When a TARGET JOB is provided, shape the entire resume around it:
 6. STAY GROUNDED — If the profile lacks something the job asks for, do NOT invent
    it. Instead, emphasise the closest genuine strengths.
 
+7. TOP-3 JOB POINTS — Pull the 3 most important requirements/points out of the job
+   description (the core skills, responsibilities, or qualifications it stresses
+   most). Make sure the candidate's matching experience, projects, and skills for
+   those 3 points appear FIRST and are phrased in the job's language — still only
+   using what the profile actually contains.
+
+─── SELECTION & LENGTH ───
+Be relevant and concise. The page limit depends on the template, which is stated
+at the END of this prompt — follow it.
+
+• PROJECTS: If the profile has MORE THAN 4 projects, include ONLY the 3 most
+  relevant and drop the rest entirely. "Most relevant" = best matches the TARGET
+  JOB when one is given, otherwise the most substantial / impressive / recent.
+  With 4 or fewer projects, keep them all.
+• BULLETS: At most 2–3 bullets per experience and 1–2 per project. Keep the
+  strongest, most outcome-focused ones; merge or drop weak or overlapping bullets.
+• SHORTEN WITHOUT LOSING MEANING: When the template demands one page, or when
+  bullets are wordy, compress each bullet to a single tight line — cut filler
+  words, keep the action, the technology, and the result. Do NOT change the
+  meaning, drop the core point, or invent detail; just say it in fewer words.
+• SUMMARY: 2–3 sentences maximum.
+• When unsure what to cut, cut by relevance: keep what a recruiter for this
+  candidate (or the target job) would care about most.
+
 ─── WRITING QUALITY ───
 • Bullets: concise, single-line, action-verb-driven. "Built a REST API serving 10k
   requests/day" ✓ — "Was responsible for building an API" ✗.
@@ -94,5 +118,22 @@ Description:
 {description}
 
 Use the tailoring rules in the system prompt to shape the resume around this job.
+"""
+
+# Appended last so it has the final word on length. Only the modern template has a
+# hard one-page limit; the classic ATS template may run to a second page.
+MODERN_DIRECTIVE = """
+─── TEMPLATE: MODERN (HARD ONE-PAGE LIMIT) ───
+This resume is rendered with the MODERN two-column template, which MUST fit on a
+SINGLE page. Be aggressive: at most 3 projects, 1–2 tight bullets per item, and
+compress every bullet to one short line. When in doubt, cut — one full page is the
+ceiling, not a target.
+"""
+
+CLASSIC_DIRECTIVE = """
+─── TEMPLATE: CLASSIC (ATS) ───
+This resume is rendered with the CLASSIC single-column ATS template. A second page
+is acceptable — do NOT over-truncate; keep genuinely useful detail. Still apply the
+selection rules above (e.g. at most 3 projects when the profile has more than 4).
 """
 
