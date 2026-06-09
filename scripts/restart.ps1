@@ -12,5 +12,9 @@ if (-not (Test-Path -LiteralPath $startScript)) {
     throw "Missing script: $startScript"
 }
 
+Write-Host "=== Stopping all services ==="
 & $stopScript
+
+Write-Host ""
+Write-Host "=== Starting all services ==="
 & $startScript

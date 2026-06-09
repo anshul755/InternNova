@@ -5,10 +5,13 @@ $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $runtimeRoot = Join-Path $scriptRoot ".runtime"
 $pidRoot = Join-Path $runtimeRoot "pids"
 
+# Services in reverse startup order — stop the edge first, then the backends
 $services = @(
-    @{ Name = "frontend"; DisplayName = "Frontend"; Port = 5173 },
+    @{ Name = "frontend";     DisplayName = "Frontend";     Port = 5173 },
+    @{ Name = "api-gateway";  DisplayName = "API Gateway";  Port = 4000 },
+    @{ Name = "auth-service"; DisplayName = "Auth Service"; Port = 5001 },
     @{ Name = "core-service"; DisplayName = "Core Service"; Port = 8080 },
-    @{ Name = "auth-service"; DisplayName = "Auth Service"; Port = 5001 }
+    @{ Name = "ai-service";   DisplayName = "AI Service";   Port = 8000 }
 )
 
 function Get-PidFilePath {
