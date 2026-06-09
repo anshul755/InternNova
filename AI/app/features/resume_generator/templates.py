@@ -28,9 +28,14 @@ DIAMOND = r" $\diamond$ "
 BULLDOT = r" $\bullet$ "
 
 
-def _ul(items: List[str], env: str = "itemize") -> str:
-    """A bullet list in the given list environment, or '' when there are no items."""
-    rows = [esc(b) for b in items if b and b.strip()]
+def _ul(items: List[str], env: str = "itemize", raw: bool = False) -> str:
+    """A bullet list in the given list environment, or '' when there are no items.
+
+    `raw=True` means the items already contain assembled/escaped LaTeX (e.g. a name
+    plus an italic meta span) and must NOT be escaped again — passing such items with
+    the default would turn `\\textit{...}` into literal text.
+    """
+    rows = [(b if raw else esc(b)) for b in items if b and b.strip()]
     if not rows:
         return ""
     body = "\n".join(rf"  \item {r}" for r in rows)
@@ -126,7 +131,7 @@ _CLASSIC_PREAMBLE = r"""\documentclass[11pt,a4paper]{article}
 
 % --- rSection: uppercase bold heading + full-width rule ---
 \titleformat{\section}{\large\bfseries}{}{0em}{\MakeUppercase}[\vspace{-6pt}\rule{\linewidth}{0.8pt}]
-\titlespacing{\section}{0pt}{10pt}{4pt}
+\titlespacing{\section}{0pt}{7pt}{3pt}
 
 % --- compact bullet lists with a diamond/cdot marker ---
 \setlist[itemize]{leftmargin=1.5em,labelsep=0.5em,label=$\cdot$,topsep=2pt,itemsep=1pt,parsep=0pt}
@@ -145,7 +150,7 @@ def _classic_entry(title: str, right: str, subtitle: str, bullets: List[str],
     b = _ul(bullets)
     if b:
         lines.append(b)
-    lines.append(r"\vspace{5pt}")
+    lines.append(r"\vspace{4pt}")
     return "\n".join(lines)
 
 
@@ -188,7 +193,7 @@ def build_classic(contact: ContactInfo, content: ResumeContent) -> str:
             sub = ", ".join(x for x in (ed.degree, ed.details) if x)
             if sub:
                 block.append(esc(sub))
-            block.append(r"\vspace{5pt}")
+            block.append(r"\vspace{4pt}")
             parts.append("\n".join(block))
 
     if content.skillGroups:
@@ -224,7 +229,7 @@ def build_classic(contact: ContactInfo, content: ResumeContent) -> str:
         for c in content.certifications:
             meta = ", ".join(x for x in (c.issuer, c.date) if x)
             rows.append(esc(c.name) + (rf" \textit{{({esc(meta)})}}" if meta else ""))
-        parts.append(_ul(rows))
+        parts.append(_ul(rows, raw=True))
 
     if content.achievements:
         parts.append(r"\section{Achievements}")
@@ -245,7 +250,9 @@ _MODERN_PREAMBLE = r"""\documentclass[a4paper]{article}
 \usepackage{xcolor}
 \usepackage{enumitem}
 \usepackage{titlesec}
+\usepackage{paracol}
 \usepackage[hidelinks]{hyperref}
+\raggedbottom
 
 \definecolor{primary}{HTML}{2B2B2B}
 \definecolor{headings}{HTML}{6A6A6A}
@@ -352,7 +359,7 @@ def _modern_right(content: ResumeContent) -> str:
         for c in content.certifications:
             meta = ", ".join(x for x in (c.issuer, c.date) if x)
             rows.append(esc(c.name) + (rf" \loc{{({esc(meta)})}}" if meta else ""))
-        parts.append(_ul(rows, env="tight"))
+        parts.append(_ul(rows, env="tight", raw=True))
         parts.append(r"\vspace{4pt}")
 
     if content.achievements:
@@ -386,13 +393,16 @@ def build_modern(contact: ContactInfo, content: ResumeContent) -> str:
         rf"{{\small\color{{subheadings}} {contact_line}}}",
         r"\end{center}",
         r"\vspace{2pt}\textcolor{accent}{\rule{\textwidth}{1.2pt}}\vspace{8pt}",
-        # two columns
-        r"\begin{minipage}[t]{0.32\textwidth}",
+        # Two columns via paracol (NOT minipage): paracol breaks each column across
+        # pages independently, so a long profile flows onto page 2+ instead of being
+        # shoved off the bottom of an unbreakable box (which left page 1 blank).
+        r"\columnratio{0.33}",
+        r"\setlength{\columnsep}{0.04\textwidth}",
+        r"\begin{paracol}{2}",
         _modern_left(contact, content),
-        r"\end{minipage}\hfill",
-        r"\begin{minipage}[t]{0.63\textwidth}",
+        r"\switchcolumn",
         _modern_right(content),
-        r"\end{minipage}",
+        r"\end{paracol}",
         r"\end{document}",
     ]
     return "\n".join(body)

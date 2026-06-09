@@ -5,3 +5,7 @@ __pycache__/
 *.pyo
 .pytest_cache/
 scripts/out/
+# Local LaTeX engine: commit the ~47MB binary so the team doesn't re-download it,
+# but keep its logs and any other artifacts out of git.
+tools/*
+!tools/tectonic.exe
