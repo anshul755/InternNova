@@ -68,7 +68,11 @@ export const StatsCardSkeleton = memo(function StatsCardSkeleton() {
   return (
     <Card className="glass-card" elevation={0} sx={cardSafeSx}>
       <CardContent sx={{ p: 2.5 }}>
-        <Stack direction="row" justifyContent="space-between" spacing={2}>
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{ alignItems: "center", justifyContent: "space-between" }}
+        >
           <PremiumSkeleton width="48%" height={18} />
           <PremiumSkeleton width={40} height={40} sx={{ borderRadius: 3 }} />
         </Stack>
@@ -85,8 +89,7 @@ export const ProfileCardSkeleton = memo(function ProfileCardSkeleton() {
       <CardContent sx={{ p: 3 }}>
         <Stack
           direction="row"
-          justifyContent="space-between"
-          alignItems="center"
+          sx={{ alignItems: "center", justifyContent: "space-between" }}
         >
           <Box sx={{ width: "65%" }}>
             <PremiumSkeleton width="40%" height={14} />
@@ -141,7 +144,7 @@ export const JobCardSkeleton = memo(function JobCardSkeleton() {
   return (
     <Card className="glass-card" elevation={0} sx={cardSafeSx}>
       <CardContent sx={{ p: 2.5 }}>
-        <Stack direction="row" spacing={1.5} alignItems="center">
+        <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
           <PremiumSkeleton width={40} height={40} sx={{ borderRadius: 2 }} />
           <Box sx={{ minWidth: 0, flex: 1 }}>
             <PremiumSkeleton width="60%" height={24} />
@@ -172,7 +175,11 @@ export const ActivityCardSkeleton = memo(function ActivityCardSkeleton() {
   return (
     <Card className="glass-card" elevation={0} sx={cardSafeSx}>
       <CardContent sx={{ p: 2 }}>
-        <Stack direction="row" justifyContent="space-between" spacing={2}>
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{ justifyContent: "space-between" }}
+        >
           <Box sx={{ width: "70%" }}>
             <PremiumSkeleton width="35%" height={12} />
             <PremiumSkeleton width="78%" height={22} sx={{ mt: 0.8 }} />
@@ -338,7 +345,7 @@ export const CompanyDashboardSkeleton = memo(
         </Grid>
 
         <Grid container spacing={3} sx={safeContainerSx}>
-          <Grid item xs={12} xl={8} sx={{ minWidth: 0 }}>
+          <Grid xs={12} xl={8} sx={{ minWidth: 0 }}>
             <Card
               className="glass-panel"
               elevation={0}
@@ -346,8 +353,8 @@ export const CompanyDashboardSkeleton = memo(
             >
               <Stack
                 direction={{ xs: "column", lg: "row" }}
-                justifyContent="space-between"
                 spacing={2}
+                sx={{ justifyContent: "space-between" }}
               >
                 <Box sx={{ width: { xs: "100%", lg: "45%" } }}>
                   <PremiumSkeleton width="26%" height={14} />
@@ -463,8 +470,8 @@ export const CompanyJobsSkeleton = memo(function CompanyJobsSkeleton() {
           >
             <Stack
               direction={{ xs: "column", lg: "row" }}
-              justifyContent="space-between"
               spacing={2}
+              sx={{ justifyContent: "space-between" }}
             >
               <Box sx={{ width: { xs: "100%", lg: "40%" } }}>
                 <PremiumSkeleton width="30%" height={14} />
@@ -497,7 +504,7 @@ export const CompanyJobsSkeleton = memo(function CompanyJobsSkeleton() {
           </Card>
         </Grid>
 
-        <Grid item xs={12} xl={5} sx={{ minWidth: 0 }}>
+        <Grid xs={12} xl={5} sx={{ minWidth: 0 }}>
           <Stack spacing={3}>
             <Card
               className="glass-card"
@@ -556,7 +563,7 @@ export const FullPageLoader = memo(function FullPageLoader() {
         justifyContent: "center",
       }}
     >
-      <Stack spacing={1.5} alignItems="center" sx={{ width: 240 }}>
+      <Stack spacing={1.5} sx={{ width: 240, alignItems: "center" }}>
         <PremiumSkeleton width={48} height={48} sx={{ borderRadius: 999 }} />
         <PremiumSkeleton width="52%" height={16} />
       </Stack>
