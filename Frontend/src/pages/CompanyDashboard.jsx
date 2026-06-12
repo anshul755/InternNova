@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
 import { resolveLogoUrl } from "../lib/media.js";
-import { DashboardSkeleton } from "../components/Skeleton.jsx";
+import { CompanyDashboardSkeleton } from "../components/Skeleton.jsx";
 import {
   IoAddOutline,
   IoBriefcaseOutline,
@@ -129,20 +129,35 @@ const CompanyDashboard = () => {
 
   const getStatusBg = (status) => {
     const map = {
-      APPLIED: "bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-700/50",
-      UNDER_REVIEW: "bg-emerald-50 dark:bg-emerald-900/30 border-emerald-200 dark:border-emerald-700/50",
-      SHORTLISTED: "bg-lime-50 dark:bg-lime-900/30 border-lime-200 dark:border-lime-700/50",
-      INTERVIEW: "bg-teal-50 dark:bg-teal-900/30 border-teal-200 dark:border-teal-700/50",
-      OFFER: "bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-700/50",
-      HIRED: "bg-emerald-100 dark:bg-emerald-800/40 border-emerald-200 dark:border-emerald-600/50",
-      REJECTED: "bg-rose-50 dark:bg-rose-900/30 border-rose-200 dark:border-rose-700/50",
-      DRAFT: "bg-slate-50 dark:bg-slate-900/30 border-slate-200 dark:border-slate-700/50",
-      ACTIVE: "bg-emerald-50 dark:bg-emerald-900/30 border-emerald-200 dark:border-emerald-700/50",
-      CLOSED: "bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-700/50",
-      ARCHIVED: "bg-slate-50 dark:bg-slate-900/30 border-slate-200 dark:border-slate-700/50",
-      WITHDRAWN: "bg-slate-50 dark:bg-slate-900/30 border-slate-200 dark:border-slate-700/50",
+      APPLIED:
+        "bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-700/50",
+      UNDER_REVIEW:
+        "bg-emerald-50 dark:bg-emerald-900/30 border-emerald-200 dark:border-emerald-700/50",
+      SHORTLISTED:
+        "bg-lime-50 dark:bg-lime-900/30 border-lime-200 dark:border-lime-700/50",
+      INTERVIEW:
+        "bg-teal-50 dark:bg-teal-900/30 border-teal-200 dark:border-teal-700/50",
+      OFFER:
+        "bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-700/50",
+      HIRED:
+        "bg-emerald-100 dark:bg-emerald-800/40 border-emerald-200 dark:border-emerald-600/50",
+      REJECTED:
+        "bg-rose-50 dark:bg-rose-900/30 border-rose-200 dark:border-rose-700/50",
+      DRAFT:
+        "bg-slate-50 dark:bg-slate-900/30 border-slate-200 dark:border-slate-700/50",
+      ACTIVE:
+        "bg-emerald-50 dark:bg-emerald-900/30 border-emerald-200 dark:border-emerald-700/50",
+      CLOSED:
+        "bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-700/50",
+      ARCHIVED:
+        "bg-slate-50 dark:bg-slate-900/30 border-slate-200 dark:border-slate-700/50",
+      WITHDRAWN:
+        "bg-slate-50 dark:bg-slate-900/30 border-slate-200 dark:border-slate-700/50",
     };
-    return map[status] || "bg-slate-50 dark:bg-slate-900/30 border-slate-200 dark:border-slate-700/50";
+    return (
+      map[status] ||
+      "bg-slate-50 dark:bg-slate-900/30 border-slate-200 dark:border-slate-700/50"
+    );
   };
 
   const stats = useMemo(
@@ -172,7 +187,7 @@ const CompanyDashboard = () => {
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <DashboardSkeleton />
+        <CompanyDashboardSkeleton />
       </div>
     );
   }
@@ -206,8 +221,8 @@ const CompanyDashboard = () => {
                 : "Build your hiring pipeline"}
             </h1>
             <p className="mt-4 max-w-2xl text-base opacity-80">
-              Track live roles, keep applications moving, and jump straight
-              into the next hiring action.
+              Track live roles, keep applications moving, and jump straight into
+              the next hiring action.
             </p>
             <div className="panel-cta mt-8 flex flex-wrap gap-4">
               <Link to="/jobs/create" className="btn-primary">
@@ -301,9 +316,7 @@ const CompanyDashboard = () => {
               <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
                 Job board
               </p>
-              <h2 className="mt-1 text-2xl font-bold">
-                Your posted roles
-              </h2>
+              <h2 className="mt-1 text-2xl font-bold">Your posted roles</h2>
             </div>
             <div className="flex flex-wrap gap-2">
               {JOB_FILTERS.map((tab) => (
@@ -337,7 +350,7 @@ const CompanyDashboard = () => {
                         </h3>
                         <span
                           className={`rounded-full border px-3 py-1 text-xs font-semibold ${getStatusBg(
-                            job.status
+                            job.status,
                           )} ${getStatusColor(job.status)}`}
                         >
                           {job.status}
@@ -419,8 +432,7 @@ const CompanyDashboard = () => {
                         Reopen
                       </button>
                     )}
-                    {(!job.applicationsCount ||
-                      job.applicationsCount === 0) &&
+                    {(!job.applicationsCount || job.applicationsCount === 0) &&
                       job.status !== "ARCHIVED" && (
                         <button
                           onClick={() => handleDeleteJob(job.id)}
@@ -453,9 +465,7 @@ const CompanyDashboard = () => {
                 <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
                   Live feed
                 </p>
-                <h2 className="mt-1 text-xl font-bold">
-                  Recent applications
-                </h2>
+                <h2 className="mt-1 text-xl font-bold">Recent applications</h2>
               </div>
               <Link
                 to="/company/applications"
@@ -483,7 +493,7 @@ const CompanyDashboard = () => {
                       </div>
                       <span
                         className={`rounded-full border px-2.5 py-1 text-[0.68rem] font-semibold ${getStatusBg(
-                          app.status
+                          app.status,
                         )} ${getStatusColor(app.status)}`}
                       >
                         {app.status?.replace(/_/g, " ")}
@@ -499,9 +509,7 @@ const CompanyDashboard = () => {
               ) : (
                 <div className="rounded-2xl bg-black/5 dark:bg-white/5 p-8 text-center">
                   <IoDocumentTextOutline className="mx-auto h-10 w-10 opacity-40" />
-                  <p className="mt-3 text-sm opacity-70">
-                    No applications yet
-                  </p>
+                  <p className="mt-3 text-sm opacity-70">No applications yet</p>
                 </div>
               )}
             </div>
@@ -517,16 +525,10 @@ const CompanyDashboard = () => {
               the cleanest version of your company.
             </p>
             <div className="panel-cta mt-6 flex gap-3">
-              <Link
-                to="/jobs/create"
-                className="btn-primary flex-1"
-              >
+              <Link to="/jobs/create" className="btn-primary flex-1">
                 Post job
               </Link>
-              <Link
-                to="/company/applications"
-                className="btn-secondary flex-1"
-              >
+              <Link to="/company/applications" className="btn-secondary flex-1">
                 Review
               </Link>
             </div>

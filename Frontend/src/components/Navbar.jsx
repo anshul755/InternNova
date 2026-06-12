@@ -123,7 +123,7 @@ function UserDropdown({ user, onLogout, light, displayName, avatarUrl }) {
       </button>
 
       <div
-        className={`absolute right-0 top-full mt-2 w-56 glass-panel border border-white/60 py-2 z-50 origin-top-right transition-all duration-200 ease-out will-change-transform ${
+        className={`navbar-user-menu absolute right-0 top-full mt-2 w-56 glass-panel border border-white/60 py-2 overflow-hidden z-50 origin-top-right transition-all duration-200 ease-out will-change-transform ${
           open
             ? "pointer-events-auto visible opacity-100 translate-y-0 scale-100"
             : "pointer-events-none invisible opacity-0 -translate-y-2 scale-95"
@@ -245,7 +245,9 @@ export default function Navbar() {
         const res = await api.get(profilePath);
         const profile = await res.json();
         const nextName =
-          user.role?.toLowerCase() === "company" ? profile?.companyName : profile?.name;
+          user.role?.toLowerCase() === "company"
+            ? profile?.companyName
+            : profile?.name;
 
         // Try common avatar/logo fields returned by the backend
         const candidateAvatar = resolveLogoUrl(profile, profile?.data, user);
@@ -282,7 +284,9 @@ export default function Navbar() {
   };
 
   const contextLabel =
-    user?.role?.toLowerCase() === "company" ? "Company Dashboard" : "Talent Dashboard";
+    user?.role?.toLowerCase() === "company"
+      ? "Company Dashboard"
+      : "Talent Dashboard";
 
   const landingLinks = [
     { label: "Features", href: "#features" },
@@ -302,8 +306,7 @@ export default function Navbar() {
     { label: "Applications", to: "/company/applications" },
   ];
 
-  const isTalent =
-    isAuthenticated && user?.role?.toLowerCase() !== "company";
+  const isTalent = isAuthenticated && user?.role?.toLowerCase() !== "company";
 
   const navLinks = isAuthenticated
     ? user?.role?.toLowerCase() === "company"
@@ -358,7 +361,11 @@ export default function Navbar() {
                 <a
                   key={href}
                   href={href}
-                  className="px-3.5 py-2 text-sm text-slate-700 hover:text-slate-900 rounded-full hover:bg-white/70 transition-colors"
+                  className={`px-2 py-2 text-sm font-medium transition-colors border-b-2 border-transparent ${
+                    useLight
+                      ? "text-slate-600 hover:text-slate-900 hover:border-slate-300"
+                      : "text-slate-300 hover:text-white hover:border-white/30"
+                  }`}
                 >
                   {label}
                 </a>
@@ -368,14 +375,14 @@ export default function Navbar() {
                   key={to}
                   to={to}
                   className={({ isActive }) =>
-                    `px-3.5 py-2 text-sm rounded-lg transition-colors ${
+                    `px-2 py-2 text-sm font-medium transition-colors border-b-2 ${
                       useLight
                         ? isActive
-                          ? "text-slate-900 bg-white/60 font-medium"
-                          : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
+                          ? "text-slate-900 border-slate-900"
+                          : "text-slate-600 border-transparent hover:text-slate-900 hover:border-slate-300"
                         : isActive
-                          ? "text-white bg-white/[0.08] font-medium"
-                          : "text-slate-300 hover:text-white hover:bg-white/[0.06]"
+                          ? "text-white border-[#ecfccb] shadow-[0_1px_0_0_rgba(236,252,203,0.7)]"
+                          : "text-slate-300 border-transparent hover:text-white hover:border-white/30"
                     }`
                   }
                 >
@@ -392,13 +399,21 @@ export default function Navbar() {
             <>
               <Link
                 to="/register"
-                className="hidden sm:inline-flex items-center px-4 py-2 text-sm text-slate-700 hover:text-slate-900 rounded-lg hover:bg-white/60 transition-colors"
+                className={`hidden sm:inline-flex items-center px-2 py-2 text-sm font-medium border-b-2 border-transparent transition-colors ${
+                  useLight
+                    ? "text-slate-600 hover:text-slate-900 hover:border-slate-300"
+                    : "text-slate-300 hover:text-white hover:border-white/30"
+                }`}
               >
                 Get Started
               </Link>
               <Link
                 to="/login"
-                className="hidden sm:inline-flex items-center justify-center px-5 py-2 rounded-full text-sm font-medium text-slate-700 hover:text-slate-900 hover:bg-white/70 transition-all btn-primary"
+                className={`hidden sm:inline-flex items-center px-2 py-2 text-sm font-semibold border-b-2 transition-colors ${
+                  useLight
+                    ? "text-slate-900 border-slate-400 hover:border-slate-900"
+                    : "text-white border-white/50 hover:border-white"
+                }`}
               >
                 Sign In
               </Link>
@@ -456,7 +471,11 @@ export default function Navbar() {
                   <a
                     key={href}
                     href={href}
-                    className="px-4 py-3 text-sm text-slate-700 hover:text-slate-900 rounded-lg hover:bg-white/60 transition-colors"
+                    className={`px-4 py-3 text-sm font-medium transition-colors border-b border-transparent ${
+                      useLight
+                        ? "text-slate-600 hover:text-slate-900 hover:border-slate-300"
+                        : "text-slate-300 hover:text-white hover:border-white/25"
+                    }`}
                     onClick={() => setMobileOpen(false)}
                   >
                     {label}
@@ -468,14 +487,14 @@ export default function Navbar() {
                     to={to}
                     onClick={() => setMobileOpen(false)}
                     className={({ isActive }) =>
-                      `px-4 py-3 text-sm rounded-lg transition-colors ${
+                      `px-4 py-3 text-sm font-medium transition-colors border-b-2 border-transparent ${
                         useLight
                           ? isActive
-                            ? "text-slate-900 bg-white/60 font-medium"
-                            : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
+                            ? "text-slate-900 border-slate-900"
+                            : "text-slate-600 hover:text-slate-900 hover:border-slate-300"
                           : isActive
-                            ? "text-white bg-white/[0.08] font-medium"
-                            : "text-slate-300 hover:text-white hover:bg-white/[0.06]"
+                            ? "text-white border-[#ecfccb] shadow-[0_1px_0_0_rgba(236,252,203,0.1)]"
+                            : "text-slate-300 hover:text-white hover:border-white/25"
                       }`
                     }
                   >
@@ -493,14 +512,22 @@ export default function Navbar() {
               <div className="flex flex-col gap-2 mt-3 pt-3 border-t border-white/[0.06]">
                 <Link
                   to="/login"
-                  className="btn-secondary !w-full !justify-center !text-sm"
+                  className={`px-4 py-3 text-sm font-medium transition-colors border-b border-transparent ${
+                    useLight
+                      ? "text-slate-600 hover:text-slate-900 hover:border-slate-300"
+                      : "text-slate-300 hover:text-white hover:border-white/25"
+                  }`}
                   onClick={() => setMobileOpen(false)}
                 >
                   Login
                 </Link>
                 <Link
                   to="/login"
-                  className="btn-primary !w-full !justify-center !text-sm"
+                  className={`px-4 py-3 text-sm font-semibold transition-colors border-b border-transparent ${
+                    useLight
+                      ? "text-slate-900 hover:border-slate-900"
+                      : "text-white hover:border-white"
+                  }`}
                   onClick={() => setMobileOpen(false)}
                 >
                   Get Started
@@ -517,7 +544,11 @@ export default function Navbar() {
                     setMobileOpen(false);
                     handleLogout();
                   }}
-                  className="flex items-center gap-2 px-4 py-3 text-sm text-slate-700 hover:text-slate-900 hover:bg-white/60 rounded-lg transition-colors w-full"
+                  className={`flex items-center gap-2 px-4 py-3 text-sm font-medium w-full transition-colors border-b border-transparent ${
+                    useLight
+                      ? "text-slate-600 hover:text-slate-900 hover:border-slate-300"
+                      : "text-slate-300 hover:text-white hover:border-white/25"
+                  }`}
                 >
                   <IoLogOutOutline className="w-4 h-4" />
                   Sign out

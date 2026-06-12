@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
-import { DashboardSkeleton } from "../components/Skeleton.jsx";
+import { TalentDashboardSkeleton } from "../components/Skeleton.jsx";
 import {
   IoBookmarkOutline,
   IoBriefcaseOutline,
@@ -134,7 +134,7 @@ const TalentDashboard = () => {
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <DashboardSkeleton />
+        <TalentDashboardSkeleton />
       </div>
     );
   }
@@ -224,10 +224,7 @@ const TalentDashboard = () => {
               )}
             </div>
 
-            <Link
-              to="/profile/edit"
-              className="btn-primary w-full mt-6"
-            >
+            <Link to="/profile/edit" className="btn-primary w-full mt-6">
               Update profile
             </Link>
           </div>
@@ -284,7 +281,7 @@ const TalentDashboard = () => {
 
       <section className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
         <div className="space-y-6">
-          <div className="glass-panel p-6">
+          <div className="glass-panel flex h-[34rem] flex-col p-6">
             <div className="flex items-center justify-between gap-4 border-b border-black/5 dark:border-white/5 pb-5">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
@@ -300,13 +297,13 @@ const TalentDashboard = () => {
               </Link>
             </div>
 
-            <div className="card-scroll-region relative mt-6 max-h-[30rem] space-y-4 overflow-y-auto pr-2">
+            <div className="card-scroll-region relative mt-6 h-[26rem] space-y-4 overflow-y-auto pr-2">
               {applications.length > 0 ? (
                 applications.map((app, index) => (
                   <article key={app.id} className="relative pl-8">
                     <div className="absolute left-2 top-2 h-full w-px bg-black/10 dark:bg-white/10" />
                     <div className="absolute left-0 top-2 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 ring-4 ring-emerald-500/20" />
-                    <div className="glass-card p-4 transition-colors hover:border-emerald-500/30">
+                    <div className="glass-card p-4 h-35 transition-colors hover:border-emerald-500/30">
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <p className="text-xs font-semibold uppercase tracking-wider opacity-60">
@@ -352,7 +349,7 @@ const TalentDashboard = () => {
         </div>
 
         <div className="space-y-6">
-          <div className="glass-panel p-6">
+          <div className="glass-panel flex h-[34rem] flex-col p-6">
             <div className="flex items-center justify-between gap-4 border-b border-black/5 pb-5 dark:border-white/5">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
@@ -368,23 +365,23 @@ const TalentDashboard = () => {
               </Link>
             </div>
 
-            <div className="card-scroll-region mt-6 grid max-h-[28rem] gap-3 overflow-y-auto pr-2 md:grid-cols-2">
+            <div className="card-scroll-region mt-6 grid h-[26rem] gap-3 overflow-y-auto pr-2 md:grid-cols-2 auto-rows-min">
               {recentJobs.length > 0 ? (
                 recentJobs.map((job) => (
                   <Link
                     key={job.id}
                     to={`/jobs/${job.id}`}
-                    className="glass-card flex flex-col justify-between p-4 transition-colors hover:border-emerald-500/40"
+                    className="glass-card flex flex-col justify-between p-4 h-44 overflow-hidden transition-colors hover:border-emerald-500/40"
                   >
                     <div>
                       <IoBriefcaseOutline className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                      <h3 className="mt-4 font-bold">{job.title}</h3>
-                      <p className="mt-2 text-sm opacity-70">
+                      <h3 className="mt-2 font-bold">{job.title}</h3>
+                      <p className="mt-1 text-sm opacity-70">
                         {job.location || "Location not set"}
                       </p>
                     </div>
                     {job.salaryMin && job.salaryMax && (
-                      <p className="mt-4 text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                      <p className="mt-2 text-sm font-bold text-emerald-600 dark:text-emerald-400">
                         ${job.salaryMin.toLocaleString()} - $
                         {job.salaryMax.toLocaleString()}
                       </p>

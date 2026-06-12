@@ -82,18 +82,22 @@ function ModalLayout() {
       {modalType && (
         <div className="theme-overlay fixed inset-0 z-[60] flex items-center justify-center backdrop-blur-2xl">
           <div className="relative w-full max-w-6xl max-h-[90vh] overflow-y-auto no-scrollbar px-4 py-4">
-            <button
-              type="button"
-              onClick={handleClose}
-              className="absolute right-6 top-6 z-50 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-slate-950/70 text-white text-base shadow-lg shadow-black/30 transition-colors hover:bg-slate-900 hover:border-white/30"
-              aria-label="Close"
-            >
-              <IoClose className="h-5 w-5" />
-            </button>
+            <div className="flex items-center justify-center w-full">
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  className="absolute -top-6 -right-6 z-50 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-slate-950/70 text-white text-base shadow-lg shadow-black/30 transition-colors hover:bg-slate-900 hover:border-white/30"
+                  aria-label="Close"
+                >
+                  <IoClose className="h-5 w-5" />
+                </button>
 
-            {modalType === "login" && <Login modal />}
-            {modalType === "talent" && <TalentRegister modal />}
-            {modalType === "company" && <CompanyRegister modal />}
+                {modalType === "login" && <Login modal />}
+                {modalType === "talent" && <TalentRegister modal />}
+                {modalType === "company" && <CompanyRegister modal />}
+              </div>
+            </div>
           </div>
         </div>
       )}

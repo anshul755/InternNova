@@ -151,6 +151,17 @@ body,
   min-height: 100%;
 }
 
+html,
+body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+}
+
 body {
   margin: 0;
   font-family:
@@ -164,6 +175,7 @@ body {
   background-attachment: scroll;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-y: auto;
   overflow-x: hidden;
   transition:
     background-color 300ms ease,
@@ -326,6 +338,18 @@ textarea {
   box-shadow: var(--app-shadow-strong);
 }
 
+.navbar-user-menu {
+  background: rgba(250, 252, 248, 1);
+  border-color: rgba(255, 255, 255, 0.7);
+  -webkit-backdrop-filter: blur(24px) saturate(1.15);
+  backdrop-filter: blur(24px) saturate(1.15);
+}
+
+html[data-theme="dark"] .navbar-user-menu {
+  background: rgba(11, 18, 14, 1);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
 /* Dashboard-specific refinements to provide a clean, industrial-grade
    dark/light appearance with improved contrast and consistent surfaces. */
 .dashboard-hero {
@@ -335,7 +359,7 @@ textarea {
   padding: 1.5rem;
   /* use a slightly toned surface instead of full-white to improve contrast */
   background: var(--app-glass-strong);
-  border: 1px solid rgba(15,23,42,0.06);
+  border: 1px solid rgba(15, 23, 42, 0.06);
 }
 .dashboard-hero::before {
   content: "";
@@ -343,7 +367,7 @@ textarea {
   inset: 0;
   pointer-events: none;
   background: var(--app-glow);
-  opacity: .08; /* reduce glow in light mode so titles stay readable */
+  opacity: 0.08; /* reduce glow in light mode so titles stay readable */
   mix-blend-mode: overlay;
 }
 .dashboard-hero .hero-title {
@@ -352,9 +376,9 @@ textarea {
 .dashboard-profile-card {
   border-radius: 20px;
   padding: 1.25rem;
-  background: rgba(255,255,255,0.92);
-  border: 1px solid rgba(15,23,42,0.06);
-  box-shadow: 0 8px 24px rgba(15,23,42,0.06);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
 }
 .dashboard-profile-card .muted {
   color: var(--app-text-muted);
@@ -362,15 +386,19 @@ textarea {
 
 /* Dark theme overrides for dashboard surfaces */
 html[data-theme="dark"] .dashboard-hero {
-  background: linear-gradient(180deg, rgba(6,10,8,0.48), rgba(8,14,10,0.6));
-  border: 1px solid rgba(255,255,255,0.04);
+  background: linear-gradient(
+    180deg,
+    rgba(6, 10, 8, 0.48),
+    rgba(8, 14, 10, 0.6)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.04);
 }
 html[data-theme="dark"] .dashboard-hero::before {
-  opacity: .14;
+  opacity: 0.14;
 }
 html[data-theme="dark"] .dashboard-profile-card {
-  background: rgba(18,24,20,0.6);
-  border: 1px solid rgba(255,255,255,0.04);
+  background: rgba(18, 24, 20, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 /* Tighter, more consistent glass-card for dashboard */
@@ -380,12 +408,16 @@ html[data-theme="dark"] .dashboard-profile-card {
   border-radius: 18px;
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
-  box-shadow: 0 8px 30px rgba(15,23,42,0.08);
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
 }
 
 /* Utility tweaks for better button contrast inside panels */
-.panel-cta .btn-primary { box-shadow: 0 10px 30px rgba(124,200,74,0.12); }
-.panel-cta .btn-secondary { border-color: rgba(15,23,42,0.06); }
+.panel-cta .btn-primary {
+  box-shadow: 0 10px 30px rgba(124, 200, 74, 0.12);
+}
+.panel-cta .btn-secondary {
+  border-color: rgba(15, 23, 42, 0.06);
+}
 
 .glass-select__trigger {
   display: inline-flex;
@@ -916,6 +948,7 @@ html[data-theme="dark"] .auth-tab:hover {
   border-radius: 9999px;
   background: transparent;
   color: inherit;
+  outline: none;
 }
 
 .theme-toggle__track {
@@ -923,42 +956,57 @@ html[data-theme="dark"] .auth-tab:hover {
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  width: 4.5rem;
-  height: 2.5rem;
-  padding: 0.3rem;
+  width: 4.85rem;
+  height: 2.7rem;
+  padding: 0.34rem;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.48);
-  border: 1px solid var(--app-border-strong);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
-  box-shadow: var(--app-shadow);
+  background: rgba(255, 255, 255, 0.58);
+  border: 1px solid rgba(255, 255, 255, 0.62);
+  -webkit-backdrop-filter: blur(18px) saturate(1.08);
+  backdrop-filter: blur(18px) saturate(1.08);
+  box-shadow:
+    0 1px 1px rgba(255, 255, 255, 0.55) inset,
+    0 12px 28px rgba(15, 23, 42, 0.12);
   overflow: hidden;
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease,
+    border-color 220ms ease,
+    background-color 220ms ease;
 }
 
 html[data-theme="dark"] .theme-toggle__track {
-  background: rgba(17, 25, 22, 0.76);
+  background: rgba(17, 25, 22, 0.88);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 1px 1px rgba(255, 255, 255, 0.04) inset,
+    0 16px 34px rgba(0, 0, 0, 0.34);
 }
 
 .theme-toggle__thumb {
   position: absolute;
-  top: 0.22rem;
-  left: 0.22rem;
-  width: 1.98rem;
-  height: 1.98rem;
+  top: 0.28rem;
+  left: 0.28rem;
+  width: 2rem;
+  height: 2rem;
   border-radius: 9999px;
-  background: linear-gradient(135deg, #ffffff 0%, #d8f7c1 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #e4f7d3 100%);
   box-shadow:
-    0 6px 14px rgba(15, 23, 42, 0.18),
-    0 0 22px rgba(124, 200, 74, 0.16);
+    0 8px 18px rgba(15, 23, 42, 0.18),
+    0 0 26px rgba(124, 200, 74, 0.16);
   transform: translateX(0);
   transition:
     transform 320ms ease,
-    background-color 320ms ease;
+    background-color 320ms ease,
+    box-shadow 320ms ease;
 }
 
 .theme-toggle__thumb[data-theme="dark"] {
-  transform: translateX(1.98rem);
-  background: linear-gradient(135deg, #15211a 0%, #0c1712 100%);
+  transform: translateX(2.1rem);
+  background: linear-gradient(135deg, #1a261f 0%, #0b1410 100%);
+  box-shadow:
+    0 8px 18px rgba(0, 0, 0, 0.34),
+    0 0 26px rgba(132, 216, 94, 0.12);
 }
 
 .theme-toggle__icon {
@@ -1000,9 +1048,22 @@ html[data-theme="dark"] .theme-toggle__icon--moon {
 
 .theme-toggle:hover .theme-toggle__track {
   box-shadow:
-    0 10px 26px rgba(124, 200, 74, 0.16),
-    var(--app-shadow);
+    0 12px 28px rgba(124, 200, 74, 0.18),
+    0 1px 1px rgba(255, 255, 255, 0.55) inset,
+    0 14px 30px rgba(15, 23, 42, 0.12);
   transform: translateY(-1px);
+}
+
+.theme-toggle:focus-visible .theme-toggle__track {
+  box-shadow:
+    0 0 0 3px rgba(125, 211, 160, 0.22),
+    0 12px 28px rgba(124, 200, 74, 0.18),
+    0 1px 1px rgba(255, 255, 255, 0.55) inset,
+    0 14px 30px rgba(15, 23, 42, 0.12);
+}
+
+.theme-toggle:active .theme-toggle__track {
+  transform: translateY(0) scale(0.98);
 }
 
 .card {
@@ -1012,30 +1073,6 @@ html[data-theme="dark"] .theme-toggle__icon--moon {
   -webkit-backdrop-filter: blur(18px);
   backdrop-filter: blur(18px);
   box-shadow: var(--app-shadow);
-}
-
-.skeleton {
-  position: relative;
-  overflow: hidden;
-  border-radius: 9999px;
-  background: linear-gradient(
-    90deg,
-    rgba(148, 163, 184, 0.18) 0%,
-    rgba(148, 163, 184, 0.3) 50%,
-    rgba(148, 163, 184, 0.18) 100%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.8s ease-in-out infinite;
-}
-
-html[data-theme="dark"] .skeleton {
-  background: linear-gradient(
-    90deg,
-    rgba(148, 163, 184, 0.1) 0%,
-    rgba(148, 163, 184, 0.18) 50%,
-    rgba(148, 163, 184, 0.1) 100%
-  );
-  background-size: 200% 100%;
 }
 
 .auth-flow {

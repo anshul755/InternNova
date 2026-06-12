@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
-import { DashboardSkeleton } from "../components/Skeleton.jsx";
+import { CompanyJobsSkeleton } from "../components/Skeleton.jsx";
 import {
   IoBriefcaseOutline,
   IoDocumentTextOutline,
@@ -127,7 +127,7 @@ export default function CompanyJobs() {
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <DashboardSkeleton />
+        <CompanyJobsSkeleton />
       </div>
     );
   }
