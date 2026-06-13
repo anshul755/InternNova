@@ -18,12 +18,14 @@ import VerifyEmail from "./pages/VerifyEmail.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
 import JobListings from "./pages/JobListings.jsx";
 import JobDetails from "./pages/JobDetails.jsx";
+import LegalPrivacyPage from "./pages/LegalPrivacyPage.jsx";
 import ApplicationManagement from "./pages/ApplicationManagement.jsx";
 import ApplicationDetail from "./pages/ApplicationDetail.jsx";
 import TalentDashboard from "./pages/TalentDashboard.jsx";
 import CompanyDashboard from "./pages/CompanyDashboard.jsx";
 import CompanyJobs from "./pages/CompanyJobs.jsx";
 import CompanyApplications from "./pages/CompanyApplications.jsx";
+import TermsOfService from "./pages/TermsOfService.jsx";
 import PostJob from "./pages/PostJob.jsx";
 import TalentProfileEdit from "./pages/TalentProfileEdit.jsx";
 import CompanyProfileEdit from "./pages/CompanyProfileEdit.jsx";
@@ -110,6 +112,12 @@ function App() {
     <Routes>
       {/* All routes share the AppLayout shell (Navbar + Footer) */}
       <Route element={<AppLayout />}>
+        <Route path="/" element={<ModalLayout />} />
+        <Route path="/login" element={<ModalLayout />} />
+        <Route path="/register/user" element={<ModalLayout />} />
+        <Route path="/register/talent" element={<ModalLayout />} />
+        <Route path="/register/company" element={<ModalLayout />} />
+
         {/* Dashboard routes */}
         <Route
           path="/dashboard"
@@ -230,9 +238,8 @@ function App() {
         <Route path="/register" element={<RegisterChoice />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-
-        {/* Landing + auth modals (catch-all) */}
-        <Route path="/*" element={<ModalLayout />} />
+        <Route path="/privacy-policy" element={<LegalPrivacyPage />} />
+        <Route path="/terms-of-service" element={<TermsOfService />} />
       </Route>
     </Routes>
   );

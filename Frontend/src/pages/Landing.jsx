@@ -1,7 +1,6 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import companies from "../data/companies";
-import ThemeToggle from "../components/ThemeToggle.jsx";
+import Navbar from "../components/Navbar.jsx";
 
 const midpoint = Math.ceil(companies.length / 2);
 const companiesRowOne = companies.slice(0, midpoint);
@@ -12,51 +11,8 @@ const logoCircleClassName =
 const Landing = () => {
   return (
     <div className="relative min-h-screen text-slate-900 px-[5vw] py-6 flex flex-col font-sans overflow-x-hidden saas-section">
-      <header className="flex items-center justify-between gap-6">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#c7f284] to-[#8fd9b6] flex items-center justify-center font-bold text-slate-900 shadow-lg shadow-emerald-400/20">
-            IN
-          </div>
-          <span className="font-semibold tracking-wider text-slate-900">
-            InternNova
-          </span>
-        </div>
-
-        <nav className="hidden md:flex gap-5 text-[0.95rem]">
-          <a
-            href="#features"
-            className="text-slate-600 hover:text-slate-900 transition-colors"
-          >
-            Features
-          </a>
-          <a
-            href="#how-it-works"
-            className="text-slate-600 hover:text-slate-900 transition-colors"
-          >
-            How it works
-          </a>
-          <a
-            href="#pricing"
-            className="text-slate-600 hover:text-slate-900 transition-colors"
-          >
-            Pricing
-          </a>
-        </nav>
-
-        <div className="flex items-center gap-3">
-          <ThemeToggle className="hidden sm:inline-flex" />
-          <Link
-            to="/login"
-            className="hidden sm:inline-flex items-center justify-center px-5 py-2 rounded-full text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-white/70 transition-all"
-          >
-            Login
-          </Link>
-          <Link to="/login" className="btn-primary text-sm">
-            Get Started
-          </Link>
-        </div>
-      </header>
-      <main className="grid grid-cols-1 lg:grid-cols-[1.2fr_1.1fr] gap-12 items-center pt-16">
+      <Navbar hideGuestCenterNav />
+      <main className="grid grid-cols-1 lg:grid-cols-[1.2fr_1.1fr] gap-12 items-center pt-24">
         <section
           className="flex justify-center order-first lg:order-last"
           aria-hidden="true"
@@ -102,30 +58,30 @@ const Landing = () => {
         </section>
         <section>
           <p className="uppercase tracking-[0.16em] text-[0.75rem] text-slate-500">
-            AI-powered resume matcher
+            AI-powered internship platform
           </p>
           <h1 className="text-4xl lg:text-6xl font-bold leading-[1.1] my-4 text-slate-900">
-            Land your dream internship faster.
+            Match, tailor, and ship a stronger resume.
           </h1>
           <p className="max-w-lg text-slate-600 text-base">
-            InternNova compares your resume with any job posting, highlights
-            missing skills, and suggests tailored keywords so recruiters see
-            your best work first.
+            InternNova helps students and early-career talent compare a resume
+            with a job post, generate an ATS-friendly version, and keep the
+            final output grounded in the real profile.
           </p>
 
           <div className="flex flex-wrap gap-3 my-7">
-            <button className="btn-primary text-sm">View Example Match</button>
-            <button className="btn-secondary text-sm">Try it free</button>
+            <button className="btn-primary text-sm">Try it free</button>
+            <button className="btn-secondary text-sm">See your dashboard</button>
           </div>
 
           <div className="flex flex-wrap gap-3 text-[0.85rem] text-slate-600">
             {[
-              "Skill gap insights",
-              "Match score dashboard",
-              "ATS-friendly suggestions",
+              "AI resume-to-job matching",
+              "ATS-friendly resume generation",
+              "Talent and company dashboards",
             ].map((text) => (
               <span key={text} className="glass-pill px-4 py-1.5">
-                ✔ {text}
+                {"\u2713"} {text}
               </span>
             ))}
           </div>
