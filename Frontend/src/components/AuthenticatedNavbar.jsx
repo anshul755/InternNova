@@ -22,14 +22,16 @@ function Logo({ light }) {
   return (
     <Link
       to="/"
-      className="flex items-center gap-2.5 group"
+      className="flex items-center gap-0.1 group"
       aria-label="InternNova Home"
     >
-      <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#c7f284] to-[#8fd9b6] flex items-center justify-center font-bold text-xs text-slate-900 shadow-lg shadow-emerald-500/20 transition-transform group-hover:scale-105">
-        IN
-      </div>
-      <span
-        className={`font-semibold tracking-wide text-[0.95rem] ${light ? "text-slate-900" : "text-slate-100"}`}
+      <img
+        src={light ? "/internNova-light.png" : "/internNova-dark.png"}
+        alt="InternNova Logo"
+        className="h-8 md:h-10 w-auto object-contain transition-transform group-hover:scale-105"
+      />
+      <span 
+        className={`font-semibold tracking-wide text-[1.05rem] ${light ? "text-slate-900" : "text-slate-100"}`}
       >
         InternNova
       </span>
@@ -199,7 +201,7 @@ function UserDropdown({ user, onLogout, light, displayName, avatarUrl }) {
 
 export default function AuthenticatedNavbar() {
   const { user, logout } = useAuth();
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
@@ -207,7 +209,7 @@ export default function AuthenticatedNavbar() {
   const [displayName, setDisplayName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState(null);
 
-  const useLight = theme !== "dark";
+  const useLight = resolvedTheme !== "dark";
   const isCompany = user?.role?.toLowerCase() === "company";
   const isTalent = !isCompany;
 
