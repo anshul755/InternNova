@@ -1,7 +1,8 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { JobEditSkeleton } from "../components/Skeleton.jsx";
 import GlassSelect from "../components/GlassSelect.jsx";
 
 const JOB_TYPES = [
@@ -167,11 +168,7 @@ const JobEdit = () => {
   };
 
   if (loading) {
-    return (
-      <div className="page-enter flex items-center justify-center">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500" />
-      </div>
-    );
+    return <JobEditSkeleton />;
   }
 
   return (

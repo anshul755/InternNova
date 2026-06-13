@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
+import { ApplicationManagementSkeleton } from "../components/Skeleton.jsx";
 
 const STATUS_COLORS = {
   APPLIED: "bg-amber-50 text-amber-700 border-amber-200",
@@ -79,9 +80,7 @@ const ApplicationManagement = () => {
   let applicationsContent;
   if (loading) {
     applicationsContent = (
-      <div className="flex justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
-      </div>
+      <ApplicationManagementSkeleton />
     );
   } else if (applications.length === 0) {
     applicationsContent = (
@@ -159,7 +158,7 @@ const ApplicationManagement = () => {
                   <button
                     onClick={() => handleWithdraw(app.id)}
                     disabled={withdrawingId === app.id}
-                    className="px-3 py-2 text-sm bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-lg transition-colors disabled:opacity-50 font-medium"
+                    className="px-3 py-2 text-sm bg-transparent text-rose-600 border border-rose-300 rounded-full hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors disabled:opacity-50 font-medium"
                   >
                     {withdrawingId === app.id ? "Withdrawing..." : "Withdraw"}
                   </button>

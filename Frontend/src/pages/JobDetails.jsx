@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
+import { JobDetailsSkeleton } from "../components/Skeleton.jsx";
 import JobApplicationForm from "../components/JobApplicationForm";
 
 function formatSalary(min, max) {
@@ -110,11 +111,7 @@ const JobDetails = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
-      </div>
-    );
+    return <JobDetailsSkeleton />;
   }
 
   if (error || !job) {

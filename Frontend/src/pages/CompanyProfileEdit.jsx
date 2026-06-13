@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
+import { ProfileEditSkeleton } from "../components/Skeleton.jsx";
 
 const EMPTY_FORM = {
   companyName: "",
@@ -103,11 +104,7 @@ export default function CompanyProfileEdit() {
     "w-full px-3 py-2.5 bg-white/60 border border-white/60 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300 transition-all text-sm";
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-400" />
-      </div>
-    );
+    return <ProfileEditSkeleton />;
   }
 
   return (

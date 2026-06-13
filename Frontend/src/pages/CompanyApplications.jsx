@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
+import { CompanyApplicationsSkeleton } from "../components/Skeleton.jsx";
 import GlassSelect from "../components/GlassSelect.jsx";
 
 const STATUS_COLORS = {
@@ -151,9 +152,7 @@ export default function CompanyApplications() {
   let jobsContent;
   if (loadingJobs) {
     jobsContent = (
-      <div className="flex justify-center py-10">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
-      </div>
+      <CompanyApplicationsSkeleton />
     );
   } else if (jobs.length === 0) {
     jobsContent = (
@@ -171,9 +170,7 @@ export default function CompanyApplications() {
     let applicationsContent;
     if (loadingApps) {
       applicationsContent = (
-        <div className="flex justify-center py-10">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
-        </div>
+        <CompanyApplicationsSkeleton />
       );
     } else if (applications.length === 0) {
       applicationsContent = (

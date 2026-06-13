@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import companies from "../data/companies";
 import Navbar from "../components/Navbar.jsx";
 
@@ -9,6 +10,8 @@ const logoCircleClassName =
   "logo-circle group relative flex items-center justify-center w-32 h-32 flex-shrink-0 mx-4 rounded-full floating-bubble";
 
 const Landing = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="relative min-h-screen text-slate-900 px-[5vw] py-6 flex flex-col font-sans overflow-x-hidden saas-section">
       <Navbar hideGuestCenterNav />
@@ -70,8 +73,25 @@ const Landing = () => {
           </p>
 
           <div className="flex flex-wrap gap-3 my-7">
-            <button className="btn-primary text-sm">Try it free</button>
-            <button className="btn-secondary text-sm">See your dashboard</button>
+            <button
+              className="btn-primary text-sm"
+              onClick={() => navigate("/register")}
+            >
+              Try it free
+            </button>
+            <button
+              className="btn-secondary text-sm"
+              onClick={() =>
+                navigate("/login", {
+                  state: {
+                    customMessage:
+                      "Sign in to access your personalized dashboard, track applications, and manage your profile.",
+                  },
+                })
+              }
+            >
+              See your dashboard
+            </button>
           </div>
 
           <div className="flex flex-wrap gap-3 text-[0.85rem] text-slate-600">

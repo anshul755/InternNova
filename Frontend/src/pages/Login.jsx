@@ -1,15 +1,18 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { getPostLoginRoute, useAuth } from "../lib/AuthContext.jsx";
 import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5";
 
 const Login = ({ modal = false }) => {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [formValues, setFormValues] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const customMessage = location.state?.customMessage;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -72,10 +75,16 @@ const Login = ({ modal = false }) => {
             <h2 className="mt-2 text-lg sm:text-xl font-semibold text-slate-900">
               Welcome back to InternNova
             </h2>
-            <p className="mt-1.5 text-xs text-slate-500">
-              Use your email and password. We will route you to the right
-              dashboard automatically.
-            </p>
+            {customMessage ? (
+              <p className="mt-1.5 text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40 rounded-lg px-3 py-2">
+                {customMessage}
+              </p>
+            ) : (
+              <p className="mt-1.5 text-xs text-slate-500">
+                Use your email and password. We will route you to the right
+                dashboard automatically.
+              </p>
+            )}
           </header>
           <form
             onSubmit={handleSubmit}

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
+import { ApplicationDetailSkeleton } from "../components/Skeleton.jsx";
 import GlassSelect from "../components/GlassSelect.jsx";
 
 const STATUS_COLORS = {
@@ -70,11 +71,7 @@ export default function ApplicationDetail() {
   const backLink = isCompany ? "/company/applications" : "/applications";
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
-      </div>
-    );
+    return <ApplicationDetailSkeleton />;
   }
 
   if (error || !application) {

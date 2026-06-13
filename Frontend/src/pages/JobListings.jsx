@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
+import { JobListingsSkeleton } from "../components/Skeleton.jsx";
 import GlassSelect from "../components/GlassSelect.jsx";
 
 const JOB_TYPES = [
@@ -290,9 +291,7 @@ const JobListings = () => {
       )}
 
       {loading ? (
-        <div className="flex items-center justify-center py-16">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
-        </div>
+        <JobListingsSkeleton />
       ) : filteredJobs.length === 0 ? (
         <div className="glass-card p-12 text-center">
           <p className="text-slate-500 text-lg mb-2">No jobs found</p>

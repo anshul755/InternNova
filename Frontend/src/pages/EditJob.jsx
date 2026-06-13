@@ -1,7 +1,8 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { JobEditSkeleton } from "../components/Skeleton.jsx";
 import GlassSelect from "../components/GlassSelect.jsx";
 
 const EditJob = () => {
@@ -131,9 +132,7 @@ const EditJob = () => {
   };
 
   if (loading)
-    return (
-      <div className="p-8 text-center text-white">Loading job details...</div>
-    );
+    return <JobEditSkeleton />;
   if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
 
   return (
