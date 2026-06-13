@@ -30,30 +30,33 @@ const Landing = () => {
           aria-hidden="true"
         >
           {/* Fixed rectangle screen */}
-          <div className="relative w-full aspect-square lg:aspect-[4/3] bg-slate-950 dark:bg-black rounded-[2rem] border border-slate-800 overflow-hidden shadow-2xl">
+          <div className="relative w-full aspect-[4/3] lg:aspect-[16/10] 
+bg-gradient-to-br from-emerald-950 via-slate-950 to-green-950
+rounded-[2rem] border border-emerald-500/20
+overflow-hidden shadow-2xl">
             
-            {/* Inner container offset to bottom-left */}
-            <div className="absolute bottom-[-10%] left-[-5%] md:bottom-[-5%] md:left-0 w-[110%] md:w-full h-full flex items-end">
+            {/* Inner container centered */}
+            <div className="absolute inset-0 w-[100%] h-full flex items-center justify-center pt-16 pr-16">
               <CardSwap interval={3500}>
                 <img 
                   src="/swap-card/img1.png" 
                   alt="Feature 1" 
-                  className="w-[115%] h-auto rounded-xl shadow-2xl border border-white/10 object-cover"
+                  className="w-[100%] md:w-[120%] max-w-none h-auto rounded-xl shadow-2xl border border-white/10 object-cover"
                 />
                 <img 
                   src="/swap-card/img2.png" 
                   alt="Feature 2" 
-                  className="w-[115%] h-auto rounded-xl shadow-2xl border border-white/10 object-cover"
+                  className="w-[100%] md:w-[120%] max-w-none h-auto rounded-xl shadow-2xl border border-white/10 object-cover"
                 />
                 <img 
                   src="/swap-card/img3.png" 
                   alt="Feature 3" 
-                  className="w-[115%] h-auto rounded-xl shadow-2xl border border-white/10 object-cover"
+                  className="w-[100%] md:w-[120%] max-w-none h-auto rounded-xl shadow-2xl border border-white/10 object-cover"
                 />
                 <img 
                   src="/swap-card/img4.png" 
                   alt="Feature 4" 
-                  className="w-[115%] h-auto rounded-xl shadow-2xl border border-white/10 object-cover"
+                  className="w-[100%] md:w-[120%] max-w-none h-auto rounded-xl shadow-2xl border border-white/10 object-cover"
                 />
               </CardSwap>
             </div>
