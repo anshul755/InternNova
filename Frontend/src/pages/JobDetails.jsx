@@ -6,6 +6,7 @@ import { resolveLogoUrl } from "../lib/media.js";
 import { JobDetailsSkeleton } from "../components/Skeleton.jsx";
 import ErrorState from "../components/ErrorState.jsx";
 import JobApplicationForm from "../components/JobApplicationForm";
+import { useAlert } from "../lib/AlertContext.jsx";
 
 function formatSalary(min, max) {
   if (!min && !max) return "Not specified";
@@ -20,6 +21,7 @@ const JobDetails = () => {
   const { user } = useAuth();
   const isCompany = user?.role === "Company";
   const isTalent = user?.role === "Talent";
+  const { showAlert } = useAlert();
 
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -90,7 +92,7 @@ const JobDetails = () => {
       setApplySuccess(true);
       setShowApplicationForm(false);
     } catch (err) {
-      alert(err.message || "Failed to submit application. Please try again.");
+      await showAlert(err.message || "Failed to submit application. Please try again.");
     }
   };
 
@@ -106,7 +108,7 @@ const JobDetails = () => {
         setIsSaved(true);
       }
     } catch (err) {
-      alert(err.message || "Failed to update saved jobs list.");
+      await showAlert(err.message || "Failed to update saved jobs list.");
     } finally {
       setSaveLoading(false);
     }

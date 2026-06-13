@@ -5,6 +5,7 @@ import { api } from "../lib/api";
 import { ApplicationManagementSkeleton } from "../components/Skeleton.jsx";
 import ErrorState from "../components/ErrorState.jsx";
 import StatusBadge from "../components/StatusBadge.jsx";
+import { useAlert } from "../lib/AlertContext.jsx";
 
 const ApplicationManagement = () => {
   const { user } = useAuth();
@@ -16,6 +17,7 @@ const ApplicationManagement = () => {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [withdrawingId, setWithdrawingId] = useState(null);
+  const { showAlert, showConfirm } = useAlert();
 
   useEffect(() => {
     if (user?.role !== "Talent") {
@@ -45,7 +47,8 @@ const ApplicationManagement = () => {
   };
 
   const handleWithdraw = async (appId) => {
-    if (!globalThis.confirm("Withdraw this application?")) return;
+    const confirmed = await showConfirm("Withdraw this application?");
+    if (!confirmed) return;
     setWithdrawingId(appId);
     try {
       await api.put(`/applications/v1/${appId}/withdraw`, {});
@@ -53,7 +56,7 @@ const ApplicationManagement = () => {
         prev.map((a) => (a.id === appId ? { ...a, status: "WITHDRAWN" } : a)),
       );
     } catch (err) {
-      alert(err.message || "Failed to withdraw application");
+      await showAlert(err.message || "Failed to withdraw application");
     } finally {
       setWithdrawingId(null);
     }

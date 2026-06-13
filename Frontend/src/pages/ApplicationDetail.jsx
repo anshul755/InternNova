@@ -5,12 +5,14 @@ import { api } from "../lib/api";
 import { ApplicationDetailSkeleton } from "../components/Skeleton.jsx";
 import GlassSelect from "../components/GlassSelect.jsx";
 import StatusBadge from "../components/StatusBadge.jsx";
+import { useAlert } from "../lib/AlertContext.jsx";
 
 export default function ApplicationDetail() {
   const { id } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
   const isCompany = user?.role === "Company";
+  const { showAlert, showConfirm, showPrompt } = useAlert();
 
   const [application, setApplication] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -39,7 +41,7 @@ export default function ApplicationDetail() {
     setUpdating(newStatus);
     const notes =
       newStatus === "REJECTED"
-        ? (window.prompt("Add a note for the applicant (optional):") ?? "")
+        ? ((await showPrompt("Add a note for the applicant (optional):")) ?? "")
         : application.recruiterNotes;
     try {
       await api.put(`/applications/v1/${id}/status`, {
@@ -52,7 +54,7 @@ export default function ApplicationDetail() {
         recruiterNotes: notes || prev.recruiterNotes,
       }));
     } catch (err) {
-      alert(err.message || "Failed to update application status");
+      await showAlert(err.message || "Failed to update application status");
     } finally {
       setUpdating("");
     }
@@ -241,12 +243,13 @@ export default function ApplicationDetail() {
           !["REJECTED", "HIRED", "WITHDRAWN"].includes(application.status) && (
             <button
               onClick={async () => {
-                if (!window.confirm("Withdraw this application?")) return;
+                const confirmed = await showConfirm("Withdraw this application?");
+                if (!confirmed) return;
                 try {
                   await api.put(`/applications/v1/${id}/withdraw`, {});
                   setApplication((prev) => ({ ...prev, status: "WITHDRAWN" }));
                 } catch (err) {
-                  alert(err.message || "Failed to withdraw");
+                  await showAlert(err.message || "Failed to withdraw");
                 }
               }}
               className="px-5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-lg text-sm font-medium transition-colors"

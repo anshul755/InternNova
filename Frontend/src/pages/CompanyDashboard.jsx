@@ -6,6 +6,7 @@ import { resolveLogoUrl } from "../lib/media.js";
 import { CompanyDashboardSkeleton } from "../components/Skeleton.jsx";
 import ErrorState from "../components/ErrorState.jsx";
 import StatusBadge from "../components/StatusBadge.jsx";
+import { useAlert } from "../lib/AlertContext.jsx";
 import {
   IoAddOutline,
   IoBriefcaseOutline,
@@ -24,6 +25,7 @@ const JOB_FILTERS = ["ALL", "ACTIVE", "DRAFT", "CLOSED", "ARCHIVED"];
 
 const CompanyDashboard = () => {
   const { user } = useAuth();
+  const { showAlert, showConfirm } = useAlert();
   const [company, setCompany] = useState(null);
   const [jobs, setJobs] = useState([]);
   const [recentApplications, setRecentApplications] = useState([]);
@@ -86,28 +88,27 @@ const CompanyDashboard = () => {
   };
 
   const handleDeleteJob = async (jobId) => {
-    if (!confirm("Are you sure you want to delete this job posting?")) return;
+    const confirmed = await showConfirm("Are you sure you want to delete this job posting?");
+    if (!confirmed) return;
     try {
       await api.delete(`/jobs/v1/${jobId}`);
       setJobs((prev) => prev.filter((j) => j.id !== jobId));
     } catch (err) {
-      alert(err.message || "Failed to delete job");
+      await showAlert(err.message || "Failed to delete job");
     }
   };
 
   const handleUpdateJobStatus = async (jobId, newStatus) => {
-    if (
-      !confirm(
-        `Are you sure you want to change this job's status to ${newStatus}?`,
-      )
-    )
-      return;
+    const confirmed = await showConfirm(
+      `Are you sure you want to change this job's status to ${newStatus}?`,
+    );
+    if (!confirmed) return;
     try {
       const res = await api.put(`/jobs/v1/${jobId}`, { status: newStatus });
       const updatedJob = await res.json();
       setJobs((prev) => prev.map((j) => (j.id === jobId ? updatedJob : j)));
     } catch (err) {
-      alert(err.message || `Failed to update job status to ${newStatus}`);
+      await showAlert(err.message || `Failed to update job status to ${newStatus}`);
     }
   };
 

@@ -9,6 +9,7 @@ import {
   IoClose,
   IoCheckmark,
 } from "react-icons/io5";
+import { useAlert } from "../../lib/AlertContext.jsx";
 
 const EMPTY_ITEM = (fields) => {
   const obj = {};
@@ -37,6 +38,7 @@ export default function CrudSection({
   const [formData, setFormData] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const { showConfirm } = useAlert();
 
   /* ── helpers ─────────────────────────────────────────────────── */
 
@@ -317,13 +319,11 @@ export default function CrudSection({
                       </button>
                       <button
                         type="button"
-                        onClick={() => {
-                          if (
-                            window.confirm(
-                              `Delete this ${title.toLowerCase()} entry?`,
-                            )
-                          )
-                            handleDelete(item.id);
+                        onClick={async () => {
+                          const confirmed = await showConfirm(
+                            `Delete this ${title.toLowerCase()} entry?`,
+                          );
+                          if (confirmed) handleDelete(item.id);
                         }}
                         className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-rose-500 transition-colors"
                       >

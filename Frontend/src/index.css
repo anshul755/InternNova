@@ -1234,3 +1234,194 @@ html[data-theme="dark"] .border-slate-200 {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* ── Custom Alert Modal ── */
+.custom-alert-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(3, 7, 5, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: alert-overlay-in 0.2s ease-out;
+}
+
+.custom-alert-modal {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  margin: 1rem;
+  border-radius: 1.25rem;
+  background: rgba(14, 22, 17, 0.94);
+  border: 1px solid rgba(159, 232, 112, 0.1);
+  box-shadow:
+    0 30px 70px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.03) inset,
+    0 1px 0 rgba(255, 255, 255, 0.05) inset,
+    0 0 60px rgba(220, 38, 38, 0.06);
+  overflow: hidden;
+  animation: alert-modal-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Red accent bar at the top */
+.custom-alert-accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #dc2626, #ef4444 40%, #f87171 70%, #ef4444);
+  box-shadow: 0 0 20px rgba(220, 38, 38, 0.4), 0 0 40px rgba(220, 38, 38, 0.15);
+}
+
+/* Diagonal noise texture matching InternNova */
+.custom-alert-noise {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    125deg,
+    rgba(255, 255, 255, 0.02) 0,
+    rgba(255, 255, 255, 0.02) 1px,
+    transparent 1px,
+    transparent 18px
+  );
+  border-radius: inherit;
+}
+
+.custom-alert-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: rgba(148, 163, 184, 0.5);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.custom-alert-close:hover {
+  color: rgba(248, 250, 252, 0.8);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.custom-alert-body {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2rem 1.75rem 1.75rem;
+}
+
+.custom-alert-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 1rem;
+  margin-bottom: 1.25rem;
+  background: rgba(220, 38, 38, 0.12);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  color: #f87171;
+  box-shadow: 0 0 24px rgba(220, 38, 38, 0.15);
+}
+
+.custom-alert-message {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: rgba(248, 250, 252, 0.85);
+  max-width: 300px;
+  margin-bottom: 1.5rem;
+}
+
+.custom-alert-input {
+  width: 100%;
+  margin-bottom: 1.25rem;
+  padding: 0.625rem 0.875rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(159, 232, 112, 0.12);
+  border-radius: 0.75rem;
+  color: #f8fafc;
+  font-size: 0.875rem;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.custom-alert-input::placeholder {
+  color: rgba(148, 163, 184, 0.35);
+}
+
+.custom-alert-input:focus {
+  border-color: rgba(159, 232, 112, 0.3);
+  box-shadow: 0 0 0 3px rgba(159, 232, 112, 0.08);
+}
+
+.custom-alert-actions {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.custom-alert-btn {
+  flex: 1;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.custom-alert-btn--primary {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.3), 0 0 0 1px rgba(220, 38, 38, 0.15) inset;
+}
+
+.custom-alert-btn--primary:hover {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  box-shadow: 0 6px 24px rgba(220, 38, 38, 0.4), 0 0 0 1px rgba(239, 68, 68, 0.2) inset;
+  transform: translateY(-1px);
+}
+
+.custom-alert-btn--cancel {
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(148, 163, 184, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.custom-alert-btn--cancel:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(248, 250, 252, 0.9);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+@keyframes alert-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes alert-modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+

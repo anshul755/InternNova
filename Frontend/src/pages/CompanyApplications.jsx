@@ -5,6 +5,7 @@ import { api } from "../lib/api";
 import { CompanyApplicationsSkeleton } from "../components/Skeleton.jsx";
 import GlassSelect from "../components/GlassSelect.jsx";
 import StatusBadge from "../components/StatusBadge.jsx";
+import { useAlert } from "../lib/AlertContext.jsx";
 
 const PIPELINE_STAGES = [
   "APPLIED",
@@ -31,6 +32,7 @@ export default function CompanyApplications() {
   const [updatingId, setUpdatingId] = useState("");
   const [draggedApplicationId, setDraggedApplicationId] = useState("");
   const [dragOverStage, setDragOverStage] = useState("");
+  const { showAlert } = useAlert();
 
   useEffect(() => {
     if (!user?.id) return;
@@ -114,7 +116,7 @@ export default function CompanyApplications() {
       });
     } catch (err) {
       setApplications(previousApplications);
-      alert(err.message || "Failed to update application status");
+      await showAlert(err.message || "Failed to update application status");
     } finally {
       setUpdatingId("");
     }

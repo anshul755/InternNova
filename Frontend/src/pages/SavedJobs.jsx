@@ -4,6 +4,7 @@ import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
 import { SavedJobsSkeleton } from "../components/Skeleton.jsx";
 import ErrorState from "../components/ErrorState.jsx";
+import { useAlert } from "../lib/AlertContext.jsx";
 
 const formatSalary = (min, max) => {
   if (!min && !max) return "";
@@ -16,6 +17,7 @@ const formatSalary = (min, max) => {
 const SavedJobs = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { showAlert } = useAlert();
 
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -45,7 +47,7 @@ const SavedJobs = () => {
       await api.delete(`/talent/v1/${user.id}/saved-jobs/${jobId}`);
       setJobs((currentJobs) => currentJobs.filter((job) => job.id !== jobId));
     } catch (err) {
-      alert(err.message || "Failed to remove saved job.");
+      await showAlert(err.message || "Failed to remove saved job.");
     }
   };
 

@@ -18,6 +18,7 @@ import {
   IoAddOutline,
   IoChevronForwardOutline,
 } from "react-icons/io5";
+import { useAlert } from "../lib/AlertContext.jsx";
 
 const JOB_FILTERS = ["ALL", "DRAFT", "ACTIVE", "CLOSED", "ARCHIVED"];
 
@@ -28,6 +29,7 @@ export default function CompanyJobs() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [jobFilter, setJobFilter] = useState("ALL");
+  const { showAlert, showConfirm } = useAlert();
 
   useEffect(() => {
     if (user?.id) fetchJobs();
@@ -59,24 +61,22 @@ export default function CompanyJobs() {
   }
 
   async function handleDeleteJob(jobId) {
-    if (!confirm("Are you sure you want to delete this job posting?")) return;
+    const confirmed = await showConfirm("Are you sure you want to delete this job posting?");
+    if (!confirmed) return;
 
     try {
       await api.delete(`/jobs/v1/${jobId}`);
       setJobs((prev) => prev.filter((job) => job.id !== jobId));
     } catch (err) {
-      alert(err.message || "Failed to delete job");
+      await showAlert(err.message || "Failed to delete job");
     }
   }
 
   async function handleUpdateJobStatus(jobId, newStatus) {
-    if (
-      !confirm(
-        `Are you sure you want to change this job's status to ${newStatus}?`,
-      )
-    ) {
-      return;
-    }
+    const confirmed = await showConfirm(
+      `Are you sure you want to change this job's status to ${newStatus}?`,
+    );
+    if (!confirmed) return;
 
     try {
       const res = await api.put(`/jobs/v1/${jobId}`, { status: newStatus });
@@ -85,7 +85,7 @@ export default function CompanyJobs() {
         prev.map((job) => (job.id === jobId ? updatedJob : job)),
       );
     } catch (err) {
-      alert(err.message || `Failed to update job status to ${newStatus}`);
+      await showAlert(err.message || `Failed to update job status to ${newStatus}`);
     }
   }
 
