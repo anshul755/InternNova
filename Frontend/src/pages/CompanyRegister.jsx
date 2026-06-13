@@ -129,6 +129,10 @@ const CompanyRegister = ({ modal = false }) => {
 
   const handleBack = () => {
     setSubmitError("");
+    if (activeStep === 0) {
+      navigate("/register");
+      return;
+    }
     setActiveStep((prev) => Math.max(prev - 1, 0));
   };
 
@@ -271,7 +275,7 @@ const CompanyRegister = ({ modal = false }) => {
         </div>
 
         <div className="flex flex-col lg:flex-row">
-          <section className="flex-1 px-6 py-8 sm:px-10">
+          <section className="flex-1 px-6 py-8 sm:px-10 lg:w-[50%]">
             <header className="mb-6">
               <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
                 Company registration
@@ -291,7 +295,7 @@ const CompanyRegister = ({ modal = false }) => {
                 className="space-y-4 text-sm"
                 noValidate
               >
-                <div className="rounded-2xl bg-white/70 border border-white/60 px-4 py-5">
+                <div className="rounded-2xl bg-white/70 border border-white/60 px-4 py-5 lg:min-h-[300px]">
                   {renderStep()}
                 </div>
 
@@ -311,9 +315,9 @@ const CompanyRegister = ({ modal = false }) => {
                   <button
                     type="button"
                     onClick={handleBack}
-                    disabled={activeStep === 0 || submitting}
+                    disabled={submitting}
                     className={`inline-flex items-center justify-center gap-2 rounded-lg border px-4 py-2 text-xs font-medium transition-colors ${
-                      activeStep === 0 || submitting
+                      submitting
                         ? "border-white/60 text-slate-400 cursor-not-allowed"
                         : "border-white/70 text-slate-700 hover:bg-white/70"
                     }`}
@@ -350,27 +354,25 @@ const CompanyRegister = ({ modal = false }) => {
             </FormProvider>
           </section>
 
-          {activeStep === 0 && (
-            <aside className="hidden lg:flex w-[40%] flex-col justify-between bg-white/60 border-l border-white/60 p-8 text-sm text-slate-700">
-              <div>
-                <h2 className="text-lg font-semibold">Built for lean teams</h2>
-                <p className="mt-2 text-slate-600">
-                  Post internships, review applicants, and coordinate interviews
-                  without another heavy HR system.
-                </p>
-              </div>
-
-              <p className="mt-6 text-[0.8rem] text-slate-600">
-                Already registered?{" "}
-                <Link
-                  to="/login"
-                  className="text-emerald-700 underline underline-offset-4 decoration-emerald-300 hover:text-emerald-800"
-                >
-                  Log in
-                </Link>
+          <aside className="hidden lg:flex lg:w-[30%] flex-col justify-between bg-white/60 border-l border-white/60 p-8 text-sm text-slate-700">
+            <div>
+              <h2 className="text-lg font-semibold">Built for lean teams</h2>
+              <p className="mt-2 text-slate-600">
+                Post internships, review applicants, and coordinate interviews
+                without another heavy HR system.
               </p>
-            </aside>
-          )}
+            </div>
+
+            <p className="mt-6 text-[0.8rem] text-slate-600">
+              Already registered?{" "}
+              <Link
+                to="/login"
+                className="text-emerald-700 underline underline-offset-4 decoration-emerald-300 hover:text-emerald-800"
+              >
+                Log in
+              </Link>
+            </p>
+          </aside>
         </div>
       </div>
     </div>
