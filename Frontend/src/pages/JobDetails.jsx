@@ -2,7 +2,9 @@ import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
+import { resolveLogoUrl } from "../lib/media.js";
 import { JobDetailsSkeleton } from "../components/Skeleton.jsx";
+import ErrorState from "../components/ErrorState.jsx";
 import JobApplicationForm from "../components/JobApplicationForm";
 
 function formatSalary(min, max) {
@@ -116,12 +118,15 @@ const JobDetails = () => {
 
   if (error || !job) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="text-center">
-          <p className="text-rose-500 mb-4">{error || "Job not found"}</p>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <ErrorState
+          message={error || "Job not found"}
+          onRetry={fetchJobDetails}
+        />
+        <div className="flex justify-center mt-4">
           <Link
             to="/jobs"
-            className="btn-primary px-4 py-2 text-sm font-medium"
+            className="btn-secondary px-4 py-2 text-sm font-medium"
           >
             Back to Jobs
           </Link>

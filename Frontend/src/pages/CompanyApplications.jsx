@@ -4,17 +4,7 @@ import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
 import { CompanyApplicationsSkeleton } from "../components/Skeleton.jsx";
 import GlassSelect from "../components/GlassSelect.jsx";
-
-const STATUS_COLORS = {
-  APPLIED: "bg-amber-50 text-amber-700 border-amber-200",
-  UNDER_REVIEW: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  SHORTLISTED: "bg-lime-50 text-lime-700 border-lime-200",
-  INTERVIEW: "bg-teal-50 text-teal-700 border-teal-200",
-  OFFER: "bg-green-50 text-green-700 border-green-200",
-  HIRED: "bg-emerald-100 text-emerald-800 border-emerald-200",
-  REJECTED: "bg-rose-50 text-rose-700 border-rose-200",
-  WITHDRAWN: "bg-slate-100 text-slate-600 border-slate-200",
-};
+import StatusBadge from "../components/StatusBadge.jsx";
 
 const PIPELINE_STAGES = [
   "APPLIED",

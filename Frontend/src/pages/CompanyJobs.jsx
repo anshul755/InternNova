@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
 import { CompanyJobsSkeleton } from "../components/Skeleton.jsx";
+import StatusBadge from "../components/StatusBadge.jsx";
 import {
   IoBriefcaseOutline,
   IoDocumentTextOutline,
@@ -104,25 +105,7 @@ export default function CompanyJobs() {
     (job) => jobFilter === "ALL" || job.status === jobFilter,
   );
 
-  const getStatusColor = (status) => {
-    const map = {
-      DRAFT: "text-slate-500",
-      ACTIVE: "text-emerald-600",
-      CLOSED: "text-amber-600",
-      ARCHIVED: "text-slate-500",
-    };
-    return map[status] || "text-slate-500";
-  };
 
-  const getStatusBg = (status) => {
-    const map = {
-      DRAFT: "bg-slate-50 border-slate-200",
-      ACTIVE: "bg-emerald-50 border-emerald-200",
-      CLOSED: "bg-amber-50 border-amber-200",
-      ARCHIVED: "bg-slate-50 border-slate-200",
-    };
-    return map[status] || "bg-slate-50 border-slate-200";
-  };
 
   if (loading) {
     return (
@@ -266,17 +249,13 @@ export default function CompanyJobs() {
                   key={job.id}
                   className="bg-white/65 rounded-3xl border border-white/70 p-5 shadow-[0_10px_30px_rgba(15,23,42,0.06)] hover:shadow-[0_14px_34px_rgba(15,23,42,0.08)] transition-all"
                 >
-                  <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-3 mb-2">
-                        <h3 className="text-lg font-semibold text-slate-900 truncate">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <div className="flex items-center gap-3">
+                        <h2 className="text-xl font-bold text-slate-900">
                           {job.title}
-                        </h3>
-                        <span
-                          className={`px-2.5 py-1 rounded-full text-xs font-medium border ${getStatusBg(job.status)} ${getStatusColor(job.status)}`}
-                        >
-                          {job.status}
-                        </span>
+                        </h2>
+                        <StatusBadge status={job.status} />
                       </div>
                       <p className="text-sm text-slate-500">{job.location}</p>
                       <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 mt-4">

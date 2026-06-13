@@ -4,17 +4,7 @@ import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
 import { ApplicationDetailSkeleton } from "../components/Skeleton.jsx";
 import GlassSelect from "../components/GlassSelect.jsx";
-
-const STATUS_COLORS = {
-  APPLIED: "bg-amber-50 text-amber-700 border-amber-200",
-  UNDER_REVIEW: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  SHORTLISTED: "bg-lime-50 text-lime-700 border-lime-200",
-  INTERVIEW: "bg-teal-50 text-teal-700 border-teal-200",
-  OFFER: "bg-green-50 text-green-700 border-green-200",
-  HIRED: "bg-emerald-100 text-emerald-800 border-emerald-200",
-  REJECTED: "bg-rose-50 text-rose-700 border-rose-200",
-  WITHDRAWN: "bg-slate-100 text-slate-600 border-slate-200",
-};
+import StatusBadge from "../components/StatusBadge.jsx";
 
 export default function ApplicationDetail() {
   const { id } = useParams();
@@ -92,9 +82,6 @@ export default function ApplicationDetail() {
     );
   }
 
-  const statusClass =
-    STATUS_COLORS[application.status] || STATUS_COLORS.APPLIED;
-
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
       <div className="flex items-center justify-between mb-6">
@@ -115,13 +102,13 @@ export default function ApplicationDetail() {
       <div className="space-y-6">
         {/* Status Banner */}
         <div
-          className={`flex items-center justify-between p-5 rounded-xl border ${statusClass}`}
+          className="flex items-center justify-between p-5 rounded-xl border bg-white/40 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 shadow-sm"
         >
           <div>
-            <p className="text-xs uppercase tracking-wide opacity-70 mb-1">
+            <p className="text-xs uppercase tracking-wide text-slate-500 mb-2">
               Status
             </p>
-            <p className="text-xl font-bold">{application.status}</p>
+            <StatusBadge status={application.status} className="text-sm px-3 py-1" />
           </div>
           {isCompany && application.status !== "WITHDRAWN" && (
             <div className="flex gap-3 items-center">

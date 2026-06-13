@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
 import { SavedJobsSkeleton } from "../components/Skeleton.jsx";
+import ErrorState from "../components/ErrorState.jsx";
 
 const formatSalary = (min, max) => {
   if (!min && !max) return "";
@@ -70,15 +71,7 @@ const SavedJobs = () => {
       </div>
 
       {error ? (
-        <div className="p-4 bg-rose-50 border border-rose-200 rounded-lg text-rose-600">
-          {error}
-          <button
-            onClick={fetchSavedJobs}
-            className="ml-3 text-rose-700 hover:text-rose-800 underline text-sm font-medium"
-          >
-            Retry
-          </button>
-        </div>
+        <ErrorState message={error} onRetry={fetchSavedJobs} />
       ) : jobs.length === 0 ? (
         <div className="glass-card p-12 text-center">
           <div className="text-4xl mb-4">🔖</div>

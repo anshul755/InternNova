@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
 import { JobListingsSkeleton } from "../components/Skeleton.jsx";
+import ErrorState from "../components/ErrorState.jsx";
 import GlassSelect from "../components/GlassSelect.jsx";
 
 const JOB_TYPES = [
@@ -278,17 +279,7 @@ const JobListings = () => {
         </div>
       </div>
 
-      {error && (
-        <div className="mb-6 p-4 bg-rose-50 border border-rose-200 rounded-lg text-rose-600">
-          {error}
-          <button
-            onClick={fetchJobs}
-            className="ml-3 text-rose-700 hover:text-rose-800 underline text-sm font-medium"
-          >
-            Retry
-          </button>
-        </div>
-      )}
+      {error && <ErrorState message={error} onRetry={fetchJobs} />}
 
       {loading ? (
         <JobListingsSkeleton />

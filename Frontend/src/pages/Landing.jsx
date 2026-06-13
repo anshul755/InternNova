@@ -2,6 +2,15 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import companies from "../data/companies";
 import Navbar from "../components/Navbar.jsx";
+import Footer from "../components/Footer.jsx";
+import { resolveLogoUrl } from "../lib/media.js";
+import CardSwap from "../components/CardSwap.jsx";
+import {
+  IoDocumentTextOutline,
+  IoBriefcaseOutline,
+  IoStatsChartOutline,
+  IoCheckmarkCircleOutline,
+} from "react-icons/io5";
 
 const midpoint = Math.ceil(companies.length / 2);
 const companiesRowOne = companies.slice(0, midpoint);
@@ -17,45 +26,36 @@ const Landing = () => {
       <Navbar hideGuestCenterNav />
       <main className="grid grid-cols-1 lg:grid-cols-[1.2fr_1.1fr] gap-12 items-center pt-24">
         <section
-          className="flex justify-center order-first lg:order-last"
+          className="flex justify-center order-first lg:order-last w-full"
           aria-hidden="true"
         >
-          <div className="w-full max-w-[520px] glass-panel overflow-hidden">
-            <div className="flex gap-1.5 p-3 bg-white/60 backdrop-blur">
-              <span className="w-2.5 h-2.5 rounded-full bg-white/20"></span>
-              <span className="w-2.5 h-2.5 rounded-full bg-white/20"></span>
-              <span className="w-2.5 h-2.5 rounded-full bg-white/20"></span>
-            </div>
-
-            <div className="grid grid-cols-[1.1fr_0.9fr] p-5 gap-4">
-              <div className="bg-white/70 border border-white/60 rounded-2xl p-4 shadow-sm">
-                <div className="h-[7px] w-[70%] bg-[#cbe9a8] rounded-full mb-2"></div>
-                <div className="h-[7px] bg-[#e1f2d2] rounded-full mb-2"></div>
-                <div className="h-[7px] bg-[#e1f2d2] rounded-full mb-2"></div>
-                <div className="h-3 bg-[#eef7e8] rounded-lg my-3"></div>
-                <div className="h-[7px] w-[55%] bg-[#e1f2d2] rounded-full mb-2"></div>
-                <div className="h-[7px] bg-[#e1f2d2] rounded-full mb-2"></div>
-                <div className="h-[7px] bg-[#e1f2d2] rounded-full mb-2"></div>
-              </div>
-              <div className="flex flex-col gap-3">
-                <div className="self-end px-2.5 py-1 rounded-full text-[0.7rem] bg-[#e6f7ef] text-[#0f766e]">
-                  Match 87%
-                </div>
-                <div className="bg-white/70 border border-white/60 rounded-2xl p-3 shadow-sm border-l-4 border-[#7bbf6a]">
-                  <p className="text-[0.7rem] text-slate-500 mb-1.5">
-                    High impact
-                  </p>
-                  <div className="h-2 bg-gray-200 rounded-full mb-1.5"></div>
-                  <div className="h-2 bg-gray-200 rounded-full"></div>
-                </div>
-                <div className="bg-white/70 border border-white/60 rounded-2xl p-3 shadow-sm border-l-4 border-[#a6d7a2]">
-                  <p className="text-[0.7rem] text-slate-500 mb-1.5">
-                    Suggestions
-                  </p>
-                  <div className="h-2 bg-gray-200 rounded-full mb-1.5"></div>
-                  <div className="h-2 bg-gray-200 rounded-full"></div>
-                </div>
-              </div>
+          {/* Fixed rectangle screen */}
+          <div className="relative w-full aspect-square lg:aspect-[4/3] bg-slate-950 dark:bg-black rounded-[2rem] border border-slate-800 overflow-hidden shadow-2xl">
+            
+            {/* Inner container offset to bottom-left */}
+            <div className="absolute bottom-[-10%] left-[-5%] md:bottom-[-5%] md:left-0 w-[110%] md:w-full h-full flex items-end">
+              <CardSwap interval={3500}>
+                <img 
+                  src="/swap-card/img1.png" 
+                  alt="Feature 1" 
+                  className="w-[115%] h-auto rounded-xl shadow-2xl border border-white/10 object-cover"
+                />
+                <img 
+                  src="/swap-card/img2.png" 
+                  alt="Feature 2" 
+                  className="w-[115%] h-auto rounded-xl shadow-2xl border border-white/10 object-cover"
+                />
+                <img 
+                  src="/swap-card/img3.png" 
+                  alt="Feature 3" 
+                  className="w-[115%] h-auto rounded-xl shadow-2xl border border-white/10 object-cover"
+                />
+                <img 
+                  src="/swap-card/img4.png" 
+                  alt="Feature 4" 
+                  className="w-[115%] h-auto rounded-xl shadow-2xl border border-white/10 object-cover"
+                />
+              </CardSwap>
             </div>
           </div>
         </section>

@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
 import { TalentDashboardSkeleton } from "../components/Skeleton.jsx";
+import ErrorState from "../components/ErrorState.jsx";
+import StatusBadge from "../components/StatusBadge.jsx";
 import {
   IoBookmarkOutline,
   IoBriefcaseOutline,
@@ -70,51 +72,6 @@ const TalentDashboard = () => {
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "APPLIED":
-        return "text-amber-700 dark:text-amber-400";
-      case "UNDER_REVIEW":
-        return "text-emerald-700 dark:text-emerald-400";
-      case "SHORTLISTED":
-        return "text-lime-700 dark:text-lime-400";
-      case "INTERVIEW":
-        return "text-teal-700 dark:text-teal-400";
-      case "OFFER":
-        return "text-green-700 dark:text-green-400";
-      case "HIRED":
-        return "text-emerald-700 dark:text-emerald-400";
-      case "REJECTED":
-        return "text-rose-700 dark:text-rose-400";
-      case "WITHDRAWN":
-        return "text-slate-600 dark:text-slate-400";
-      default:
-        return "text-slate-600 dark:text-slate-400";
-    }
-  };
-
-  const getStatusBg = (status) => {
-    switch (status) {
-      case "APPLIED":
-        return "bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-700/50";
-      case "UNDER_REVIEW":
-        return "bg-emerald-50 dark:bg-emerald-900/30 border-emerald-200 dark:border-emerald-700/50";
-      case "SHORTLISTED":
-        return "bg-lime-50 dark:bg-lime-900/30 border-lime-200 dark:border-lime-700/50";
-      case "INTERVIEW":
-        return "bg-teal-50 dark:bg-teal-900/30 border-teal-200 dark:border-teal-700/50";
-      case "OFFER":
-        return "bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-700/50";
-      case "HIRED":
-        return "bg-emerald-100 dark:bg-emerald-800/40 border-emerald-200 dark:border-emerald-600/50";
-      case "REJECTED":
-        return "bg-rose-50 dark:bg-rose-900/30 border-rose-200 dark:border-rose-700/50";
-      case "WITHDRAWN":
-        return "bg-slate-50 dark:bg-slate-900/30 border-slate-200 dark:border-slate-700/50";
-      default:
-        return "bg-slate-50 dark:bg-slate-900/30 border-slate-200 dark:border-slate-700/50";
-    }
-  };
 
   const stats = useMemo(
     () => ({
@@ -142,14 +99,7 @@ const TalentDashboard = () => {
   if (error) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
-          <div className="glass-card text-center max-w-md p-6">
-            <p className="text-rose-500 mb-4">{error}</p>
-            <button onClick={fetchDashboardData} className="btn-primary">
-              Retry
-            </button>
-          </div>
-        </div>
+        <ErrorState message={error} onRetry={fetchDashboardData} />
       </div>
     );
   }
@@ -314,13 +264,7 @@ const TalentDashboard = () => {
                             {app.companyName || "Company"}
                           </p>
                         </div>
-                        <span
-                          className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusBg(
-                            app.status,
-                          )} ${getStatusColor(app.status)}`}
-                        >
-                          {app.status?.replace(/_/g, " ")}
-                        </span>
+                        <StatusBadge status={app.status} />
                       </div>
                       {app.appliedAt && (
                         <p className="mt-3 text-xs opacity-50">
