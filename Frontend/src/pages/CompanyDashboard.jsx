@@ -20,7 +20,7 @@ import {
 
 const JOB_FILTERS = ["ALL", "ACTIVE", "DRAFT", "CLOSED", "ARCHIVED"];
 
-const getCompanyLogoUrl = (company) => resolveLogoUrl(company);
+
 
 const CompanyDashboard = () => {
   const { user } = useAuth();
@@ -130,7 +130,7 @@ const CompanyDashboard = () => {
     (job) => jobFilter === "ALL" || job.status === jobFilter,
   );
 
-  const companyLogoUrl = resolveLogoUrl(company, company?.data);
+  const companyLogoUrl = resolveLogoUrl(company, company?.data, user);
 
   useEffect(() => {
     setImgError(false);

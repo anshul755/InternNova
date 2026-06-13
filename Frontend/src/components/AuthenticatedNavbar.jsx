@@ -171,7 +171,11 @@ function UserDropdown({ user, onLogout, light, displayName, avatarUrl }) {
                 key={to}
                 to={to}
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:text-slate-900 hover:bg-brand-100 transition-colors"
+                className={`flex items-center gap-3 px-3 py-2.5 mx-1 my-0.5 rounded-lg text-sm transition-all duration-300 ${
+                  light
+                    ? "text-slate-700 hover:text-slate-900 hover:bg-[#f4f8f2] hover:shadow-[0_0_14px_rgba(124,200,74,0.4)]"
+                    : "text-slate-300 hover:text-white hover:bg-white/5 hover:shadow-[0_0_16px_rgba(159,232,112,0.25)]"
+                }`}
                 role="menuitem"
               >
                 <MenuIcon className="w-4 h-4 text-slate-500" />
@@ -187,7 +191,11 @@ function UserDropdown({ user, onLogout, light, displayName, avatarUrl }) {
               setOpen(false);
               onLogout();
             }}
-            className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:text-slate-900 hover:bg-brand-100 transition-colors"
+            className={`flex w-[calc(100%-0.5rem)] items-center gap-3 px-3 py-2.5 mx-1 my-0.5 rounded-lg text-sm transition-all duration-300 ${
+              light
+                ? "text-slate-700 hover:text-slate-900 hover:bg-[#f4f8f2] hover:shadow-[0_0_14px_rgba(124,200,74,0.4)]"
+                : "text-slate-300 hover:text-white hover:bg-white/5 hover:shadow-[0_0_16px_rgba(159,232,112,0.25)]"
+            }`}
             role="menuitem"
           >
             <IoLogOutOutline className="w-4 h-4" />
@@ -293,12 +301,10 @@ export default function AuthenticatedNavbar() {
         { label: "Saved", to: "/saved-jobs" },
       ];
 
-  const headerBg = useLight
-    ? scrolled
-      ? "saas-nav saas-nav--solid"
-      : "saas-nav"
-    : scrolled
-      ? "glass-dark shadow-lg shadow-black/20"
+  const headerBg = scrolled
+    ? "saas-nav saas-nav--solid"
+    : useLight
+      ? "saas-nav"
       : "bg-transparent";
 
   return (
@@ -390,7 +396,7 @@ export default function AuthenticatedNavbar() {
           className={`md:hidden mx-4 mb-4 rounded-xl p-4 animate-slide-down ${
             useLight
               ? "bg-white/50 border border-white/50 shadow-glass backdrop-blur-lg"
-              : "glass-dark border border-white/[0.06]"
+              : "glass-panel border-white/[0.06]"
           }`}
           role="navigation"
           aria-label="Mobile navigation"

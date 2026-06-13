@@ -4,7 +4,7 @@ import companies from "../data/companies";
 import Navbar from "../components/Navbar.jsx";
 import Footer from "../components/Footer.jsx";
 import { resolveLogoUrl } from "../lib/media.js";
-import CardSwap from "../components/CardSwap.jsx";
+import CardSwap, { Card } from "../components/CardSwap.jsx";
 import {
   IoDocumentTextOutline,
   IoBriefcaseOutline,
@@ -30,34 +30,39 @@ const Landing = () => {
           aria-hidden="true"
         >
           {/* Fixed rectangle screen */}
-          <div className="relative w-full aspect-[4/3] lg:aspect-[16/10] 
-bg-gradient-to-br from-emerald-950 via-slate-950 to-green-950
-rounded-[2rem] border border-emerald-500/20
-overflow-hidden shadow-2xl">
+          <div className="relative w-full aspect-[4/3] lg:aspect-[20/15] bg-transparent overflow-visible">
             
             {/* Inner container centered */}
             <div className="absolute inset-0 w-[100%] h-full flex items-center justify-center pt-16 pr-16">
-              <CardSwap interval={3500}>
-                <img 
-                  src="/swap-card/img1.png" 
-                  alt="Feature 1" 
-                  className="w-[100%] md:w-[120%] max-w-none h-auto rounded-xl shadow-2xl border border-white/10 object-cover"
-                />
-                <img 
-                  src="/swap-card/img2.png" 
-                  alt="Feature 2" 
-                  className="w-[100%] md:w-[120%] max-w-none h-auto rounded-xl shadow-2xl border border-white/10 object-cover"
-                />
-                <img 
-                  src="/swap-card/img3.png" 
-                  alt="Feature 3" 
-                  className="w-[100%] md:w-[120%] max-w-none h-auto rounded-xl shadow-2xl border border-white/10 object-cover"
-                />
-                <img 
-                  src="/swap-card/img4.png" 
-                  alt="Feature 4" 
-                  className="w-[100%] md:w-[120%] max-w-none h-auto rounded-xl shadow-2xl border border-white/10 object-cover"
-                />
+              <CardSwap delay={3500} width="100%" height="auto">
+                <Card>
+                  <img 
+                    src="/swap-card/img1.png" 
+                    alt="Feature 1" 
+                    className="w-[100%] md:w-[120%] max-w-none h-auto rounded-xl shadow-2xl border border-white/10 object-cover"
+                  />
+                </Card>
+                <Card>
+                  <img 
+                    src="/swap-card/img2.png" 
+                    alt="Feature 2" 
+                    className="w-[100%] md:w-[120%] max-w-none h-auto rounded-xl shadow-2xl border border-white/10 object-cover"
+                  />
+                </Card>
+                <Card>
+                  <img 
+                    src="/swap-card/img3.png" 
+                    alt="Feature 3" 
+                    className="w-[100%] md:w-[120%] max-w-none h-auto rounded-xl shadow-2xl border border-white/10 object-cover"
+                  />
+                </Card>
+                <Card>
+                  <img 
+                    src="/swap-card/img4.png" 
+                    alt="Feature 4" 
+                    className="w-[100%] md:w-[120%] max-w-none h-auto rounded-xl shadow-2xl border border-white/10 object-cover"
+                  />
+                </Card>
               </CardSwap>
             </div>
           </div>
@@ -268,6 +273,9 @@ overflow-hidden shadow-2xl">
           )}
         </div>
       </section>
+      <div className="-mx-[5vw] -mb-6">
+        <Footer />
+      </div>
       <style>{`
         @keyframes scroll-left {
           0% {

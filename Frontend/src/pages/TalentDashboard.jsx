@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
+import { resolveLogoUrl } from "../lib/media.js";
 import { TalentDashboardSkeleton } from "../components/Skeleton.jsx";
 import ErrorState from "../components/ErrorState.jsx";
 import StatusBadge from "../components/StatusBadge.jsx";
@@ -26,6 +27,13 @@ const TalentDashboard = () => {
   const [recentJobs, setRecentJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [imgError, setImgError] = useState(false);
+
+  const talentLogoUrl = resolveLogoUrl(profile, profile?.data, user);
+
+  useEffect(() => {
+    setImgError(false);
+  }, [talentLogoUrl]);
 
   useEffect(() => {
     if (user) fetchDashboardData();
@@ -145,8 +153,17 @@ const TalentDashboard = () => {
                   {profile ? "Ready to apply" : "Profile needed"}
                 </h2>
               </div>
-              <div className="logo-circle flex h-14 w-14 items-center justify-center rounded-2xl text-emerald-600 dark:text-emerald-400">
-                <IoPersonOutline className="h-6 w-6" />
+              <div className="logo-circle flex h-14 w-14 overflow-hidden items-center justify-center rounded-2xl text-emerald-600 dark:text-emerald-400">
+                {talentLogoUrl && !imgError ? (
+                  <img
+                    src={talentLogoUrl}
+                    alt={profile?.name || "Talent profile"}
+                    className="h-full w-full object-cover"
+                    onError={() => setImgError(true)}
+                  />
+                ) : (
+                  <IoPersonOutline className="h-6 w-6" />
+                )}
               </div>
             </div>
 

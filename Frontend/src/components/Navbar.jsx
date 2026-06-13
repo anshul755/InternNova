@@ -58,12 +58,10 @@ export default function Navbar({ hideGuestCenterNav = false }) {
         { label: "Pricing", href: "#pricing" },
       ];
 
-  const headerBg = useLight
-    ? scrolled
-      ? "saas-nav saas-nav--solid"
-      : "saas-nav"
-    : scrolled
-      ? "glass-dark shadow-lg shadow-black/20"
+  const headerBg = scrolled
+    ? "saas-nav saas-nav--solid"
+    : useLight
+      ? "saas-nav"
       : "bg-transparent";
 
   return (
@@ -142,7 +140,7 @@ export default function Navbar({ hideGuestCenterNav = false }) {
           className={`md:hidden mx-4 mb-4 rounded-xl p-4 animate-slide-down ${
             useLight
               ? "bg-white/50 border border-white/50 shadow-glass backdrop-blur-lg"
-              : "glass-dark border border-white/[0.06]"
+              : "glass-panel border-white/[0.06]"
           }`}
           role="navigation"
           aria-label="Mobile navigation"

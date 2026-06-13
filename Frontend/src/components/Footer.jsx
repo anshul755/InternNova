@@ -45,8 +45,8 @@ export default function Footer() {
   return (
     <footer className={wrapperClass} role="contentinfo">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
-          <div className="sm:col-span-2 lg:col-span-1">
+        <div className="flex flex-col sm:flex-row flex-wrap justify-between gap-10 lg:gap-16">
+          <div className="max-w-sm">
             <div className="flex items-center gap-2.5 mb-4">
               <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#c7f284] to-[#8fd9b6] flex items-center justify-center font-bold text-[0.6rem] text-slate-900">
                 IN
