@@ -17,6 +17,7 @@ import {
   IoFlashOutline,
   IoLocationOutline,
   IoPersonOutline,
+  IoMegaphoneOutline,
 } from "react-icons/io5";
 
 const JOB_FILTERS = ["ALL", "ACTIVE", "DRAFT", "CLOSED", "ARCHIVED"];
@@ -88,7 +89,7 @@ const CompanyDashboard = () => {
   };
 
   const handleDeleteJob = async (jobId) => {
-    const confirmed = await showConfirm("Are you sure you want to delete this job posting?");
+    const confirmed = await showConfirm("Are you sure you want to delete this job posting?", { type: "danger" });
     if (!confirmed) return;
     try {
       await api.delete(`/jobs/v1/${jobId}`);
@@ -99,8 +100,10 @@ const CompanyDashboard = () => {
   };
 
   const handleUpdateJobStatus = async (jobId, newStatus) => {
+    const statusType = newStatus === "ACTIVE" ? "success" : newStatus === "CLOSED" ? "warning" : newStatus === "ARCHIVED" ? "warning" : "info";
     const confirmed = await showConfirm(
       `Are you sure you want to change this job's status to ${newStatus}?`,
+      { type: statusType },
     );
     if (!confirmed) return;
     try {
@@ -109,6 +112,22 @@ const CompanyDashboard = () => {
       setJobs((prev) => prev.map((j) => (j.id === jobId ? updatedJob : j)));
     } catch (err) {
       await showAlert(err.message || `Failed to update job status to ${newStatus}`);
+    }
+  };
+
+  const handlePublishResults = async (jobId) => {
+    const confirmed = await showConfirm(
+      "Are you sure you want to publish results? This will notify candidates of their final status. This action cannot be undone.",
+      { type: "info" }
+    );
+    if (!confirmed) return;
+
+    try {
+      const res = await api.post(`/jobs/v1/${jobId}/publish-results`);
+      const updatedJob = await res.json();
+      setJobs((prev) => prev.map((j) => (j.id === jobId ? updatedJob : j)));
+    } catch (err) {
+      await showAlert(err.message || "Failed to publish results");
     }
   };
 
@@ -139,7 +158,7 @@ const CompanyDashboard = () => {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <CompanyDashboardSkeleton />
       </div>
     );
@@ -147,14 +166,14 @@ const CompanyDashboard = () => {
 
   if (error) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <ErrorState message={error} onRetry={fetchDashboardData} />
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
+    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
       <section className="dashboard-hero mb-8">
         <div className="relative grid gap-8 lg:grid-cols-[1.35fr_0.65fr]">
           <div className="flex flex-col justify-center">
@@ -328,6 +347,14 @@ const CompanyDashboard = () => {
                     >
                       Edit
                     </Link>
+                    {new Date(job.applicationDeadline) < new Date() && !job.resultsPublished && job.status !== "DRAFT" && (
+                      <button
+                        onClick={() => handlePublishResults(job.id)}
+                        className="rounded-full bg-indigo-500/10 px-4 py-1.5 text-xs font-semibold text-indigo-700 dark:text-indigo-400 hover:bg-indigo-500/20 transition-colors"
+                      >
+                        Publish Results
+                      </button>
+                    )}
                     {job.status === "ACTIVE" && (
                       <button
                         onClick={() => handleUpdateJobStatus(job.id, "CLOSED")}

@@ -43,4 +43,6 @@ public class Job {
     private boolean isDeleted = false;
 
     private String selectionCriteria;
+    
+    private boolean resultsPublished = false;
 }

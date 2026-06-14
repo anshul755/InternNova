@@ -17,6 +17,7 @@ import {
   IoFilterOutline,
   IoAddOutline,
   IoChevronForwardOutline,
+  IoMegaphoneOutline,
 } from "react-icons/io5";
 import { useAlert } from "../lib/AlertContext.jsx";
 
@@ -61,7 +62,7 @@ export default function CompanyJobs() {
   }
 
   async function handleDeleteJob(jobId) {
-    const confirmed = await showConfirm("Are you sure you want to delete this job posting?");
+    const confirmed = await showConfirm("Are you sure you want to delete this job posting?", { type: "danger" });
     if (!confirmed) return;
 
     try {
@@ -73,8 +74,10 @@ export default function CompanyJobs() {
   }
 
   async function handleUpdateJobStatus(jobId, newStatus) {
+    const statusType = newStatus === "ACTIVE" ? "success" : newStatus === "CLOSED" ? "warning" : newStatus === "ARCHIVED" ? "warning" : "info";
     const confirmed = await showConfirm(
       `Are you sure you want to change this job's status to ${newStatus}?`,
+      { type: statusType },
     );
     if (!confirmed) return;
 
@@ -86,6 +89,24 @@ export default function CompanyJobs() {
       );
     } catch (err) {
       await showAlert(err.message || `Failed to update job status to ${newStatus}`);
+    }
+  }
+
+  async function handlePublishResults(jobId) {
+    const confirmed = await showConfirm(
+      "Are you sure you want to publish results? This will notify candidates of their final status. This action cannot be undone.",
+      { type: "info" }
+    );
+    if (!confirmed) return;
+
+    try {
+      const res = await api.post(`/jobs/v1/${jobId}/publish-results`);
+      const updatedJob = await res.json();
+      setJobs((prev) =>
+        prev.map((job) => (job.id === jobId ? updatedJob : job)),
+      );
+    } catch (err) {
+      await showAlert(err.message || "Failed to publish results");
     }
   }
 
@@ -109,7 +130,7 @@ export default function CompanyJobs() {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <CompanyJobsSkeleton />
       </div>
     );
@@ -117,7 +138,7 @@ export default function CompanyJobs() {
 
   if (error) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="glass-card max-w-2xl mx-auto p-6 text-center">
           <p className="text-rose-500 mb-4">{error}</p>
           <button onClick={fetchJobs} className="btn-primary">
@@ -129,7 +150,7 @@ export default function CompanyJobs() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
+    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
       <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-8">
         <div>
           <p className="text-xs uppercase tracking-[0.2em] text-slate-500 mb-2">
@@ -295,6 +316,16 @@ export default function CompanyJobs() {
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2 mt-5 pt-4 border-t border-white/50">
+                    {new Date(job.applicationDeadline) < new Date() && !job.resultsPublished && job.status !== "DRAFT" && (
+                      <button
+                        onClick={() => handlePublishResults(job.id)}
+                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition-colors mr-auto"
+                      >
+                        <IoMegaphoneOutline className="w-4 h-4" />
+                        Publish Results
+                      </button>
+                    )}
+                    
                     {job.status === "ACTIVE" && (
                       <button
                         onClick={() => handleUpdateJobStatus(job.id, "CLOSED")}

@@ -12,15 +12,39 @@ import org.springframework.stereotype.Service;
 import com.internNova.InternNova.dto.JobCreateDTO;
 import com.internNova.InternNova.dto.JobUpdateDTO;
 import com.internNova.InternNova.entity.Job;
+import com.internNova.InternNova.entity.Application;
+import com.internNova.InternNova.entity.Talent;
+import com.internNova.InternNova.entity.Company;
+import com.internNova.InternNova.enums.ApplicationState;
 import java.time.LocalDate;
 import com.internNova.InternNova.enums.OpportunityType;
 import com.internNova.InternNova.repository.JobRepository;
+import com.internNova.InternNova.repository.ApplicationRepository;
+import com.internNova.InternNova.repository.TalentRepository;
+import com.internNova.InternNova.repository.CompanyRepository;
+import com.internNova.InternNova.repository.AuthUserRepository;
+import com.internNova.InternNova.entity.AuthUser;
 
 @Service
 public class JobService {
 
     @Autowired
     private JobRepository jobRepository;
+
+    @Autowired
+    private ApplicationRepository applicationRepository;
+
+    @Autowired
+    private TalentRepository talentRepository;
+
+    @Autowired
+    private CompanyRepository companyRepository;
+
+    @Autowired
+    private EmailNotificationService emailNotificationService;
+
+    @Autowired
+    private AuthUserRepository authUserRepository;
 
     public Job createJob(JobCreateDTO jobCreateDTO) {
         Job job = new Job();
@@ -47,7 +71,7 @@ public class JobService {
 
     public Job getJob(String id, String viewerId) {
         Job job = jobRepository.findByIdAndIsDeletedFalse(id)
-            .orElseThrow(() -> new RuntimeException("Job not found"));
+                .orElseThrow(() -> new RuntimeException("Job not found"));
         incrementViewCount(job, viewerId);
         return job;
     }
@@ -64,7 +88,7 @@ public class JobService {
         return jobRepository.findByJobTypeAndStatusActive(jobType, pageable);
     }
 
-    public Page<Job> getJobsByLocation(String location, Pageable pageable) {    
+    public Page<Job> getJobsByLocation(String location, Pageable pageable) {
         return jobRepository.findByLocationContainingIgnoreCaseAndStatusActive(location, pageable);
     }
 
@@ -74,8 +98,8 @@ public class JobService {
 
     public Job updateJob(String id, JobUpdateDTO jobUpdateDTO) {
         Job job = jobRepository.findByIdAndIsDeletedFalse(id)
-            .orElseThrow(() -> new RuntimeException("Job not found"));
-        
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+
         if (job.isDeleted()) {
             throw new RuntimeException("Job not found");
         }
@@ -86,14 +110,58 @@ public class JobService {
 
     public void deleteJob(String id) {
         Job job = jobRepository.findByIdAndIsDeletedFalse(id)
-            .orElseThrow(() -> new RuntimeException("Job not found"));
+                .orElseThrow(() -> new RuntimeException("Job not found"));
 
         if (job.getApplicationsCount() > 0) {
-            throw new RuntimeException("Cannot delete job with existing applications. Please close or archive the job instead.");
+            throw new RuntimeException(
+                    "Cannot delete job with existing applications. Please close or archive the job instead.");
         }
 
         job.setDeleted(true);
         jobRepository.save(job);
+    }
+
+    public Job publishResults(String jobId) {
+        Job job = jobRepository.findByIdAndIsDeletedFalse(jobId)
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+
+        if (job.getApplicationDeadline() != null && job.getApplicationDeadline().isAfter(LocalDate.now())) {
+            throw new RuntimeException("Cannot publish results before the application deadline.");
+        }
+
+        if (job.isResultsPublished()) {
+            throw new RuntimeException("Results are already published for this job.");
+        }
+
+        job.setResultsPublished(true);
+        job = jobRepository.save(job);
+
+        // Send emails
+        List<Application> applications = applicationRepository.findByJobIdAndIsDeletedFalse(jobId);
+        Company company = companyRepository.findById(job.getCompanyId()).orElse(null);
+        String companyName = company != null ? company.getCompanyName() : "The Company";
+
+        for (Application app : applications) {
+            if (app.getStatus() == ApplicationState.SHORTLISTED || app.getStatus() == ApplicationState.REJECTED) {
+                Talent talent = talentRepository.findById(app.getStudentId()).orElse(null);
+                if (talent != null && talent.getUser() != null) {
+                    AuthUser authUser = authUserRepository.findById(talent.getId()).orElse(null);
+                    if (authUser != null && authUser.getEmail() != null) {
+                        String email = authUser.getEmail();
+
+                        if (app.getStatus() == ApplicationState.SHORTLISTED) {
+                            emailNotificationService.sendShortlistEmail(email, talent.getName(), job.getTitle(),
+                                    companyName);
+                        } else if (app.getStatus() == ApplicationState.REJECTED) {
+                            emailNotificationService.sendRejectionEmail(email, talent.getName(), job.getTitle(),
+                                    companyName);
+                        }
+                    }
+                }
+            }
+        }
+
+        return job;
     }
 
     public void incrementApplicationCount(String jobId) {
@@ -117,7 +185,8 @@ public class JobService {
     }
 
     public void expireJobs() {
-        List<Job> expiredJobs = jobRepository.findByIsDeletedFalseAndStatusAndApplicationDeadlineBefore("ACTIVE", LocalDate.now());
+        List<Job> expiredJobs = jobRepository.findByIsDeletedFalseAndStatusAndApplicationDeadlineBefore("ACTIVE",
+                LocalDate.now());
         for (Job job : expiredJobs) {
             job.setStatus("CLOSED");
         }
@@ -128,7 +197,7 @@ public class JobService {
 
     private void incrementViewCount(Job job, String viewerId) {
         boolean isCompanyViewingOwnJob = viewerId != null && viewerId.equals(job.getCompanyId());
-        
+
         if (viewerId != null && !isCompanyViewingOwnJob) {
             if (job.getViewedByUsers() == null) {
                 job.setViewedByUsers(new java.util.HashSet<>());
@@ -161,24 +230,40 @@ public class JobService {
             job.setApplicationDeadline(LocalDate.now().plusDays(30));
         }
         job.setSelectionCriteria(dto.getSelectionCriteria());
-        if (dto.getStatus() != null) job.setStatus(dto.getStatus());
+        if (dto.getStatus() != null)
+            job.setStatus(dto.getStatus());
     }
 
     private void mapUpdateDTOToEntity(JobUpdateDTO dto, Job job) {
-        if (dto.getTitle() != null) job.setTitle(dto.getTitle());
-        if (dto.getDescription() != null) job.setDescription(dto.getDescription());
-        if (dto.getRequirements() != null) job.setRequirements(dto.getRequirements());
-        if (dto.getResponsibilities() != null) job.setResponsibilities(dto.getResponsibilities());
-        if (dto.getSkillsRequired() != null) job.setSkillsRequired(dto.getSkillsRequired());
-        if (dto.getLocation() != null) job.setLocation(dto.getLocation());
-        if (dto.getRemoteOption() != null) job.setRemoteOption(dto.getRemoteOption());
-        if (dto.getSalaryMin() != null) job.setSalaryMin(dto.getSalaryMin());
-        if (dto.getSalaryMax() != null) job.setSalaryMax(dto.getSalaryMax());
-        if (dto.getJobType() != null) job.setJobType(dto.getJobType());
-        if (dto.getDuration() != null) job.setDuration(dto.getDuration());
-        if (dto.getStartDate() != null) job.setStartDate(dto.getStartDate());
-        if (dto.getApplicationDeadline() != null) job.setApplicationDeadline(dto.getApplicationDeadline());
-        if (dto.getStatus() != null) job.setStatus(dto.getStatus());
-        if (dto.getSelectionCriteria() != null) job.setSelectionCriteria(dto.getSelectionCriteria());
+        if (dto.getTitle() != null)
+            job.setTitle(dto.getTitle());
+        if (dto.getDescription() != null)
+            job.setDescription(dto.getDescription());
+        if (dto.getRequirements() != null)
+            job.setRequirements(dto.getRequirements());
+        if (dto.getResponsibilities() != null)
+            job.setResponsibilities(dto.getResponsibilities());
+        if (dto.getSkillsRequired() != null)
+            job.setSkillsRequired(dto.getSkillsRequired());
+        if (dto.getLocation() != null)
+            job.setLocation(dto.getLocation());
+        if (dto.getRemoteOption() != null)
+            job.setRemoteOption(dto.getRemoteOption());
+        if (dto.getSalaryMin() != null)
+            job.setSalaryMin(dto.getSalaryMin());
+        if (dto.getSalaryMax() != null)
+            job.setSalaryMax(dto.getSalaryMax());
+        if (dto.getJobType() != null)
+            job.setJobType(dto.getJobType());
+        if (dto.getDuration() != null)
+            job.setDuration(dto.getDuration());
+        if (dto.getStartDate() != null)
+            job.setStartDate(dto.getStartDate());
+        if (dto.getApplicationDeadline() != null)
+            job.setApplicationDeadline(dto.getApplicationDeadline());
+        if (dto.getStatus() != null)
+            job.setStatus(dto.getStatus());
+        if (dto.getSelectionCriteria() != null)
+            job.setSelectionCriteria(dto.getSelectionCriteria());
     }
 }

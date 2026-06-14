@@ -40,6 +40,12 @@ export default function CrudSection({
   const [error, setError] = useState("");
   const { showConfirm } = useAlert();
 
+  const getItemId = (item, index) => {
+    if (item.id !== undefined) return item.id;
+    if (item._id !== undefined) return item._id;
+    return index;
+  };
+
   /* ── helpers ─────────────────────────────────────────────────── */
 
   const startAdd = () => {
@@ -49,9 +55,9 @@ export default function CrudSection({
     setError("");
   };
 
-  const startEdit = (item) => {
+  const startEdit = (item, index) => {
     setFormData({ ...item });
-    setEditingId(item.id);
+    setEditingId(getItemId(item, index));
     setAdding(false);
     setError("");
   };
@@ -88,7 +94,7 @@ export default function CrudSection({
       } else {
         await api.put(`${apiPath}/${editingId}`, formData);
         onItemsChange(
-          items.map((it) => (it.id === editingId ? { ...formData } : it)),
+          items.map((it, idx) => (getItemId(it, idx) === editingId ? { ...it, ...formData } : it)),
         );
       }
       cancelForm();
@@ -103,7 +109,7 @@ export default function CrudSection({
     setError("");
     try {
       await api.delete(`${apiPath}/${id}`);
-      onItemsChange(items.filter((it) => it.id !== id));
+      onItemsChange(items.filter((it, idx) => getItemId(it, idx) !== id));
       if (editingId === id) cancelForm();
     } catch (e) {
       setError(e?.message || "Delete failed");
@@ -238,11 +244,12 @@ export default function CrudSection({
           )}
 
           {/* existing items */}
-          {items.map((item) => {
-            const isEditing = editingId === item.id;
+          {items.map((item, index) => {
+            const currentId = getItemId(item, index);
+            const isEditing = editingId === currentId;
             return (
               <div
-                key={item.id}
+                key={currentId}
                 className="rounded-lg border border-slate-200/60 bg-white/40 p-3"
               >
                 {isEditing ? (
@@ -312,7 +319,7 @@ export default function CrudSection({
                     <div className="flex items-center gap-2 mt-2.5 pt-2 border-t border-slate-100">
                       <button
                         type="button"
-                        onClick={() => startEdit(item)}
+                        onClick={() => startEdit(item, index)}
                         className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-emerald-600 transition-colors"
                       >
                         <IoPencil className="w-3 h-3" /> Edit
@@ -322,8 +329,9 @@ export default function CrudSection({
                         onClick={async () => {
                           const confirmed = await showConfirm(
                             `Delete this ${title.toLowerCase()} entry?`,
+                            { type: "danger" },
                           );
-                          if (confirmed) handleDelete(item.id);
+                          if (confirmed) handleDelete(currentId);
                         }}
                         className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-rose-500 transition-colors"
                       >

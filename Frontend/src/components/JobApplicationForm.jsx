@@ -149,8 +149,8 @@ const JobApplicationForm = ({ job, onSubmit, onCancel }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="glass-card p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 pt-24 z-[100]">
+      <div className="glass-card p-8 max-w-4xl w-full max-h-[calc(100vh-8rem)] overflow-y-auto">
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-slate-900 mb-2">
             Apply for Position

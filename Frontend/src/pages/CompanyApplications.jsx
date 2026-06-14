@@ -11,9 +11,6 @@ const PIPELINE_STAGES = [
   "APPLIED",
   "UNDER_REVIEW",
   "SHORTLISTED",
-  "INTERVIEW",
-  "OFFER",
-  "HIRED",
   "REJECTED",
 ];
 
@@ -173,26 +170,13 @@ export default function CompanyApplications() {
     } else {
       applicationsContent = (
         <div className="glass-card p-4 sm:p-5">
-          <div className="grid gap-4 xl:grid-cols-[1.2fr_repeat(3,minmax(0,1fr))] xl:grid-rows-[repeat(2,minmax(260px,1fr))]">
+          <div className="grid gap-4 xl:grid-cols-4">
             {PIPELINE_STAGES.map((stage) => {
               const appsInStage = applications.filter(
                 (a) => a.status === stage,
               );
               const isApplied = stage === "APPLIED";
-              const stagePosition =
-                stage === "APPLIED"
-                  ? "xl:col-start-1 xl:row-start-1 xl:row-span-2"
-                  : stage === "UNDER_REVIEW"
-                    ? "xl:col-start-2 xl:row-start-1"
-                    : stage === "SHORTLISTED"
-                      ? "xl:col-start-3 xl:row-start-1"
-                      : stage === "INTERVIEW"
-                        ? "xl:col-start-4 xl:row-start-1"
-                        : stage === "OFFER"
-                          ? "xl:col-start-2 xl:row-start-2"
-                          : stage === "HIRED"
-                            ? "xl:col-start-3 xl:row-start-2"
-                            : "xl:col-start-4 xl:row-start-2";
+              const stagePosition = "";
               return (
                 <div
                   key={stage}
@@ -211,11 +195,7 @@ export default function CompanyApplications() {
                       handleDrop(applicationId, stage);
                     }
                   }}
-                  className={`glass-card flex flex-col overflow-hidden transition-all ${stagePosition} ${
-                    isApplied
-                      ? "min-h-[320px] xl:min-h-[560px]"
-                      : "min-h-[240px]"
-                  } ${
+                  className={`glass-card flex flex-col overflow-hidden transition-all ${stagePosition} min-h-[400px] xl:min-h-[560px] ${
                     dragOverStage === stage
                       ? "ring-2 ring-emerald-300 shadow-lg shadow-emerald-200/40"
                       : ""
@@ -372,7 +352,7 @@ export default function CompanyApplications() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
+    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
       <h1 className="text-2xl font-bold text-slate-900 mb-6">
         Manage Applications
       </h1>
