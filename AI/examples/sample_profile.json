@@ -1,0 +1,80 @@
+{
+  "id": "talent-sample-001",
+  "name": "Naman Sharma",
+  "university": "Chitkara University",
+  "major": "Computer Science",
+  "graduationYear": "2021",
+  "cgpa": 8.16,
+  "skills": [
+    "Java", "JavaScript", "C++", "React", "Node.js", "Express.js",
+    "MongoDB", "HTML5", "CSS3", "Git", "Linux", "Docker", "AWS"
+  ],
+  "linkedinUrl": "linkedin.com/in/naman-sharma",
+  "githubUrl": "github.com/namansharma18899",
+  "portfolioUrl": "namansharma.dev",
+  "bio": "Computer science engineer who enjoys building end-to-end web applications and mentoring peers.",
+  "location": "Baddi, Himachal Pradesh",
+  "resumeSummary": "Full-stack developer with MERN and embedded systems experience.",
+  "experience": [
+    {
+      "company": "Chitkara University (ISTE Student Chapter)",
+      "role": "Vice President",
+      "location": "Baddi, H.P.",
+      "startDate": "2019-08",
+      "endDate": "2021-05",
+      "isCurrent": false,
+      "bulletPoints": [
+        "Taught 60+ first-year students the basics of programming using Scratch.",
+        "Organised and delivered a hands-on workshop on Linux and web development.",
+        "Coordinated technical events and received excellent faculty feedback."
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "Exercise Tracker",
+      "description": "A MERN application for tracking per-user exercises.",
+      "techStack": ["MongoDB", "Express.js", "React", "Node.js"],
+      "liveUrl": "",
+      "repoUrl": "github.com/namansharma18899/exercise-tracker",
+      "highlights": [
+        "Built CRUD APIs and a responsive React UI for logging workouts per user.",
+        "Modelled users and exercises in MongoDB with Mongoose."
+      ]
+    },
+    {
+      "name": "Mini-ATM",
+      "description": "A C++ console replica of an ATM with file-backed storage.",
+      "techStack": ["C++"],
+      "liveUrl": "",
+      "repoUrl": "github.com/namansharma18899/mini-atm",
+      "highlights": [
+        "Implemented file handling for persistent account storage.",
+        "Supported balance enquiry, deposit, and withdrawal flows."
+      ]
+    },
+    {
+      "name": "Waylander",
+      "description": "An Android app that draws a polyline from the current position to a destination.",
+      "techStack": ["Android", "Java", "Google Maps API"],
+      "liveUrl": "",
+      "repoUrl": "",
+      "highlights": [
+        "Rendered live routing polylines using the Google Maps SDK."
+      ]
+    }
+  ],
+  "certifications": [
+    {
+      "name": "Data Structures and Algorithms",
+      "issuer": "GeeksforGeeks",
+      "issueDate": "2020",
+      "credentialUrl": ""
+    }
+  ],
+  "achievements": [
+    { "title": "1st place, Chitkara Typing Competition", "description": "", "year": "2018" },
+    { "title": "1st place, Techlone 2018", "description": "", "year": "2018" },
+    { "title": "2nd place, Vedic Maths Competition", "description": "", "year": "2017" }
+  ]
+}

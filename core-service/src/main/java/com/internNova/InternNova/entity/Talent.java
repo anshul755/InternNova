@@ -43,4 +43,10 @@ public class Talent {
     private List<String> preferredIndustries;
 
     private List<String> savedJobs = new ArrayList<>();
+
+    private List<Experience> experience;
+    private List<Project> projects;
+    private List<Certification> certifications;
+    private List<Achievement> achievements;
+    private String resumeSummary;
 }

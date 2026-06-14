@@ -1,18 +1,18 @@
 package com.internNova.InternNova.services;
 
 import com.internNova.InternNova.dto.TalentDTO;
-import com.internNova.InternNova.entity.Talent;
+import com.internNova.InternNova.entity.*;
 import com.internNova.InternNova.enums.User;
+import com.internNova.InternNova.repository.JobRepository;
 import com.internNova.InternNova.repository.TalentRepository;
+import com.internNova.InternNova.util.SanitizationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import com.internNova.InternNova.repository.JobRepository;
-import com.internNova.InternNova.entity.Job;
-import java.util.List;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class TalentService {
@@ -50,7 +50,8 @@ public class TalentService {
     }
 
     public Talent getTalent(String id) {
-        Talent talent = talentRepository.findById(id).orElseThrow(() -> new RuntimeException("Talent not found"));
+        Talent talent = talentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Talent not found"));
         if (talent.isDeleted()) {
             throw new RuntimeException("Talent not found");
         }
@@ -94,36 +95,168 @@ public class TalentService {
 
     public Talent saveJob(String talentId, String jobId) {
         Talent talent = getTalent(talentId);
-        
+
         if (talent.getSavedJobs() == null) {
-            talent.setSavedJobs(new java.util.ArrayList<>());
+            talent.setSavedJobs(new ArrayList<>());
         }
-        
+
         if (!talent.getSavedJobs().contains(jobId)) {
             talent.getSavedJobs().add(jobId);
             talentRepository.save(talent);
         }
-        
+
         return talent;
     }
 
     public Talent removeSavedJob(String talentId, String jobId) {
         Talent talent = getTalent(talentId);
-        
+
         if (talent.getSavedJobs() != null && talent.getSavedJobs().contains(jobId)) {
             talent.getSavedJobs().remove(jobId);
             talentRepository.save(talent);
         }
-        
+
         return talent;
     }
 
     public List<Job> getSavedJobs(String talentId) {
         Talent talent = getTalent(talentId);
         if (talent.getSavedJobs() == null || talent.getSavedJobs().isEmpty()) {
-            return new java.util.ArrayList<>();
+            return new ArrayList<>();
         }
         return (List<Job>) jobRepository.findAllById(talent.getSavedJobs());
+    }
+
+    public Talent addExperience(String talentId, Experience experience) {
+        Talent talent = getTalent(talentId);
+        if (talent.getExperience() == null) {
+            talent.setExperience(new ArrayList<>());
+        }
+        sanitizeExperience(experience);
+        talent.getExperience().add(experience);
+        return talentRepository.save(talent);
+    }
+
+    public Talent updateExperience(String talentId, int index, Experience experience) {
+        Talent talent = getTalent(talentId);
+        validateIndex(talent.getExperience(), index, "Experience");
+        sanitizeExperience(experience);
+        talent.getExperience().set(index, experience);
+        return talentRepository.save(talent);
+    }
+
+    public Talent deleteExperience(String talentId, int index) {
+        Talent talent = getTalent(talentId);
+        validateIndex(talent.getExperience(), index, "Experience");
+        talent.getExperience().remove(index);
+        return talentRepository.save(talent);
+    }
+
+    public Talent addProject(String talentId, Project project) {
+        Talent talent = getTalent(talentId);
+        if (talent.getProjects() == null) {
+            talent.setProjects(new ArrayList<>());
+        }
+        sanitizeProject(project);
+        talent.getProjects().add(project);
+        return talentRepository.save(talent);
+    }
+
+    public Talent updateProject(String talentId, int index, Project project) {
+        Talent talent = getTalent(talentId);
+        validateIndex(talent.getProjects(), index, "Project");
+        sanitizeProject(project);
+        talent.getProjects().set(index, project);
+        return talentRepository.save(talent);
+    }
+
+    public Talent deleteProject(String talentId, int index) {
+        Talent talent = getTalent(talentId);
+        validateIndex(talent.getProjects(), index, "Project");
+        talent.getProjects().remove(index);
+        return talentRepository.save(talent);
+    }
+
+    public Talent addCertification(String talentId, Certification certification) {
+        Talent talent = getTalent(talentId);
+        if (talent.getCertifications() == null) {
+            talent.setCertifications(new ArrayList<>());
+        }
+        sanitizeCertification(certification);
+        talent.getCertifications().add(certification);
+        return talentRepository.save(talent);
+    }
+
+    public Talent updateCertification(String talentId, int index, Certification certification) {
+        Talent talent = getTalent(talentId);
+        validateIndex(talent.getCertifications(), index, "Certification");
+        sanitizeCertification(certification);
+        talent.getCertifications().set(index, certification);
+        return talentRepository.save(talent);
+    }
+
+    public Talent deleteCertification(String talentId, int index) {
+        Talent talent = getTalent(talentId);
+        validateIndex(talent.getCertifications(), index, "Certification");
+        talent.getCertifications().remove(index);
+        return talentRepository.save(talent);
+    }
+
+    public Talent addAchievement(String talentId, Achievement achievement) {
+        Talent talent = getTalent(talentId);
+        if (talent.getAchievements() == null) {
+            talent.setAchievements(new ArrayList<>());
+        }
+        sanitizeAchievement(achievement);
+        talent.getAchievements().add(achievement);
+        return talentRepository.save(talent);
+    }
+
+    public Talent updateAchievement(String talentId, int index, Achievement achievement) {
+        Talent talent = getTalent(talentId);
+        validateIndex(talent.getAchievements(), index, "Achievement");
+        sanitizeAchievement(achievement);
+        talent.getAchievements().set(index, achievement);
+        return talentRepository.save(talent);
+    }
+
+    public Talent deleteAchievement(String talentId, int index) {
+        Talent talent = getTalent(talentId);
+        validateIndex(talent.getAchievements(), index, "Achievement");
+        talent.getAchievements().remove(index);
+        return talentRepository.save(talent);
+    }
+
+    public Talent getFullProfile(String talentId) {
+        Talent talent = getTalent(talentId);
+
+        if (talent.getExperience() == null)
+            talent.setExperience(new ArrayList<>());
+        if (talent.getProjects() == null)
+            talent.setProjects(new ArrayList<>());
+        if (talent.getCertifications() == null)
+            talent.setCertifications(new ArrayList<>());
+        if (talent.getAchievements() == null)
+            talent.setAchievements(new ArrayList<>());
+        if (talent.getSkills() == null)
+            talent.setSkills(new ArrayList<>());
+        if (talent.getResumeSummary() == null)
+            talent.setResumeSummary("");
+        if (talent.getLinkedinUrl() == null)
+            talent.setLinkedinUrl("");
+        if (talent.getGithubUrl() == null)
+            talent.setGithubUrl("");
+
+        return talent;
+    }
+
+    public void validateOwnership(String talentId, String requesterId) {
+        if (requesterId == null) {
+            throw new RuntimeException("Access denied: authentication required");
+        }
+        if (!talentId.equals(requesterId)) {
+            throw new RuntimeException("Access denied: you can only modify your own profile");
+        }
     }
 
     private void updateTalentFromDTO(Talent talent, TalentDTO dto) {
@@ -148,12 +281,69 @@ public class TalentService {
         if (dto.getPortfolioUrl() != null)
             talent.setPortfolioUrl(dto.getPortfolioUrl());
         if (dto.getBio() != null)
-            talent.setBio(dto.getBio());
+            talent.setBio(SanitizationUtil.sanitizePlainText(dto.getBio()));
         if (dto.getLocation() != null)
             talent.setLocation(dto.getLocation());
         if (dto.getPreferredLocations() != null)
             talent.setPreferredLocations(dto.getPreferredLocations());
         if (dto.getPreferredIndustries() != null)
             talent.setPreferredIndustries(dto.getPreferredIndustries());
+
+        if (dto.getExperience() != null) {
+            dto.getExperience().forEach(this::sanitizeExperience);
+            talent.setExperience(dto.getExperience());
+        }
+        if (dto.getProjects() != null) {
+            dto.getProjects().forEach(this::sanitizeProject);
+            talent.setProjects(dto.getProjects());
+        }
+        if (dto.getCertifications() != null) {
+            dto.getCertifications().forEach(this::sanitizeCertification);
+            talent.setCertifications(dto.getCertifications());
+        }
+        if (dto.getAchievements() != null) {
+            dto.getAchievements().forEach(this::sanitizeAchievement);
+            talent.setAchievements(dto.getAchievements());
+        }
+        if (dto.getResumeSummary() != null)
+            talent.setResumeSummary(
+                    SanitizationUtil.sanitizePlainText(dto.getResumeSummary()));
+    }
+
+    private void validateIndex(List<?> list, int index, String fieldName) {
+        if (list == null || index < 0 || index >= list.size()) {
+            throw new RuntimeException(
+                    fieldName + " at index " + index + " not found");
+        }
+    }
+
+    private void sanitizeExperience(Experience exp) {
+        if (exp.getBulletPoints() != null) {
+            exp.setBulletPoints(SanitizationUtil.sanitizeStringList(exp.getBulletPoints()));
+        }
+    }
+
+    private void sanitizeProject(Project proj) {
+        if (proj.getDescription() != null) {
+            proj.setDescription(SanitizationUtil.sanitizePlainText(proj.getDescription()));
+        }
+        if (proj.getHighlights() != null) {
+            proj.setHighlights(SanitizationUtil.sanitizeStringList(proj.getHighlights()));
+        }
+    }
+
+    private void sanitizeCertification(Certification cert) {
+        if (cert.getName() != null) {
+            cert.setName(SanitizationUtil.sanitizePlainText(cert.getName()));
+        }
+    }
+
+    private void sanitizeAchievement(Achievement ach) {
+        if (ach.getTitle() != null) {
+            ach.setTitle(SanitizationUtil.sanitizePlainText(ach.getTitle()));
+        }
+        if (ach.getDescription() != null) {
+            ach.setDescription(SanitizationUtil.sanitizePlainText(ach.getDescription()));
+        }
     }
 }

@@ -8,6 +8,11 @@ the parsed resume. All handlers are async — the work is I/O-bound (download + 
 from fastapi import APIRouter
 
 from app.features.evaluate import EvaluateInput, EvaluateResult, evaluate_application
+from app.features.resume_generator import (
+    GenerateResumeInput,
+    GenerateResumeResult,
+    generate_resume,
+)
 
 router = APIRouter(prefix="/pipeline/v1", tags=["pipeline"])
 
@@ -15,3 +20,8 @@ router = APIRouter(prefix="/pipeline/v1", tags=["pipeline"])
 @router.post("/evaluate", response_model=EvaluateResult)
 async def evaluate(payload: EvaluateInput) -> EvaluateResult:
     return await evaluate_application(payload)
+
+
+@router.post("/generate-resume", response_model=GenerateResumeResult)
+async def generate_resume_endpoint(payload: GenerateResumeInput) -> GenerateResumeResult:
+    return await generate_resume(payload)

@@ -2,24 +2,17 @@ import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
+import { ApplicationDetailSkeleton } from "../components/Skeleton.jsx";
 import GlassSelect from "../components/GlassSelect.jsx";
-
-const STATUS_COLORS = {
-  APPLIED: "bg-amber-50 text-amber-700 border-amber-200",
-  UNDER_REVIEW: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  SHORTLISTED: "bg-lime-50 text-lime-700 border-lime-200",
-  INTERVIEW: "bg-teal-50 text-teal-700 border-teal-200",
-  OFFER: "bg-green-50 text-green-700 border-green-200",
-  HIRED: "bg-emerald-100 text-emerald-800 border-emerald-200",
-  REJECTED: "bg-rose-50 text-rose-700 border-rose-200",
-  WITHDRAWN: "bg-slate-100 text-slate-600 border-slate-200",
-};
+import StatusBadge from "../components/StatusBadge.jsx";
+import { useAlert } from "../lib/AlertContext.jsx";
 
 export default function ApplicationDetail() {
   const { id } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
   const isCompany = user?.role === "Company";
+  const { showAlert, showConfirm, showPrompt } = useAlert();
 
   const [application, setApplication] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -48,7 +41,7 @@ export default function ApplicationDetail() {
     setUpdating(newStatus);
     const notes =
       newStatus === "REJECTED"
-        ? (window.prompt("Add a note for the applicant (optional):") ?? "")
+        ? ((await showPrompt("Add a note for the applicant (optional):")) ?? "")
         : application.recruiterNotes;
     try {
       await api.put(`/applications/v1/${id}/status`, {
@@ -61,7 +54,7 @@ export default function ApplicationDetail() {
         recruiterNotes: notes || prev.recruiterNotes,
       }));
     } catch (err) {
-      alert(err.message || "Failed to update application status");
+      await showAlert(err.message || "Failed to update application status");
     } finally {
       setUpdating("");
     }
@@ -70,11 +63,7 @@ export default function ApplicationDetail() {
   const backLink = isCompany ? "/company/applications" : "/applications";
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
-      </div>
-    );
+    return <ApplicationDetailSkeleton />;
   }
 
   if (error || !application) {
@@ -94,9 +83,6 @@ export default function ApplicationDetail() {
       </div>
     );
   }
-
-  const statusClass =
-    STATUS_COLORS[application.status] || STATUS_COLORS.APPLIED;
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
@@ -118,13 +104,13 @@ export default function ApplicationDetail() {
       <div className="space-y-6">
         {/* Status Banner */}
         <div
-          className={`flex items-center justify-between p-5 rounded-xl border ${statusClass}`}
+          className="flex items-center justify-between p-5 rounded-xl border bg-white/40 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 shadow-sm"
         >
           <div>
-            <p className="text-xs uppercase tracking-wide opacity-70 mb-1">
+            <p className="text-xs uppercase tracking-wide text-slate-500 mb-2">
               Status
             </p>
-            <p className="text-xl font-bold">{application.status}</p>
+            <StatusBadge status={application.status} className="text-sm px-3 py-1" />
           </div>
           {isCompany && application.status !== "WITHDRAWN" && (
             <div className="flex gap-3 items-center">
@@ -142,9 +128,6 @@ export default function ApplicationDetail() {
                   { value: "APPLIED", label: "Applied" },
                   { value: "UNDER_REVIEW", label: "Under Review" },
                   { value: "SHORTLISTED", label: "Shortlisted" },
-                  { value: "INTERVIEW", label: "Interview" },
-                  { value: "OFFER", label: "Offer" },
-                  { value: "HIRED", label: "Hired" },
                   { value: "REJECTED", label: "Rejected" },
                 ]}
               />
@@ -257,12 +240,13 @@ export default function ApplicationDetail() {
           !["REJECTED", "HIRED", "WITHDRAWN"].includes(application.status) && (
             <button
               onClick={async () => {
-                if (!window.confirm("Withdraw this application?")) return;
+                const confirmed = await showConfirm("Withdraw this application?", { type: "warning" });
+                if (!confirmed) return;
                 try {
                   await api.put(`/applications/v1/${id}/withdraw`, {});
                   setApplication((prev) => ({ ...prev, status: "WITHDRAWN" }));
                 } catch (err) {
-                  alert(err.message || "Failed to withdraw");
+                  await showAlert(err.message || "Failed to withdraw");
                 }
               }}
               className="px-5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-lg text-sm font-medium transition-colors"

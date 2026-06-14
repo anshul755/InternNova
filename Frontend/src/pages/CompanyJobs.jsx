@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
-import { DashboardSkeleton } from "../components/Skeleton.jsx";
+import { CompanyJobsSkeleton } from "../components/Skeleton.jsx";
+import StatusBadge from "../components/StatusBadge.jsx";
 import {
   IoBriefcaseOutline,
   IoDocumentTextOutline,
@@ -16,7 +17,9 @@ import {
   IoFilterOutline,
   IoAddOutline,
   IoChevronForwardOutline,
+  IoMegaphoneOutline,
 } from "react-icons/io5";
+import { useAlert } from "../lib/AlertContext.jsx";
 
 const JOB_FILTERS = ["ALL", "DRAFT", "ACTIVE", "CLOSED", "ARCHIVED"];
 
@@ -27,6 +30,7 @@ export default function CompanyJobs() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [jobFilter, setJobFilter] = useState("ALL");
+  const { showAlert, showConfirm } = useAlert();
 
   useEffect(() => {
     if (user?.id) fetchJobs();
@@ -58,24 +62,24 @@ export default function CompanyJobs() {
   }
 
   async function handleDeleteJob(jobId) {
-    if (!confirm("Are you sure you want to delete this job posting?")) return;
+    const confirmed = await showConfirm("Are you sure you want to delete this job posting?", { type: "danger" });
+    if (!confirmed) return;
 
     try {
       await api.delete(`/jobs/v1/${jobId}`);
       setJobs((prev) => prev.filter((job) => job.id !== jobId));
     } catch (err) {
-      alert(err.message || "Failed to delete job");
+      await showAlert(err.message || "Failed to delete job");
     }
   }
 
   async function handleUpdateJobStatus(jobId, newStatus) {
-    if (
-      !confirm(
-        `Are you sure you want to change this job's status to ${newStatus}?`,
-      )
-    ) {
-      return;
-    }
+    const statusType = newStatus === "ACTIVE" ? "success" : newStatus === "CLOSED" ? "warning" : newStatus === "ARCHIVED" ? "warning" : "info";
+    const confirmed = await showConfirm(
+      `Are you sure you want to change this job's status to ${newStatus}?`,
+      { type: statusType },
+    );
+    if (!confirmed) return;
 
     try {
       const res = await api.put(`/jobs/v1/${jobId}`, { status: newStatus });
@@ -84,7 +88,25 @@ export default function CompanyJobs() {
         prev.map((job) => (job.id === jobId ? updatedJob : job)),
       );
     } catch (err) {
-      alert(err.message || `Failed to update job status to ${newStatus}`);
+      await showAlert(err.message || `Failed to update job status to ${newStatus}`);
+    }
+  }
+
+  async function handlePublishResults(jobId) {
+    const confirmed = await showConfirm(
+      "Are you sure you want to publish results? This will notify candidates of their final status. This action cannot be undone.",
+      { type: "info" }
+    );
+    if (!confirmed) return;
+
+    try {
+      const res = await api.post(`/jobs/v1/${jobId}/publish-results`);
+      const updatedJob = await res.json();
+      setJobs((prev) =>
+        prev.map((job) => (job.id === jobId ? updatedJob : job)),
+      );
+    } catch (err) {
+      await showAlert(err.message || "Failed to publish results");
     }
   }
 
@@ -104,37 +126,19 @@ export default function CompanyJobs() {
     (job) => jobFilter === "ALL" || job.status === jobFilter,
   );
 
-  const getStatusColor = (status) => {
-    const map = {
-      DRAFT: "text-slate-500",
-      ACTIVE: "text-emerald-600",
-      CLOSED: "text-amber-600",
-      ARCHIVED: "text-slate-500",
-    };
-    return map[status] || "text-slate-500";
-  };
 
-  const getStatusBg = (status) => {
-    const map = {
-      DRAFT: "bg-slate-50 border-slate-200",
-      ACTIVE: "bg-emerald-50 border-emerald-200",
-      CLOSED: "bg-amber-50 border-amber-200",
-      ARCHIVED: "bg-slate-50 border-slate-200",
-    };
-    return map[status] || "bg-slate-50 border-slate-200";
-  };
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <DashboardSkeleton />
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <CompanyJobsSkeleton />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="glass-card max-w-2xl mx-auto p-6 text-center">
           <p className="text-rose-500 mb-4">{error}</p>
           <button onClick={fetchJobs} className="btn-primary">
@@ -146,7 +150,7 @@ export default function CompanyJobs() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
+    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
       <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-8">
         <div>
           <p className="text-xs uppercase tracking-[0.2em] text-slate-500 mb-2">
@@ -266,17 +270,13 @@ export default function CompanyJobs() {
                   key={job.id}
                   className="bg-white/65 rounded-3xl border border-white/70 p-5 shadow-[0_10px_30px_rgba(15,23,42,0.06)] hover:shadow-[0_14px_34px_rgba(15,23,42,0.08)] transition-all"
                 >
-                  <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-3 mb-2">
-                        <h3 className="text-lg font-semibold text-slate-900 truncate">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <div className="flex items-center gap-3">
+                        <h2 className="text-xl font-bold text-slate-900">
                           {job.title}
-                        </h3>
-                        <span
-                          className={`px-2.5 py-1 rounded-full text-xs font-medium border ${getStatusBg(job.status)} ${getStatusColor(job.status)}`}
-                        >
-                          {job.status}
-                        </span>
+                        </h2>
+                        <StatusBadge status={job.status} />
                       </div>
                       <p className="text-sm text-slate-500">{job.location}</p>
                       <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 mt-4">
@@ -316,6 +316,16 @@ export default function CompanyJobs() {
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2 mt-5 pt-4 border-t border-white/50">
+                    {new Date(job.applicationDeadline) < new Date() && !job.resultsPublished && job.status !== "DRAFT" && (
+                      <button
+                        onClick={() => handlePublishResults(job.id)}
+                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition-colors mr-auto"
+                      >
+                        <IoMegaphoneOutline className="w-4 h-4" />
+                        Publish Results
+                      </button>
+                    )}
+                    
                     {job.status === "ACTIVE" && (
                       <button
                         onClick={() => handleUpdateJobStatus(job.id, "CLOSED")}

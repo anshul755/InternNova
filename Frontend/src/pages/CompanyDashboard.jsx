@@ -3,7 +3,10 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
 import { resolveLogoUrl } from "../lib/media.js";
-import { DashboardSkeleton } from "../components/Skeleton.jsx";
+import { CompanyDashboardSkeleton } from "../components/Skeleton.jsx";
+import ErrorState from "../components/ErrorState.jsx";
+import StatusBadge from "../components/StatusBadge.jsx";
+import { useAlert } from "../lib/AlertContext.jsx";
 import {
   IoAddOutline,
   IoBriefcaseOutline,
@@ -14,14 +17,16 @@ import {
   IoFlashOutline,
   IoLocationOutline,
   IoPersonOutline,
+  IoMegaphoneOutline,
 } from "react-icons/io5";
 
 const JOB_FILTERS = ["ALL", "ACTIVE", "DRAFT", "CLOSED", "ARCHIVED"];
 
-const getCompanyLogoUrl = (company) => resolveLogoUrl(company);
+
 
 const CompanyDashboard = () => {
   const { user } = useAuth();
+  const { showAlert, showConfirm } = useAlert();
   const [company, setCompany] = useState(null);
   const [jobs, setJobs] = useState([]);
   const [recentApplications, setRecentApplications] = useState([]);
@@ -84,66 +89,48 @@ const CompanyDashboard = () => {
   };
 
   const handleDeleteJob = async (jobId) => {
-    if (!confirm("Are you sure you want to delete this job posting?")) return;
+    const confirmed = await showConfirm("Are you sure you want to delete this job posting?", { type: "danger" });
+    if (!confirmed) return;
     try {
       await api.delete(`/jobs/v1/${jobId}`);
       setJobs((prev) => prev.filter((j) => j.id !== jobId));
     } catch (err) {
-      alert(err.message || "Failed to delete job");
+      await showAlert(err.message || "Failed to delete job");
     }
   };
 
   const handleUpdateJobStatus = async (jobId, newStatus) => {
-    if (
-      !confirm(
-        `Are you sure you want to change this job's status to ${newStatus}?`,
-      )
-    )
-      return;
+    const statusType = newStatus === "ACTIVE" ? "success" : newStatus === "CLOSED" ? "warning" : newStatus === "ARCHIVED" ? "warning" : "info";
+    const confirmed = await showConfirm(
+      `Are you sure you want to change this job's status to ${newStatus}?`,
+      { type: statusType },
+    );
+    if (!confirmed) return;
     try {
       const res = await api.put(`/jobs/v1/${jobId}`, { status: newStatus });
       const updatedJob = await res.json();
       setJobs((prev) => prev.map((j) => (j.id === jobId ? updatedJob : j)));
     } catch (err) {
-      alert(err.message || `Failed to update job status to ${newStatus}`);
+      await showAlert(err.message || `Failed to update job status to ${newStatus}`);
     }
   };
 
-  const getStatusColor = (status) => {
-    const map = {
-      APPLIED: "text-amber-700 dark:text-amber-400",
-      UNDER_REVIEW: "text-emerald-700 dark:text-emerald-400",
-      SHORTLISTED: "text-lime-700 dark:text-lime-400",
-      INTERVIEW: "text-teal-700 dark:text-teal-400",
-      OFFER: "text-green-700 dark:text-green-400",
-      HIRED: "text-emerald-700 dark:text-emerald-400",
-      REJECTED: "text-rose-700 dark:text-rose-400",
-      DRAFT: "text-slate-600 dark:text-slate-400",
-      ACTIVE: "text-emerald-700 dark:text-emerald-400",
-      CLOSED: "text-amber-700 dark:text-amber-400",
-      ARCHIVED: "text-slate-600 dark:text-slate-400",
-      WITHDRAWN: "text-slate-600 dark:text-slate-400",
-    };
-    return map[status] || "text-slate-600 dark:text-slate-400";
+  const handlePublishResults = async (jobId) => {
+    const confirmed = await showConfirm(
+      "Are you sure you want to publish results? This will notify candidates of their final status. This action cannot be undone.",
+      { type: "info" }
+    );
+    if (!confirmed) return;
+
+    try {
+      const res = await api.post(`/jobs/v1/${jobId}/publish-results`);
+      const updatedJob = await res.json();
+      setJobs((prev) => prev.map((j) => (j.id === jobId ? updatedJob : j)));
+    } catch (err) {
+      await showAlert(err.message || "Failed to publish results");
+    }
   };
 
-  const getStatusBg = (status) => {
-    const map = {
-      APPLIED: "bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-700/50",
-      UNDER_REVIEW: "bg-emerald-50 dark:bg-emerald-900/30 border-emerald-200 dark:border-emerald-700/50",
-      SHORTLISTED: "bg-lime-50 dark:bg-lime-900/30 border-lime-200 dark:border-lime-700/50",
-      INTERVIEW: "bg-teal-50 dark:bg-teal-900/30 border-teal-200 dark:border-teal-700/50",
-      OFFER: "bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-700/50",
-      HIRED: "bg-emerald-100 dark:bg-emerald-800/40 border-emerald-200 dark:border-emerald-600/50",
-      REJECTED: "bg-rose-50 dark:bg-rose-900/30 border-rose-200 dark:border-rose-700/50",
-      DRAFT: "bg-slate-50 dark:bg-slate-900/30 border-slate-200 dark:border-slate-700/50",
-      ACTIVE: "bg-emerald-50 dark:bg-emerald-900/30 border-emerald-200 dark:border-emerald-700/50",
-      CLOSED: "bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-700/50",
-      ARCHIVED: "bg-slate-50 dark:bg-slate-900/30 border-slate-200 dark:border-slate-700/50",
-      WITHDRAWN: "bg-slate-50 dark:bg-slate-900/30 border-slate-200 dark:border-slate-700/50",
-    };
-    return map[status] || "bg-slate-50 dark:bg-slate-900/30 border-slate-200 dark:border-slate-700/50";
-  };
 
   const stats = useMemo(
     () => ({
@@ -163,7 +150,7 @@ const CompanyDashboard = () => {
     (job) => jobFilter === "ALL" || job.status === jobFilter,
   );
 
-  const companyLogoUrl = resolveLogoUrl(company, company?.data);
+  const companyLogoUrl = resolveLogoUrl(company, company?.data, user);
 
   useEffect(() => {
     setImgError(false);
@@ -171,29 +158,22 @@ const CompanyDashboard = () => {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <DashboardSkeleton />
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <CompanyDashboardSkeleton />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
-          <div className="glass-card text-center max-w-md p-6">
-            <p className="text-rose-500 mb-4">{error}</p>
-            <button onClick={fetchDashboardData} className="btn-primary">
-              Retry
-            </button>
-          </div>
-        </div>
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <ErrorState message={error} onRetry={fetchDashboardData} />
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
+    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
       <section className="dashboard-hero mb-8">
         <div className="relative grid gap-8 lg:grid-cols-[1.35fr_0.65fr]">
           <div className="flex flex-col justify-center">
@@ -206,8 +186,8 @@ const CompanyDashboard = () => {
                 : "Build your hiring pipeline"}
             </h1>
             <p className="mt-4 max-w-2xl text-base opacity-80">
-              Track live roles, keep applications moving, and jump straight
-              into the next hiring action.
+              Track live roles, keep applications moving, and jump straight into
+              the next hiring action.
             </p>
             <div className="panel-cta mt-8 flex flex-wrap gap-4">
               <Link to="/jobs/create" className="btn-primary">
@@ -301,9 +281,7 @@ const CompanyDashboard = () => {
               <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
                 Job board
               </p>
-              <h2 className="mt-1 text-2xl font-bold">
-                Your posted roles
-              </h2>
+              <h2 className="mt-1 text-2xl font-bold">Your posted roles</h2>
             </div>
             <div className="flex flex-wrap gap-2">
               {JOB_FILTERS.map((tab) => (
@@ -335,13 +313,7 @@ const CompanyDashboard = () => {
                         <h3 className="text-lg font-bold truncate">
                           {job.title}
                         </h3>
-                        <span
-                          className={`rounded-full border px-3 py-1 text-xs font-semibold ${getStatusBg(
-                            job.status
-                          )} ${getStatusColor(job.status)}`}
-                        >
-                          {job.status}
-                        </span>
+                        <StatusBadge status={job.status} className="ml-3" />
                       </div>
                       <p className="mt-2 flex items-center gap-2 text-sm opacity-70">
                         <IoLocationOutline className="h-4 w-4" />
@@ -375,6 +347,14 @@ const CompanyDashboard = () => {
                     >
                       Edit
                     </Link>
+                    {new Date(job.applicationDeadline) < new Date() && !job.resultsPublished && job.status !== "DRAFT" && (
+                      <button
+                        onClick={() => handlePublishResults(job.id)}
+                        className="rounded-full bg-indigo-500/10 px-4 py-1.5 text-xs font-semibold text-indigo-700 dark:text-indigo-400 hover:bg-indigo-500/20 transition-colors"
+                      >
+                        Publish Results
+                      </button>
+                    )}
                     {job.status === "ACTIVE" && (
                       <button
                         onClick={() => handleUpdateJobStatus(job.id, "CLOSED")}
@@ -419,8 +399,7 @@ const CompanyDashboard = () => {
                         Reopen
                       </button>
                     )}
-                    {(!job.applicationsCount ||
-                      job.applicationsCount === 0) &&
+                    {(!job.applicationsCount || job.applicationsCount === 0) &&
                       job.status !== "ARCHIVED" && (
                         <button
                           onClick={() => handleDeleteJob(job.id)}
@@ -453,9 +432,7 @@ const CompanyDashboard = () => {
                 <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
                   Live feed
                 </p>
-                <h2 className="mt-1 text-xl font-bold">
-                  Recent applications
-                </h2>
+                <h2 className="mt-1 text-xl font-bold">Recent applications</h2>
               </div>
               <Link
                 to="/company/applications"
@@ -481,13 +458,7 @@ const CompanyDashboard = () => {
                           {app.jobTitle}
                         </p>
                       </div>
-                      <span
-                        className={`rounded-full border px-2.5 py-1 text-[0.68rem] font-semibold ${getStatusBg(
-                          app.status
-                        )} ${getStatusColor(app.status)}`}
-                      >
-                        {app.status?.replace(/_/g, " ")}
-                      </span>
+                      <StatusBadge status={app.status} className="text-[0.68rem]" />
                     </div>
                     {app.appliedAt && (
                       <p className="mt-3 text-xs opacity-50">
@@ -499,9 +470,7 @@ const CompanyDashboard = () => {
               ) : (
                 <div className="rounded-2xl bg-black/5 dark:bg-white/5 p-8 text-center">
                   <IoDocumentTextOutline className="mx-auto h-10 w-10 opacity-40" />
-                  <p className="mt-3 text-sm opacity-70">
-                    No applications yet
-                  </p>
+                  <p className="mt-3 text-sm opacity-70">No applications yet</p>
                 </div>
               )}
             </div>
@@ -517,16 +486,10 @@ const CompanyDashboard = () => {
               the cleanest version of your company.
             </p>
             <div className="panel-cta mt-6 flex gap-3">
-              <Link
-                to="/jobs/create"
-                className="btn-primary flex-1"
-              >
+              <Link to="/jobs/create" className="btn-primary flex-1">
                 Post job
               </Link>
-              <Link
-                to="/company/applications"
-                className="btn-secondary flex-1"
-              >
+              <Link to="/company/applications" className="btn-secondary flex-1">
                 Review
               </Link>
             </div>

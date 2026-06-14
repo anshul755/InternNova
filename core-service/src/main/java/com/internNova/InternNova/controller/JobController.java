@@ -128,4 +128,16 @@ public class JobController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @PostMapping("/{id}/publish-results")
+    public ResponseEntity<?> publishResults(@PathVariable String id) {
+        try {
+            Job job = jobService.publishResults(id);
+            return ResponseEntity.ok(job);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("An error occurred while publishing results.");
+        }
+    }
 }

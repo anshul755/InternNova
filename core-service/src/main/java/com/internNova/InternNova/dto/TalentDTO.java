@@ -9,6 +9,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.List;
 
+import com.internNova.InternNova.entity.Achievement;
+import com.internNova.InternNova.entity.Certification;
+import com.internNova.InternNova.entity.Experience;
+import com.internNova.InternNova.entity.Project;
 import com.internNova.InternNova.enums.User;
 
 @Data
@@ -52,4 +56,10 @@ public class TalentDTO {
 
     private List<String> preferredLocations;
     private List<String> preferredIndustries;
+
+    private List<Experience> experience;
+    private List<Project> projects;
+    private List<Certification> certifications;
+    private List<Achievement> achievements;
+    private String resumeSummary;
 }

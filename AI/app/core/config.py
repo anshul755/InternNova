@@ -46,6 +46,47 @@ class Settings(BaseSettings):
     # PDF download guard
     max_pdf_mb: int = 20
 
+    # core-service (Spring Boot) — the resume generator fetches the talent's full
+    # profile from here. Internal, server-to-server: authenticated with a shared
+    # X-Service-Token rather than an end-user JWT (see TalentController.getFullProfile).
+    core_service_base_url: str = "http://localhost:8080"
+    internal_service_token: str = "dev-internal-token"
+    core_request_timeout: int = 30
+
+    # Resume PDF compilation — two interchangeable backends:
+    #   * offline (default): a local Tectonic engine, fast (~1s) and dependency-free
+    #     once installed. No network per request.
+    #   * online: the hosted LaTeX.Online service — needs no local install, but is a
+    #     third-party network dependency and slow on a cache miss (~25s).
+    # Toggle with RESUME_LATEX_PARSER_ONLINE: False (default) = offline/local,
+    # True = online. "Parser" here is the .tex -> PDF compiler.
+    resume_latex_parser_online: bool = False
+
+    # Local engine (offline mode). Empty => the Tectonic binary vendored in
+    # AI/tools/tectonic.exe, falling back to a `tectonic` on PATH. Override with
+    # LATEX_LOCAL_COMMAND to point at a system pdflatex/tectonic.
+    latex_local_command: str = ""
+    latex_local_timeout: int = 60
+
+    # LaTeX.Online compile endpoint (online mode). Overridable to a self-hosted instance.
+    latex_compile_url: str = "https://latexonline.cc/compile"
+    latex_compile_timeout: int = 90
+
+    @property
+    def resolved_latex_local_command(self) -> str:
+        """The local LaTeX engine to invoke in offline mode.
+
+        Prefers an explicit override, then the vendored Tectonic binary, then a
+        `tectonic` discovered on PATH.
+        """
+        if self.latex_local_command:
+            return self.latex_local_command
+        # AI/ is two parents above app/core/config.py.
+        vendored = Path(__file__).resolve().parents[2] / "tools" / "tectonic.exe"
+        if vendored.exists():
+            return str(vendored)
+        return "tectonic"
+
     @classmethod
     def settings_customise_sources(
         cls,

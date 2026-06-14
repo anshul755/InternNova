@@ -28,6 +28,7 @@ import com.internNova.InternNova.repository.CompanyRepository;
 import com.internNova.InternNova.repository.JobRepository;
 import com.internNova.InternNova.repository.TalentRepository;
 import com.internNova.InternNova.services.CloudinaryService;
+import com.internNova.InternNova.services.ApplicationEvaluationService;
 
 @ExtendWith(MockitoExtension.class)
 class ApplicationServiceTest {
@@ -49,6 +50,9 @@ class ApplicationServiceTest {
 
     @Mock
     private CloudinaryService cloudinaryService;
+
+    @Mock
+    private ApplicationEvaluationService applicationEvaluationService;
 
     @InjectMocks
     private ApplicationService applicationService;
@@ -181,7 +185,7 @@ class ApplicationServiceTest {
         when(companyRepository.findById("company1")).thenReturn(Optional.of(testCompany));
         when(talentRepository.findById("talent1")).thenReturn(Optional.of(testTalent));
 
-        ApplicationResponseDTO result = applicationService.getApplicationById("app1");
+        ApplicationResponseDTO result = applicationService.getApplicationById("app1", false);
 
         assertNotNull(result);
         assertEquals(testApplication.getId(), result.getId());
@@ -193,7 +197,7 @@ class ApplicationServiceTest {
     void testGetApplicationByIdNotFound() {
         when(applicationRepository.findByIdAndIsDeletedFalse("nonexistent")).thenReturn(Optional.empty());
 
-        assertThrows(RuntimeException.class, () -> applicationService.getApplicationById("nonexistent"));
+        assertThrows(RuntimeException.class, () -> applicationService.getApplicationById("nonexistent", false));
         verify(applicationRepository).findByIdAndIsDeletedFalse("nonexistent");
     }
 

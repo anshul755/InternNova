@@ -2,26 +2,15 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
+import { CompanyApplicationsSkeleton } from "../components/Skeleton.jsx";
 import GlassSelect from "../components/GlassSelect.jsx";
-
-const STATUS_COLORS = {
-  APPLIED: "bg-amber-50 text-amber-700 border-amber-200",
-  UNDER_REVIEW: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  SHORTLISTED: "bg-lime-50 text-lime-700 border-lime-200",
-  INTERVIEW: "bg-teal-50 text-teal-700 border-teal-200",
-  OFFER: "bg-green-50 text-green-700 border-green-200",
-  HIRED: "bg-emerald-100 text-emerald-800 border-emerald-200",
-  REJECTED: "bg-rose-50 text-rose-700 border-rose-200",
-  WITHDRAWN: "bg-slate-100 text-slate-600 border-slate-200",
-};
+import StatusBadge from "../components/StatusBadge.jsx";
+import { useAlert } from "../lib/AlertContext.jsx";
 
 const PIPELINE_STAGES = [
   "APPLIED",
   "UNDER_REVIEW",
   "SHORTLISTED",
-  "INTERVIEW",
-  "OFFER",
-  "HIRED",
   "REJECTED",
 ];
 
@@ -40,6 +29,7 @@ export default function CompanyApplications() {
   const [updatingId, setUpdatingId] = useState("");
   const [draggedApplicationId, setDraggedApplicationId] = useState("");
   const [dragOverStage, setDragOverStage] = useState("");
+  const { showAlert } = useAlert();
 
   useEffect(() => {
     if (!user?.id) return;
@@ -123,7 +113,7 @@ export default function CompanyApplications() {
       });
     } catch (err) {
       setApplications(previousApplications);
-      alert(err.message || "Failed to update application status");
+      await showAlert(err.message || "Failed to update application status");
     } finally {
       setUpdatingId("");
     }
@@ -151,9 +141,7 @@ export default function CompanyApplications() {
   let jobsContent;
   if (loadingJobs) {
     jobsContent = (
-      <div className="flex justify-center py-10">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
-      </div>
+      <CompanyApplicationsSkeleton />
     );
   } else if (jobs.length === 0) {
     jobsContent = (
@@ -171,9 +159,7 @@ export default function CompanyApplications() {
     let applicationsContent;
     if (loadingApps) {
       applicationsContent = (
-        <div className="flex justify-center py-10">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
-        </div>
+        <CompanyApplicationsSkeleton />
       );
     } else if (applications.length === 0) {
       applicationsContent = (
@@ -184,26 +170,13 @@ export default function CompanyApplications() {
     } else {
       applicationsContent = (
         <div className="glass-card p-4 sm:p-5">
-          <div className="grid gap-4 xl:grid-cols-[1.2fr_repeat(3,minmax(0,1fr))] xl:grid-rows-[repeat(2,minmax(260px,1fr))]">
+          <div className="grid gap-4 xl:grid-cols-4">
             {PIPELINE_STAGES.map((stage) => {
               const appsInStage = applications.filter(
                 (a) => a.status === stage,
               );
               const isApplied = stage === "APPLIED";
-              const stagePosition =
-                stage === "APPLIED"
-                  ? "xl:col-start-1 xl:row-start-1 xl:row-span-2"
-                  : stage === "UNDER_REVIEW"
-                    ? "xl:col-start-2 xl:row-start-1"
-                    : stage === "SHORTLISTED"
-                      ? "xl:col-start-3 xl:row-start-1"
-                      : stage === "INTERVIEW"
-                        ? "xl:col-start-4 xl:row-start-1"
-                        : stage === "OFFER"
-                          ? "xl:col-start-2 xl:row-start-2"
-                          : stage === "HIRED"
-                            ? "xl:col-start-3 xl:row-start-2"
-                            : "xl:col-start-4 xl:row-start-2";
+              const stagePosition = "";
               return (
                 <div
                   key={stage}
@@ -222,11 +195,7 @@ export default function CompanyApplications() {
                       handleDrop(applicationId, stage);
                     }
                   }}
-                  className={`glass-card flex flex-col overflow-hidden transition-all ${stagePosition} ${
-                    isApplied
-                      ? "min-h-[320px] xl:min-h-[560px]"
-                      : "min-h-[240px]"
-                  } ${
+                  className={`glass-card flex flex-col overflow-hidden transition-all ${stagePosition} min-h-[400px] xl:min-h-[560px] ${
                     dragOverStage === stage
                       ? "ring-2 ring-emerald-300 shadow-lg shadow-emerald-200/40"
                       : ""
@@ -383,7 +352,7 @@ export default function CompanyApplications() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
+    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
       <h1 className="text-2xl font-bold text-slate-900 mb-6">
         Manage Applications
       </h1>

@@ -133,9 +133,11 @@ public class ApplicationController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApplicationResponseDTO> getApplication(@PathVariable String id) {
+    public ResponseEntity<ApplicationResponseDTO> getApplication(
+            @PathVariable String id,
+            @RequestParam(defaultValue = "false") boolean forStudent) {
         try {
-            ApplicationResponseDTO application = applicationService.getApplicationById(id);
+            ApplicationResponseDTO application = applicationService.getApplicationById(id, forStudent);
             return ResponseEntity.ok(application);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();

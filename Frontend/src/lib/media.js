@@ -1,3 +1,5 @@
+import { CORE_API_BASE } from "./serviceConfig.js";
+
 const firstNonEmpty = (...values) =>
   values.find((value) => typeof value === "string" && value.trim()) || null;
 
@@ -15,16 +17,18 @@ const unwrapSources = (source) => {
 };
 
 export const resolveLogoUrl = (...sources) => {
+  let resolvedUrl = null;
+
   for (const source of sources) {
     for (const candidate of unwrapSources(source)) {
       if (!candidate) continue;
       if (typeof candidate === "string") {
-        const directUrl = firstNonEmpty(candidate);
-        if (directUrl) return directUrl;
+        resolvedUrl = firstNonEmpty(candidate);
+        if (resolvedUrl) break;
         continue;
       }
 
-      const logo = firstNonEmpty(
+      resolvedUrl = firstNonEmpty(
         candidate.logoUrl,
         candidate.logo,
         candidate.logo_url,
@@ -37,9 +41,22 @@ export const resolveLogoUrl = (...sources) => {
         candidate.photo,
       );
 
-      if (logo) return logo;
+      if (resolvedUrl) break;
+    }
+    if (resolvedUrl) break;
+  }
+
+  // Convert Google Drive viewer links to direct image URLs
+  if (resolvedUrl && resolvedUrl.includes("drive.google.com/file/d/")) {
+    const match = resolvedUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (match && match[1]) {
+      resolvedUrl = `https://drive.google.com/uc?export=view&id=${match[1]}`;
     }
   }
 
-  return null;
+  if (resolvedUrl && resolvedUrl.startsWith('/')) {
+    return `${CORE_API_BASE}${resolvedUrl}`;
+  }
+
+  return resolvedUrl || null;
 };

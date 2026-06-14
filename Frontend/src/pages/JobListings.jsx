@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
+import { JobListingsSkeleton } from "../components/Skeleton.jsx";
+import ErrorState from "../components/ErrorState.jsx";
 import GlassSelect from "../components/GlassSelect.jsx";
 
 const JOB_TYPES = [
@@ -172,7 +174,7 @@ const JobListings = () => {
     "";
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
+    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
       <div className="glass-card p-6 mb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <div className="lg:col-span-2">
@@ -277,22 +279,10 @@ const JobListings = () => {
         </div>
       </div>
 
-      {error && (
-        <div className="mb-6 p-4 bg-rose-50 border border-rose-200 rounded-lg text-rose-600">
-          {error}
-          <button
-            onClick={fetchJobs}
-            className="ml-3 text-rose-700 hover:text-rose-800 underline text-sm font-medium"
-          >
-            Retry
-          </button>
-        </div>
-      )}
+      {error && <ErrorState message={error} onRetry={fetchJobs} />}
 
       {loading ? (
-        <div className="flex items-center justify-center py-16">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
-        </div>
+        <JobListingsSkeleton />
       ) : filteredJobs.length === 0 ? (
         <div className="glass-card p-12 text-center">
           <p className="text-slate-500 text-lg mb-2">No jobs found</p>
