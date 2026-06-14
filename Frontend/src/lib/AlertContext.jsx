@@ -1,12 +1,12 @@
 import { createContext, useContext, useState, useCallback } from "react";
-import { IoWarningOutline, IoClose } from "react-icons/io5";
+import { IoWarningOutline, IoClose, IoCheckmarkCircleOutline, IoInformationCircleOutline, IoAlertCircleOutline } from "react-icons/io5";
 
 const AlertContext = createContext(null);
 
 export function AlertProvider({ children }) {
   const [modal, setModal] = useState(null);
 
-  const showAlert = useCallback((message, { type = "error" } = {}) => {
+  const showAlert = useCallback((message, { type = "danger" } = {}) => {
     return new Promise((resolve) => {
       setModal({ kind: "alert", message, type, resolve });
     });
@@ -37,8 +37,18 @@ export function AlertProvider({ children }) {
   );
 }
 
+const ALERT_ICONS = {
+  success: IoCheckmarkCircleOutline,
+  warning: IoWarningOutline,
+  danger: IoAlertCircleOutline,
+  info: IoInformationCircleOutline,
+};
+
 function AlertModal({ modal, onClose }) {
   const [promptValue, setPromptValue] = useState(modal.defaultValue || "");
+
+  const alertType = modal.type || "warning";
+  const IconComponent = ALERT_ICONS[alertType] || IoWarningOutline;
 
   return (
     <div
@@ -49,8 +59,8 @@ function AlertModal({ modal, onClose }) {
         }
       }}
     >
-      <div className="custom-alert-modal" role="alertdialog" aria-modal="true">
-        {/* Top red accent bar */}
+      <div className="custom-alert-modal" role="alertdialog" aria-modal="true" data-type={alertType}>
+        {/* Top accent bar */}
         <div className="custom-alert-accent" />
 
         {/* Diagonal noise texture */}
@@ -69,7 +79,7 @@ function AlertModal({ modal, onClose }) {
         <div className="custom-alert-body">
           {/* Icon */}
           <div className="custom-alert-icon">
-            <IoWarningOutline className="h-6 w-6" />
+            <IconComponent className="h-6 w-6" />
           </div>
 
           {/* Message */}

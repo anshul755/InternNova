@@ -128,9 +128,6 @@ export default function ApplicationDetail() {
                   { value: "APPLIED", label: "Applied" },
                   { value: "UNDER_REVIEW", label: "Under Review" },
                   { value: "SHORTLISTED", label: "Shortlisted" },
-                  { value: "INTERVIEW", label: "Interview" },
-                  { value: "OFFER", label: "Offer" },
-                  { value: "HIRED", label: "Hired" },
                   { value: "REJECTED", label: "Rejected" },
                 ]}
               />
@@ -243,7 +240,7 @@ export default function ApplicationDetail() {
           !["REJECTED", "HIRED", "WITHDRAWN"].includes(application.status) && (
             <button
               onClick={async () => {
-                const confirmed = await showConfirm("Withdraw this application?");
+                const confirmed = await showConfirm("Withdraw this application?", { type: "warning" });
                 if (!confirmed) return;
                 try {
                   await api.put(`/applications/v1/${id}/withdraw`, {});

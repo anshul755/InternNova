@@ -174,7 +174,7 @@ class ApplicationControllerTest {
 
     @Test
     void testGetApplication() throws Exception {
-        when(applicationService.getApplicationById("app1")).thenReturn(responseDTO);
+        when(applicationService.getApplicationById(eq("app1"), anyBoolean())).thenReturn(responseDTO);
 
         mockMvc.perform(get("/applications/v1/app1"))
                 .andExpect(status().isOk())
@@ -182,18 +182,18 @@ class ApplicationControllerTest {
                 .andExpect(jsonPath("$.jobTitle").value("Software Engineer"))
                 .andExpect(jsonPath("$.companyName").value("Tech Corp"));
 
-        verify(applicationService).getApplicationById("app1");
+        verify(applicationService).getApplicationById("app1", false);
     }
 
     @Test
     void testGetApplicationNotFound() throws Exception {
-        when(applicationService.getApplicationById("nonexistent"))
+        when(applicationService.getApplicationById(eq("nonexistent"), anyBoolean()))
                 .thenThrow(new RuntimeException("Application not found"));
 
         mockMvc.perform(get("/applications/v1/nonexistent"))
                 .andExpect(status().isNotFound());
 
-        verify(applicationService).getApplicationById("nonexistent");
+        verify(applicationService).getApplicationById("nonexistent", false);
     }
 
     @Test

@@ -98,7 +98,7 @@ const TalentDashboard = () => {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <TalentDashboardSkeleton />
       </div>
     );
@@ -106,14 +106,14 @@ const TalentDashboard = () => {
 
   if (error) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <ErrorState message={error} onRetry={fetchDashboardData} />
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
+    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
       <section className="dashboard-hero mb-8">
         <div className="relative grid gap-8 lg:grid-cols-[1.35fr_0.65fr]">
           <div className="flex flex-col justify-center">

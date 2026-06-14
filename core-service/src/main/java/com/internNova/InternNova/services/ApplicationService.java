@@ -108,14 +108,14 @@ public class ApplicationService {
     public List<ApplicationResponseDTO> getApplicationsByJob(String jobId) {
         List<Application> applications = applicationRepository.findByJobIdAndIsDeletedFalse(jobId);
         return applications.stream()
-            .map(this::convertToResponseDTO)
+            .map(app -> convertToResponseDTO(app, false))
             .collect(Collectors.toList());
     }
 
     public Page<ApplicationResponseDTO> getApplicationsByJob(String jobId, Pageable pageable) {
         Page<Application> applicationPage = applicationRepository.findByJobIdAndIsDeletedFalse(jobId, pageable);
         List<ApplicationResponseDTO> responseDTOs = applicationPage.getContent().stream()
-            .map(this::convertToResponseDTO)
+            .map(app -> convertToResponseDTO(app, false))
             .collect(Collectors.toList());
         
         return new PageImpl<>(responseDTOs, pageable, applicationPage.getTotalElements());
@@ -124,23 +124,23 @@ public class ApplicationService {
     public List<ApplicationResponseDTO> getApplicationsByStudent(String studentId) {
         List<Application> applications = applicationRepository.findByStudentIdAndIsDeletedFalse(studentId);
         return applications.stream()
-            .map(this::convertToResponseDTO)
+            .map(app -> convertToResponseDTO(app, true))
             .collect(Collectors.toList());
     }
 
     public Page<ApplicationResponseDTO> getApplicationsByStudent(String studentId, Pageable pageable) {
         Page<Application> applicationPage = applicationRepository.findByStudentIdAndIsDeletedFalse(studentId, pageable);
         List<ApplicationResponseDTO> responseDTOs = applicationPage.getContent().stream()
-            .map(this::convertToResponseDTO)
+            .map(app -> convertToResponseDTO(app, true))
             .collect(Collectors.toList());
         
         return new PageImpl<>(responseDTOs, pageable, applicationPage.getTotalElements());
     }
 
-    public ApplicationResponseDTO getApplicationById(String id) {
+    public ApplicationResponseDTO getApplicationById(String id, boolean forStudent) {
         Application application = applicationRepository.findByIdAndIsDeletedFalse(id)
             .orElseThrow(() -> new RuntimeException("Application not found"));
-        return convertToResponseDTO(application);
+        return convertToResponseDTO(application, forStudent);
     }
 
     public Application shortlistApplication(String id) {
@@ -196,12 +196,12 @@ public class ApplicationService {
         return applicationRepository.countByStudentIdAndIsDeletedFalse(studentId);
     }
 
-    private ApplicationResponseDTO convertToResponseDTO(Application application) {
+    private ApplicationResponseDTO convertToResponseDTO(Application application, boolean forStudent) {
         ApplicationResponseDTO dto = new ApplicationResponseDTO();
         dto.setId(application.getId());
         dto.setJobId(application.getJobId());
         dto.setStudentId(application.getStudentId());
-        dto.setStatus(application.getStatus());
+        
         dto.setCoverLetter(application.getCoverLetter());
         dto.setResumeUrl(application.getResumeUrl());
         dto.setAiMatchScore(application.getAiMatchScore());
@@ -211,6 +211,8 @@ public class ApplicationService {
         dto.setJobTitle(application.getJobTitle());
         dto.setCompanyName(application.getCompanyName());
 
+        ApplicationState finalStatus = application.getStatus();
+
         Optional<Job> job = jobRepository.findByIdAndIsDeletedFalse(application.getJobId());
         if (job.isPresent()) {
             dto.setJobTitle(job.get().getTitle());
@@ -218,7 +220,16 @@ public class ApplicationService {
             if (company.isPresent()) {
                 dto.setCompanyName(company.get().getCompanyName());
             }
+
+            // Mask AI status for students if results are not published
+            if (forStudent && !job.get().isResultsPublished()) {
+                if (finalStatus == ApplicationState.SHORTLISTED || finalStatus == ApplicationState.REJECTED) {
+                    finalStatus = ApplicationState.UNDER_REVIEW;
+                }
+            }
         }
+
+        dto.setStatus(finalStatus);
 
         Optional<Talent> talent = talentRepository.findById(application.getStudentId());
         if (talent.isPresent()) {

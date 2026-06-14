@@ -1,9 +1,12 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
+import { useTheme } from "../lib/ThemeContext.jsx";
 
 export default function Footer() {
   const { user } = useAuth();
+  const { resolvedTheme } = useTheme();
   const currentYear = new Date().getFullYear();
+  const useLight = resolvedTheme !== "dark";
   const wrapperClass = "saas-footer mt-auto";
 
   const isCompany = user?.role === "Company";
@@ -44,17 +47,21 @@ export default function Footer() {
 
   return (
     <footer className={wrapperClass} role="contentinfo">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex flex-col sm:flex-row flex-wrap justify-between gap-10 lg:gap-16">
           <div className="max-w-sm">
-            <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#c7f284] to-[#8fd9b6] flex items-center justify-center font-bold text-[0.6rem] text-slate-900">
-                IN
-              </div>
-              <span className={brandClass}>InternNova</span>
-            </div>
+            <Link to="/" className="flex items-center gap-0.1 group" aria-label="InternNova Home">
+              <img
+                src={useLight ? "/internNova-light.png" : "/internNova-dark.png"}
+                alt="InternNova Logo"
+                className="h-10 w-auto object-contain transition-transform group-hover:scale-105"
+              />
+              <span className={`font-semibold tracking-wide text-sm ${useLight ? "text-slate-900" : "text-slate-100"}`}>
+                InternNova
+              </span>
+            </Link>
             <p className={descClass}>
-              AI-powered internship matching platform. Find your dream
+              <br></br>AI-powered internship matching platform. Find your dream
               internship or discover top early talent, faster.
             </p>
           </div>
