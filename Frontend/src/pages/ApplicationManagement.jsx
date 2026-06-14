@@ -2,17 +2,10 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
-
-const STATUS_COLORS = {
-  APPLIED: "bg-amber-50 text-amber-700 border-amber-200",
-  UNDER_REVIEW: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  SHORTLISTED: "bg-lime-50 text-lime-700 border-lime-200",
-  INTERVIEW: "bg-teal-50 text-teal-700 border-teal-200",
-  OFFER: "bg-green-50 text-green-700 border-green-200",
-  HIRED: "bg-emerald-100 text-emerald-800 border-emerald-200",
-  REJECTED: "bg-rose-50 text-rose-700 border-rose-200",
-  WITHDRAWN: "bg-slate-100 text-slate-600 border-slate-200",
-};
+import { ApplicationManagementSkeleton } from "../components/Skeleton.jsx";
+import ErrorState from "../components/ErrorState.jsx";
+import StatusBadge from "../components/StatusBadge.jsx";
+import { useAlert } from "../lib/AlertContext.jsx";
 
 const ApplicationManagement = () => {
   const { user } = useAuth();
@@ -24,6 +17,7 @@ const ApplicationManagement = () => {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [withdrawingId, setWithdrawingId] = useState(null);
+  const { showAlert, showConfirm } = useAlert();
 
   useEffect(() => {
     if (user?.role !== "Talent") {
@@ -53,7 +47,8 @@ const ApplicationManagement = () => {
   };
 
   const handleWithdraw = async (appId) => {
-    if (!globalThis.confirm("Withdraw this application?")) return;
+    const confirmed = await showConfirm("Withdraw this application?");
+    if (!confirmed) return;
     setWithdrawingId(appId);
     try {
       await api.put(`/applications/v1/${appId}/withdraw`, {});
@@ -61,7 +56,7 @@ const ApplicationManagement = () => {
         prev.map((a) => (a.id === appId ? { ...a, status: "WITHDRAWN" } : a)),
       );
     } catch (err) {
-      alert(err.message || "Failed to withdraw application");
+      await showAlert(err.message || "Failed to withdraw application");
     } finally {
       setWithdrawingId(null);
     }
@@ -79,9 +74,7 @@ const ApplicationManagement = () => {
   let applicationsContent;
   if (loading) {
     applicationsContent = (
-      <div className="flex justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
-      </div>
+      <ApplicationManagementSkeleton />
     );
   } else if (applications.length === 0) {
     applicationsContent = (
@@ -109,11 +102,7 @@ const ApplicationManagement = () => {
                   >
                     {app.jobTitle || `Job #${app.jobId}`}
                   </Link>
-                  <span
-                    className={`px-2.5 py-0.5 rounded-lg text-xs font-medium border ${STATUS_COLORS[app.status] || STATUS_COLORS.APPLIED}`}
-                  >
-                    {app.status}
-                  </span>
+                  <StatusBadge status={app.status} />
                 </div>
                 {app.companyName && (
                   <p className="text-sm text-slate-700 mb-2">
@@ -159,7 +148,7 @@ const ApplicationManagement = () => {
                   <button
                     onClick={() => handleWithdraw(app.id)}
                     disabled={withdrawingId === app.id}
-                    className="px-3 py-2 text-sm bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-lg transition-colors disabled:opacity-50 font-medium"
+                    className="px-3 py-2 text-sm bg-transparent text-rose-600 border border-rose-300 rounded-full hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors disabled:opacity-50 font-medium"
                   >
                     {withdrawingId === app.id ? "Withdrawing..." : "Withdraw"}
                   </button>
@@ -202,11 +191,7 @@ const ApplicationManagement = () => {
         </div>
       )}
 
-      {error && (
-        <div className="p-4 bg-rose-50 border border-rose-200 rounded-lg text-rose-600 mb-6">
-          {error}
-        </div>
-      )}
+      {error && <ErrorState message={error} onRetry={fetchApplications} />}
 
       {applicationsContent}
 

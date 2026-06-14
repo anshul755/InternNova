@@ -2,18 +2,10 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
+import { CompanyApplicationsSkeleton } from "../components/Skeleton.jsx";
 import GlassSelect from "../components/GlassSelect.jsx";
-
-const STATUS_COLORS = {
-  APPLIED: "bg-amber-50 text-amber-700 border-amber-200",
-  UNDER_REVIEW: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  SHORTLISTED: "bg-lime-50 text-lime-700 border-lime-200",
-  INTERVIEW: "bg-teal-50 text-teal-700 border-teal-200",
-  OFFER: "bg-green-50 text-green-700 border-green-200",
-  HIRED: "bg-emerald-100 text-emerald-800 border-emerald-200",
-  REJECTED: "bg-rose-50 text-rose-700 border-rose-200",
-  WITHDRAWN: "bg-slate-100 text-slate-600 border-slate-200",
-};
+import StatusBadge from "../components/StatusBadge.jsx";
+import { useAlert } from "../lib/AlertContext.jsx";
 
 const PIPELINE_STAGES = [
   "APPLIED",
@@ -40,6 +32,7 @@ export default function CompanyApplications() {
   const [updatingId, setUpdatingId] = useState("");
   const [draggedApplicationId, setDraggedApplicationId] = useState("");
   const [dragOverStage, setDragOverStage] = useState("");
+  const { showAlert } = useAlert();
 
   useEffect(() => {
     if (!user?.id) return;
@@ -123,7 +116,7 @@ export default function CompanyApplications() {
       });
     } catch (err) {
       setApplications(previousApplications);
-      alert(err.message || "Failed to update application status");
+      await showAlert(err.message || "Failed to update application status");
     } finally {
       setUpdatingId("");
     }
@@ -151,9 +144,7 @@ export default function CompanyApplications() {
   let jobsContent;
   if (loadingJobs) {
     jobsContent = (
-      <div className="flex justify-center py-10">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
-      </div>
+      <CompanyApplicationsSkeleton />
     );
   } else if (jobs.length === 0) {
     jobsContent = (
@@ -171,9 +162,7 @@ export default function CompanyApplications() {
     let applicationsContent;
     if (loadingApps) {
       applicationsContent = (
-        <div className="flex justify-center py-10">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
-        </div>
+        <CompanyApplicationsSkeleton />
       );
     } else if (applications.length === 0) {
       applicationsContent = (

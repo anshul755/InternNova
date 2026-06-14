@@ -2,6 +2,9 @@ import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
+import { SavedJobsSkeleton } from "../components/Skeleton.jsx";
+import ErrorState from "../components/ErrorState.jsx";
+import { useAlert } from "../lib/AlertContext.jsx";
 
 const formatSalary = (min, max) => {
   if (!min && !max) return "";
@@ -14,6 +17,7 @@ const formatSalary = (min, max) => {
 const SavedJobs = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { showAlert } = useAlert();
 
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -43,16 +47,12 @@ const SavedJobs = () => {
       await api.delete(`/talent/v1/${user.id}/saved-jobs/${jobId}`);
       setJobs((currentJobs) => currentJobs.filter((job) => job.id !== jobId));
     } catch (err) {
-      alert(err.message || "Failed to remove saved job.");
+      await showAlert(err.message || "Failed to remove saved job.");
     }
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
+    return <SavedJobsSkeleton />;
   }
 
   return (
@@ -73,15 +73,7 @@ const SavedJobs = () => {
       </div>
 
       {error ? (
-        <div className="p-4 bg-rose-50 border border-rose-200 rounded-lg text-rose-600">
-          {error}
-          <button
-            onClick={fetchSavedJobs}
-            className="ml-3 text-rose-700 hover:text-rose-800 underline text-sm font-medium"
-          >
-            Retry
-          </button>
-        </div>
+        <ErrorState message={error} onRetry={fetchSavedJobs} />
       ) : jobs.length === 0 ? (
         <div className="glass-card p-12 text-center">
           <div className="text-4xl mb-4">🔖</div>

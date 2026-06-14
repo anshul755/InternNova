@@ -39,7 +39,10 @@ const T = {
  * Talent-only navbar action: opens a modal to generate a PDF resume from the
  * user's profile via core-service (POST /talent/v1/resume -> AI service).
  */
-export default function ResumeGeneratorButton({ light = true, compact = false }) {
+export default function ResumeGeneratorButton({
+  light = true,
+  compact = false,
+}) {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
 
@@ -53,6 +56,7 @@ export default function ResumeGeneratorButton({ light = true, compact = false })
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [pdfUrl, setPdfUrl] = useState(null);
+  const [latexSource, setLatexSource] = useState("");
 
   const objectUrlRef = useRef(null);
 
@@ -70,6 +74,7 @@ export default function ResumeGeneratorButton({ light = true, compact = false })
     setError("");
     revoke();
     setPdfUrl(null);
+    setLatexSource("");
   };
 
   async function handleGenerate() {
@@ -77,6 +82,7 @@ export default function ResumeGeneratorButton({ light = true, compact = false })
     setError("");
     revoke();
     setPdfUrl(null);
+    setLatexSource("");
     try {
       const res = await api.post("/talent/v1/resume", {
         template,
@@ -86,7 +92,10 @@ export default function ResumeGeneratorButton({ light = true, compact = false })
         jobDescription: jobDescription.trim() || null,
       });
       const data = await res.json();
-      const bytes = Uint8Array.from(atob(data.pdfBase64), (c) => c.charCodeAt(0));
+      setLatexSource(data.tex || "");
+      const bytes = Uint8Array.from(atob(data.pdfBase64), (c) =>
+        c.charCodeAt(0),
+      );
       const blob = new Blob([bytes], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       objectUrlRef.current = url;
@@ -106,6 +115,21 @@ export default function ResumeGeneratorButton({ light = true, compact = false })
     document.body.appendChild(a);
     a.click();
     a.remove();
+  }
+
+  function handleDownloadLatex() {
+    if (!latexSource) return;
+    const blob = new Blob([latexSource], {
+      type: "application/x-tex;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `resume-${template}.tex`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   }
 
   const triggerClasses = compact
@@ -140,7 +164,10 @@ export default function ResumeGeneratorButton({ light = true, compact = false })
               aria-label="Close"
               onClick={closeModal}
               className="absolute inset-0 cursor-default"
-              style={{ background: "var(--app-overlay)", backdropFilter: "blur(4px)" }}
+              style={{
+                background: "var(--app-overlay)",
+                backdropFilter: "blur(4px)",
+              }}
             />
 
             {/* panel */}
@@ -158,13 +185,22 @@ export default function ResumeGeneratorButton({ light = true, compact = false })
                       boxShadow: "0 8px 22px rgba(124,200,74,0.30)",
                     }}
                   >
-                    <IoDocumentTextOutline className="w-6 h-6" style={{ color: "var(--app-button-text)" }} />
+                    <IoDocumentTextOutline
+                      className="w-6 h-6"
+                      style={{ color: "var(--app-button-text)" }}
+                    />
                   </span>
                   <div>
-                    <h2 className="text-lg font-bold leading-tight" style={{ color: T.text }}>
+                    <h2
+                      className="text-lg font-bold leading-tight"
+                      style={{ color: T.text }}
+                    >
                       Generate Resume
                     </h2>
-                    <p className="text-[0.8rem] mt-0.5" style={{ color: T.muted }}>
+                    <p
+                      className="text-[0.8rem] mt-0.5"
+                      style={{ color: T.muted }}
+                    >
                       Built from your profile by AI — review before you send it.
                     </p>
                   </div>
@@ -204,11 +240,17 @@ export default function ResumeGeneratorButton({ light = true, compact = false })
                                   background: "rgba(159,232,112,0.12)",
                                   boxShadow: "0 0 0 1px rgba(159,232,112,0.35)",
                                 }
-                              : { borderColor: T.border, background: T.glassSoft }
+                              : {
+                                  borderColor: T.border,
+                                  background: T.glassSoft,
+                                }
                           }
                         >
                           <div className="flex items-center justify-between">
-                            <span className="text-sm font-semibold" style={{ color: T.text }}>
+                            <span
+                              className="text-sm font-semibold"
+                              style={{ color: T.text }}
+                            >
                               {t.name}
                             </span>
                             <span
@@ -221,12 +263,17 @@ export default function ResumeGeneratorButton({ light = true, compact = false })
                               {selected && (
                                 <span
                                   className="h-1.5 w-1.5 rounded-full"
-                                  style={{ background: "var(--app-button-text)" }}
+                                  style={{
+                                    background: "var(--app-button-text)",
+                                  }}
                                 />
                               )}
                             </span>
                           </div>
-                          <p className="text-xs mt-1 leading-snug" style={{ color: T.muted }}>
+                          <p
+                            className="text-xs mt-1 leading-snug"
+                            style={{ color: T.muted }}
+                          >
                             {t.blurb}
                           </p>
                         </button>
@@ -238,8 +285,14 @@ export default function ResumeGeneratorButton({ light = true, compact = false })
                 {/* contact + tailoring */}
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[0.7rem] font-semibold uppercase tracking-wider mb-1.5" style={{ color: T.muted }}>
-                      Phone <span className="normal-case font-normal opacity-70">(optional)</span>
+                    <label
+                      className="block text-[0.7rem] font-semibold uppercase tracking-wider mb-1.5"
+                      style={{ color: T.muted }}
+                    >
+                      Phone{" "}
+                      <span className="normal-case font-normal opacity-70">
+                        (optional)
+                      </span>
                     </label>
                     <input
                       className="input-glass"
@@ -249,8 +302,14 @@ export default function ResumeGeneratorButton({ light = true, compact = false })
                     />
                   </div>
                   <div>
-                    <label className="block text-[0.7rem] font-semibold uppercase tracking-wider mb-1.5" style={{ color: T.muted }}>
-                      Target role <span className="normal-case font-normal opacity-70">(optional)</span>
+                    <label
+                      className="block text-[0.7rem] font-semibold uppercase tracking-wider mb-1.5"
+                      style={{ color: T.muted }}
+                    >
+                      Target role{" "}
+                      <span className="normal-case font-normal opacity-70">
+                        (optional)
+                      </span>
                     </label>
                     <input
                       className="input-glass"
@@ -262,9 +321,14 @@ export default function ResumeGeneratorButton({ light = true, compact = false })
                 </div>
 
                 <div>
-                  <label className="block text-[0.7rem] font-semibold uppercase tracking-wider mb-1.5" style={{ color: T.muted }}>
+                  <label
+                    className="block text-[0.7rem] font-semibold uppercase tracking-wider mb-1.5"
+                    style={{ color: T.muted }}
+                  >
                     Tailor to a job description{" "}
-                    <span className="normal-case font-normal opacity-70">(optional)</span>
+                    <span className="normal-case font-normal opacity-70">
+                      (optional)
+                    </span>
                   </label>
                   <textarea
                     className="input-glass resize-y"
@@ -290,7 +354,10 @@ export default function ResumeGeneratorButton({ light = true, compact = false })
                 )}
 
                 {pdfUrl && (
-                  <div className="rounded-xl overflow-hidden" style={{ border: `1px solid ${T.border}` }}>
+                  <div
+                    className="rounded-xl overflow-hidden"
+                    style={{ border: `1px solid ${T.border}` }}
+                  >
                     <iframe
                       title="Resume preview"
                       src={pdfUrl}
@@ -302,13 +369,22 @@ export default function ResumeGeneratorButton({ light = true, compact = false })
               </div>
 
               {/* footer actions */}
-              <div className="flex flex-wrap items-center justify-between gap-3 mt-6 pt-4" style={{ borderTop: `1px solid ${T.border}` }}>
+              <div
+                className="flex flex-wrap items-center justify-between gap-3 mt-6 pt-4"
+                style={{ borderTop: `1px solid ${T.border}` }}
+              >
                 <p className="text-xs" style={{ color: T.muted }}>
                   Generation can take ~15–30s.
                 </p>
                 <div className="flex items-center gap-2">
                   {pdfUrl && (
                     <>
+                      <button
+                        onClick={handleDownloadLatex}
+                        className="btn-secondary !px-4 !py-2 !text-sm"
+                      >
+                        <IoDownloadOutline className="w-4 h-4" /> Download LaTeX
+                      </button>
                       <a
                         href={pdfUrl}
                         target="_blank"
@@ -317,7 +393,10 @@ export default function ResumeGeneratorButton({ light = true, compact = false })
                       >
                         <IoOpenOutline className="w-4 h-4" /> Open
                       </a>
-                      <button onClick={handleDownload} className="btn-secondary !px-4 !py-2 !text-sm">
+                      <button
+                        onClick={handleDownload}
+                        className="btn-secondary !px-4 !py-2 !text-sm"
+                      >
                         <IoDownloadOutline className="w-4 h-4" /> Download
                       </button>
                     </>
@@ -331,7 +410,10 @@ export default function ResumeGeneratorButton({ light = true, compact = false })
                       <>
                         <span
                           className="h-4 w-4 rounded-full animate-spin"
-                          style={{ border: "2px solid currentColor", borderTopColor: "transparent" }}
+                          style={{
+                            border: "2px solid currentColor",
+                            borderTopColor: "transparent",
+                          }}
                         />
                         Generating…
                       </>

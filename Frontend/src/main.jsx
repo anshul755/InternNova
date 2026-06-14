@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import "./index.css";
 import App from "./App.jsx";
 import { AuthProvider } from "./lib/AuthContext.jsx";
+import { AlertProvider } from "./lib/AlertContext.jsx";
 import { ThemeProvider } from "./lib/ThemeContext.jsx";
 
 createRoot(document.getElementById("root")).render(
@@ -16,7 +17,9 @@ createRoot(document.getElementById("root")).render(
         }}
       >
         <AuthProvider>
-          <App />
+          <AlertProvider>
+            <App />
+          </AlertProvider>
         </AuthProvider>
       </BrowserRouter>
     </ThemeProvider>

@@ -2,7 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
-import { DashboardSkeleton } from "../components/Skeleton.jsx";
+import { resolveLogoUrl } from "../lib/media.js";
+import { TalentDashboardSkeleton } from "../components/Skeleton.jsx";
+import ErrorState from "../components/ErrorState.jsx";
+import StatusBadge from "../components/StatusBadge.jsx";
 import {
   IoBookmarkOutline,
   IoBriefcaseOutline,
@@ -24,6 +27,13 @@ const TalentDashboard = () => {
   const [recentJobs, setRecentJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [imgError, setImgError] = useState(false);
+
+  const talentLogoUrl = resolveLogoUrl(profile, profile?.data, user);
+
+  useEffect(() => {
+    setImgError(false);
+  }, [talentLogoUrl]);
 
   useEffect(() => {
     if (user) fetchDashboardData();
@@ -70,51 +80,6 @@ const TalentDashboard = () => {
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "APPLIED":
-        return "text-amber-700 dark:text-amber-400";
-      case "UNDER_REVIEW":
-        return "text-emerald-700 dark:text-emerald-400";
-      case "SHORTLISTED":
-        return "text-lime-700 dark:text-lime-400";
-      case "INTERVIEW":
-        return "text-teal-700 dark:text-teal-400";
-      case "OFFER":
-        return "text-green-700 dark:text-green-400";
-      case "HIRED":
-        return "text-emerald-700 dark:text-emerald-400";
-      case "REJECTED":
-        return "text-rose-700 dark:text-rose-400";
-      case "WITHDRAWN":
-        return "text-slate-600 dark:text-slate-400";
-      default:
-        return "text-slate-600 dark:text-slate-400";
-    }
-  };
-
-  const getStatusBg = (status) => {
-    switch (status) {
-      case "APPLIED":
-        return "bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-700/50";
-      case "UNDER_REVIEW":
-        return "bg-emerald-50 dark:bg-emerald-900/30 border-emerald-200 dark:border-emerald-700/50";
-      case "SHORTLISTED":
-        return "bg-lime-50 dark:bg-lime-900/30 border-lime-200 dark:border-lime-700/50";
-      case "INTERVIEW":
-        return "bg-teal-50 dark:bg-teal-900/30 border-teal-200 dark:border-teal-700/50";
-      case "OFFER":
-        return "bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-700/50";
-      case "HIRED":
-        return "bg-emerald-100 dark:bg-emerald-800/40 border-emerald-200 dark:border-emerald-600/50";
-      case "REJECTED":
-        return "bg-rose-50 dark:bg-rose-900/30 border-rose-200 dark:border-rose-700/50";
-      case "WITHDRAWN":
-        return "bg-slate-50 dark:bg-slate-900/30 border-slate-200 dark:border-slate-700/50";
-      default:
-        return "bg-slate-50 dark:bg-slate-900/30 border-slate-200 dark:border-slate-700/50";
-    }
-  };
 
   const stats = useMemo(
     () => ({
@@ -134,7 +99,7 @@ const TalentDashboard = () => {
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <DashboardSkeleton />
+        <TalentDashboardSkeleton />
       </div>
     );
   }
@@ -142,14 +107,7 @@ const TalentDashboard = () => {
   if (error) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
-          <div className="glass-card text-center max-w-md p-6">
-            <p className="text-rose-500 mb-4">{error}</p>
-            <button onClick={fetchDashboardData} className="btn-primary">
-              Retry
-            </button>
-          </div>
-        </div>
+        <ErrorState message={error} onRetry={fetchDashboardData} />
       </div>
     );
   }
@@ -195,8 +153,17 @@ const TalentDashboard = () => {
                   {profile ? "Ready to apply" : "Profile needed"}
                 </h2>
               </div>
-              <div className="logo-circle flex h-14 w-14 items-center justify-center rounded-2xl text-emerald-600 dark:text-emerald-400">
-                <IoPersonOutline className="h-6 w-6" />
+              <div className="logo-circle flex h-14 w-14 overflow-hidden items-center justify-center rounded-2xl text-emerald-600 dark:text-emerald-400">
+                {talentLogoUrl && !imgError ? (
+                  <img
+                    src={talentLogoUrl}
+                    alt={profile?.name || "Talent profile"}
+                    className="h-full w-full object-cover"
+                    onError={() => setImgError(true)}
+                  />
+                ) : (
+                  <IoPersonOutline className="h-6 w-6" />
+                )}
               </div>
             </div>
 
@@ -224,10 +191,7 @@ const TalentDashboard = () => {
               )}
             </div>
 
-            <Link
-              to="/profile/edit"
-              className="btn-primary w-full mt-6"
-            >
+            <Link to="/profile/edit" className="btn-primary w-full mt-6">
               Update profile
             </Link>
           </div>
@@ -284,7 +248,7 @@ const TalentDashboard = () => {
 
       <section className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
         <div className="space-y-6">
-          <div className="glass-panel p-6">
+          <div className="glass-panel flex h-[34rem] flex-col p-6">
             <div className="flex items-center justify-between gap-4 border-b border-black/5 dark:border-white/5 pb-5">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
@@ -300,13 +264,13 @@ const TalentDashboard = () => {
               </Link>
             </div>
 
-            <div className="card-scroll-region relative mt-6 max-h-[30rem] space-y-4 overflow-y-auto pr-2">
+            <div className="card-scroll-region relative mt-6 h-[26rem] space-y-4 overflow-y-auto pr-2">
               {applications.length > 0 ? (
                 applications.map((app, index) => (
                   <article key={app.id} className="relative pl-8">
                     <div className="absolute left-2 top-2 h-full w-px bg-black/10 dark:bg-white/10" />
                     <div className="absolute left-0 top-2 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 ring-4 ring-emerald-500/20" />
-                    <div className="glass-card p-4 transition-colors hover:border-emerald-500/30">
+                    <div className="glass-card p-4 h-35 transition-colors hover:border-emerald-500/30">
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <p className="text-xs font-semibold uppercase tracking-wider opacity-60">
@@ -317,13 +281,7 @@ const TalentDashboard = () => {
                             {app.companyName || "Company"}
                           </p>
                         </div>
-                        <span
-                          className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusBg(
-                            app.status,
-                          )} ${getStatusColor(app.status)}`}
-                        >
-                          {app.status?.replace(/_/g, " ")}
-                        </span>
+                        <StatusBadge status={app.status} />
                       </div>
                       {app.appliedAt && (
                         <p className="mt-3 text-xs opacity-50">
@@ -352,7 +310,7 @@ const TalentDashboard = () => {
         </div>
 
         <div className="space-y-6">
-          <div className="glass-panel p-6">
+          <div className="glass-panel flex h-[34rem] flex-col p-6">
             <div className="flex items-center justify-between gap-4 border-b border-black/5 pb-5 dark:border-white/5">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
@@ -368,23 +326,23 @@ const TalentDashboard = () => {
               </Link>
             </div>
 
-            <div className="card-scroll-region mt-6 grid max-h-[28rem] gap-3 overflow-y-auto pr-2 md:grid-cols-2">
+            <div className="card-scroll-region mt-6 grid h-[26rem] gap-3 overflow-y-auto pr-2 md:grid-cols-2 auto-rows-min">
               {recentJobs.length > 0 ? (
                 recentJobs.map((job) => (
                   <Link
                     key={job.id}
                     to={`/jobs/${job.id}`}
-                    className="glass-card flex flex-col justify-between p-4 transition-colors hover:border-emerald-500/40"
+                    className="glass-card flex flex-col justify-between p-4 h-44 overflow-hidden transition-colors hover:border-emerald-500/40"
                   >
                     <div>
                       <IoBriefcaseOutline className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                      <h3 className="mt-4 font-bold">{job.title}</h3>
-                      <p className="mt-2 text-sm opacity-70">
+                      <h3 className="mt-2 font-bold">{job.title}</h3>
+                      <p className="mt-1 text-sm opacity-70">
                         {job.location || "Location not set"}
                       </p>
                     </div>
                     {job.salaryMin && job.salaryMax && (
-                      <p className="mt-4 text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                      <p className="mt-2 text-sm font-bold text-emerald-600 dark:text-emerald-400">
                         ${job.salaryMin.toLocaleString()} - $
                         {job.salaryMax.toLocaleString()}
                       </p>

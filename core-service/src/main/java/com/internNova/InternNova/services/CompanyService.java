@@ -64,15 +64,19 @@ public class CompanyService {
             throw new RuntimeException("Company not found");
         }
 
+        updateCompanyFromDTO(companyDTO, company);
+
         if (logo != null) {
-            if (company.getLogoUrl() != null) {
-                cloudinaryService.deleteFile(company.getLogoUrl());
+            if (company.getLogoUrl() != null && !company.getLogoUrl().isBlank()) {
+                try {
+                    cloudinaryService.deleteFile(company.getLogoUrl());
+                } catch (Exception e) {
+                    // Ignore deletion errors for old files
+                }
             }
             String logoUrl = cloudinaryService.uploadFile(logo);
             company.setLogoUrl(logoUrl);
         }
-
-        updateCompanyFromDTO(companyDTO, company);
 
         return companyRepository.save(company);
     }
