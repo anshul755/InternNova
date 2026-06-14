@@ -173,6 +173,10 @@ const TalentRegister = ({ modal = false }) => {
 
   const handleBack = () => {
     setSubmitError("");
+    if (activeStep === 0) {
+      navigate("/register");
+      return;
+    }
     setActiveStep((prev) => Math.max(prev - 1, 0));
   };
 
@@ -368,9 +372,9 @@ const TalentRegister = ({ modal = false }) => {
                   <button
                     type="button"
                     onClick={handleBack}
-                    disabled={activeStep === 0 || submitting}
+                    disabled={submitting}
                     className={`inline-flex items-center justify-center gap-2 rounded-lg border px-4 py-2 text-xs font-medium transition-colors ${
-                      activeStep === 0 || submitting
+                      submitting
                         ? "border-white/60 text-slate-400 cursor-not-allowed"
                         : "border-white/70 text-slate-700 hover:bg-white/70"
                     }`}

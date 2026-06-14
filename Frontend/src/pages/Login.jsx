@@ -1,15 +1,18 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { getPostLoginRoute, useAuth } from "../lib/AuthContext.jsx";
 import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5";
 
 const Login = ({ modal = false }) => {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [formValues, setFormValues] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const customMessage = location.state?.customMessage;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -48,62 +51,46 @@ const Login = ({ modal = false }) => {
     : "min-h-screen text-slate-900 flex items-center justify-center px-[5vw] py-8 font-sans saas-section";
 
   const panelClass = modal
-    ? "w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-8 rounded-3xl auth-panel overflow-hidden"
-    : "w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-8 rounded-3xl auth-panel overflow-hidden";
+    ? "relative w-full max-w-sm rounded-3xl auth-panel overflow-visible"
+    : "relative w-full max-w-sm rounded-3xl auth-panel overflow-visible";
 
   return (
     <div className={containerClasses}>
       <div className={panelClass}>
-        <section className="hidden lg:flex flex-col justify-between auth-panel__aside border-r p-10 text-slate-900">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass-pill text-xs tracking-[0.16em] uppercase text-slate-600">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Internship-ready in weeks
-            </div>
-            <h1 className="mt-6 text-3xl font-semibold tracking-tight text-slate-900">
-              InternNova
-            </h1>
-            <p className="mt-3 text-sm text-slate-600 max-w-sm">
-              One platform, two journeys. Students discover meaningful
-              internships while companies find motivated early talent, faster.
-            </p>
-          </div>
-
-          <div className="space-y-4 text-sm text-slate-600">
-            <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-2xl bg-white/70 flex items-center justify-center text-xs font-semibold border border-white/70">
-                U
-              </div>
-              <p>
-                <span className="font-medium">Students</span> get tailored
-                matches and a focused dashboard for applications.
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-2xl bg-white/70 flex items-center justify-center text-xs font-semibold border border-white/70">
-                C
-              </div>
-              <p>
-                <span className="font-medium">Companies</span> manage intern
-                pipelines and evaluate candidates in one place.
-              </p>
-            </div>
-          </div>
-        </section>
-        <section className="flex flex-col justify-center px-6 py-8 sm:px-10 auth-panel__content">
+        {!modal && (
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="absolute -top-6 -right-6 z-40 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-slate-950/70 text-white text-base shadow-lg shadow-black/30 transition-colors hover:bg-slate-900 hover:border-white/30"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        )}
+        <section className="flex flex-col justify-center px-6 py-6 sm:px-8 auth-panel__content max-w-sm mx-auto w-full">
           <header className="mb-6">
             <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
               Sign in
             </p>
-            <h2 className="mt-2 text-xl sm:text-2xl font-semibold text-slate-900">
+            <h2 className="mt-2 text-lg sm:text-xl font-semibold text-slate-900">
               Welcome back to InternNova
             </h2>
-            <p className="mt-1.5 text-xs text-slate-500">
-              Use your email and password. We will route you to the right
-              dashboard automatically.
-            </p>
+            {customMessage ? (
+              <p className="mt-1.5 text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40 rounded-lg px-3 py-2">
+                {customMessage}
+              </p>
+            ) : (
+              <p className="mt-1.5 text-xs text-slate-500">
+                Use your email and password. We will route you to the right
+                dashboard automatically.
+              </p>
+            )}
           </header>
-          <form onSubmit={handleSubmit} className="space-y-5 text-sm">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-5 text-sm"
+            aria-live="polite"
+          >
             <div className="space-y-4">
               <div className="space-y-1.5">
                 <label
@@ -120,26 +107,21 @@ const Login = ({ modal = false }) => {
                   value={formValues.email}
                   onChange={handleChange}
                   className={`input-glass ${error ? "border-rose-400" : ""}`}
+                  aria-required="true"
+                  aria-invalid={error ? "true" : "false"}
+                  aria-describedby={error ? "login-error" : undefined}
                   placeholder="you@example.com"
                   required
                 />
               </div>
 
               <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <label
-                    htmlFor="password"
-                    className="block text-xs font-medium text-slate-600"
-                  >
-                    Password
-                  </label>
-                  <Link
-                    to="/forgot-password"
-                    className="text-[0.7rem] text-emerald-600 hover:text-emerald-700 dark:text-emerald-300 dark:hover:text-emerald-200"
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
+                <label
+                  htmlFor="password"
+                  className="block text-xs font-medium text-slate-600"
+                >
+                  Password
+                </label>
                 <div className="relative">
                   <input
                     id="password"
@@ -167,10 +149,42 @@ const Login = ({ modal = false }) => {
                     )}
                   </button>
                 </div>
+                <div className="flex items-center justify-between pt-1">
+                  <div className="flex items-center gap-2">
+                    <input
+                      id="remember"
+                      name="remember"
+                      type="checkbox"
+                      className="h-4 w-4 rounded border-white/60 bg-white/20"
+                      onChange={(e) => {
+                        /* remember me handled locally only for UI; auth context can persist if needed */
+                      }}
+                      aria-label="Remember me"
+                    />
+                    <label
+                      htmlFor="remember"
+                      className="text-xs text-slate-600"
+                    >
+                      Remember me
+                    </label>
+                  </div>
+                  <div>
+                    <Link
+                      to="/forgot-password"
+                      className="text-[0.72rem] font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-300 dark:hover:text-emerald-200"
+                    >
+                      Forgot password?
+                    </Link>
+                  </div>
+                </div>
               </div>
 
               {error && (
-                <p className="text-xs text-rose-600 bg-rose-100 border border-rose-200 rounded-md px-3 py-2 dark:bg-rose-950/35 dark:border-rose-900/40 dark:text-rose-200">
+                <p
+                  id="login-error"
+                  role="alert"
+                  className="text-xs text-rose-600 bg-rose-100 border border-rose-200 rounded-md px-3 py-2 dark:bg-rose-950/35 dark:border-rose-900/40 dark:text-rose-200"
+                >
                   {error}
                 </p>
               )}
