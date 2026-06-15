@@ -5,8 +5,26 @@ const { generateOTP } = require('../utils/crypto');
 const logger = require('../utils/logger');
 
 const SALT_ROUNDS = 10;
+const OTP_COOLDOWN_SECONDS = 60; // prevent duplicate sends within this window
 
 async function createAndSendOTP(email, type) {
+  // ── Cooldown check: if an OTP was recently created, skip to avoid duplicate emails
+  const existingOtp = await OTP.findOne({ email, type }).sort({ createdAt: -1 });
+  if (existingOtp) {
+    const ageSeconds = (Date.now() - existingOtp.createdAt.getTime()) / 1000;
+    if (ageSeconds < OTP_COOLDOWN_SECONDS) {
+      const remaining = Math.ceil(OTP_COOLDOWN_SECONDS - ageSeconds);
+      logger.info('OTP request skipped — cooldown active', {
+        email,
+        type,
+        otpAgeSeconds: Math.round(ageSeconds),
+        cooldownRemaining: remaining,
+      });
+      // Return the existing OTP silently — no duplicate email sent
+      return;
+    }
+  }
+
   const otp = generateOTP();
   const otpHash = await bcrypt.hash(otp, SALT_ROUNDS);
   const expiresAt = new Date(Date.now() + OTP_TTL_SECONDS * 1000);
@@ -14,8 +32,33 @@ async function createAndSendOTP(email, type) {
   await OTP.deleteMany({ email, type });
   await OTP.create({ email, otpHash, type, expiresAt });
 
-  await sendOTPEmail(email, otp, type);
-  logger.info('OTP created and sent', { email, type });
+  // In development, log the OTP to console so developers can test without email
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('');
+    console.log('══════════════════════════════════════════════════');
+    console.log(`  DEV OTP for ${email}`);
+    console.log(`  CODE: ${otp}`);
+    console.log(`  TYPE: ${type}`);
+    console.log(`  EXPIRES: ${expiresAt.toISOString()}`);
+    console.log('══════════════════════════════════════════════════');
+    console.log('');
+    logger.info('OTP logged to console (dev mode)', { email, type, otp });
+  }
+
+  try {
+    await sendOTPEmail(email, otp, type);
+    logger.info('OTP created and sent', { email, type });
+  } catch (err) {
+    if (process.env.NODE_ENV === 'production') {
+      throw err;
+    }
+
+    logger.warn('OTP email failed; using console OTP fallback in development', {
+      email,
+      type,
+      error: err.message,
+    });
+  }
 }
 
 async function verifyOTP(email, plainOTP, type) {
@@ -65,53 +108,134 @@ async function verifyOTP(email, plainOTP, type) {
 
 async function sendOTPEmail(email, otp, type) {
   const isReset = type === 'PASSWORD_RESET';
-  const subject = isReset ? 'InternNova — Password Reset OTP' : 'InternNova — Verify Your Email';
+  const frontendUrl = process.env.FRONTEND_URL || 'https://internnova.in';
+  const logoUrl =
+    process.env.EMAIL_LOGO_URL ||
+    'https://dl.dropboxusercontent.com/scl/fi/qxxe6x0rw0zujzpjtwv60/ChatGPT-Image-Jun-9-2026-11_35_53-AM.png?rlkey=jygs1j16tglr29qm6vym5qxhv&dl=1';
 
-  const html = `
-<!DOCTYPE html>
+  const heading = isReset
+    ? 'Reset Your Password'
+    : 'Verify Your Email';
+  const introLine = isReset
+    ? 'We received a request to reset the password for your InternNova account.'
+    : 'Welcome to InternNova! Please verify your email address to activate your account.';
+  const actionLabel = isReset ? 'Password Reset Code' : 'Email Verification Code';
+
+  const primaryGreen = '#7cc84a';
+  const greenDark = '#4a8a2e';
+  const greenLight = '#e9f5e1';
+  const textMain = '#0f172a';
+  const textSecondary = '#334155';
+  const textMuted = '#64748b';
+  const surface = '#ffffff';
+  const border = 'rgba(124, 200, 74, 0.25)';
+
+  const html = `<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0"/></head>
-<body style="margin:0;padding:0;background:#f4f6f9;font-family:Arial,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 0;">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light" />
+  <title>${actionLabel}</title>
+</head>
+<body style="margin:0;padding:0;background:linear-gradient(180deg,#f8faf7 0%,#eef5eb 50%,#f4f8f2 100%);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;-webkit-font-smoothing:antialiased;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:48px 16px;">
     <tr>
       <td align="center">
-        <table width="520" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+        <!-- ── Card ── -->
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:${surface};border-radius:24px;overflow:hidden;box-shadow:0 1px 1px rgba(255,255,255,0.46) inset,0 16px 40px rgba(15,23,42,0.1),0 2px 10px rgba(15,23,42,0.06);border:1px solid ${border};">
+
+          <!-- ══ Header ══ -->
           <tr>
-            <td style="background:#4F46E5;padding:24px 32px;">
-              <h1 style="color:#ffffff;margin:0;font-size:22px;font-weight:700;">InternNova</h1>
+            <td style="background:linear-gradient(135deg,${primaryGreen} 0%,${greenDark} 100%);padding:36px 32px 32px;text-align:center;">
+              <img
+                src="${logoUrl}"
+                alt="InternNova"
+                height="36"
+                style="display:block;margin:0 auto 0;height:36px;width:auto;"
+              />
             </td>
           </tr>
+
+          <!-- ══ Body ══ -->
           <tr>
-            <td style="padding:32px;">
-              <p style="font-size:16px;color:#374151;margin:0 0 16px;">
-                ${isReset ? 'We received a request to reset your password.' : 'Please verify your email address to activate your account.'}
+            <td style="padding:36px 32px 32px;">
+
+              <h1 style="margin:0 0 8px;font-family:'Plus Jakarta Sans','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;font-size:24px;font-weight:700;letter-spacing:-0.03em;color:${textMain};line-height:1.3;">
+                ${heading}
+              </h1>
+              <p style="margin:0 0 28px;font-size:15px;line-height:1.6;color:${textSecondary};">
+                ${introLine}
               </p>
-              <p style="font-size:15px;color:#6B7280;margin:0 0 24px;">Use the OTP below. It expires in <strong>10 minutes</strong>.</p>
-              <div style="text-align:center;background:#F3F4F6;border-radius:8px;padding:20px;">
-                <span style="font-size:36px;font-weight:700;letter-spacing:12px;color:#4F46E5;">${otp}</span>
-              </div>
-              <p style="font-size:13px;color:#9CA3AF;margin:24px 0 0;">
-                If you did not request this, please ignore this email. Your account remains secure.
+
+              <!-- ══ OTP Box ══ -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 28px;">
+                <tr>
+                  <td style="background:${greenLight};border:1px solid ${border};border-radius:16px;padding:28px 24px;text-align:center;">
+                    <p style="margin:0 0 12px;font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:${primaryGreen};font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+                      ${actionLabel}
+                    </p>
+                    <p style="margin:0;font-size:38px;font-weight:700;letter-spacing:0.16em;color:${textMain};font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;line-height:1;">
+                      ${otp}
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:0 0 28px;font-size:13px;line-height:1.6;color:${textMuted};">
+                This code expires in <strong style="color:${textSecondary};">10 minutes</strong>.
+                If you did not request this, you can safely ignore this email — your account remains secure.
+              </p>
+
+              <!-- ══ Divider ══ -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;">
+                <tr>
+                  <td style="border-top:1px solid ${border};"></td>
+                </tr>
+              </table>
+
+              <!-- ══ Need help ══ -->
+              <p style="margin:0;font-size:12px;line-height:1.6;color:${textMuted};text-align:center;">
+                Need help? Visit
+                <a href="${frontendUrl}" style="color:${greenDark};text-decoration:underline;font-weight:500;">${frontendUrl.replace('https://', '').replace('http://', '')}</a>
               </p>
             </td>
           </tr>
+
+          <!-- ══ Footer ══ -->
           <tr>
-            <td style="padding:16px 32px;border-top:1px solid #E5E7EB;">
-              <p style="font-size:12px;color:#9CA3AF;margin:0;text-align:center;">
+            <td style="background:${greenLight};padding:16px 32px;text-align:center;border-top:1px solid ${border};">
+              <p style="margin:0;font-size:11px;color:${textMuted};line-height:1.5;">
                 &copy; ${new Date().getFullYear()} InternNova. All rights reserved.
               </p>
             </td>
           </tr>
         </table>
+
+        <!-- ══ Subtle glow accent ══ -->
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;margin-top:24px;">
+          <tr>
+            <td style="text-align:center;">
+              <p style="margin:0;font-size:11px;color:${textMuted};opacity:0.7;">
+                InternNova &mdash; Connecting talent with opportunity
+              </p>
+            </td>
+          </tr>
+        </table>
+
       </td>
     </tr>
   </table>
 </body>
-</html>`.trim();
+</html>`;
 
   const text = isReset
-    ? `InternNova Password Reset\n\nYour OTP is: ${otp}\nIt expires in 10 minutes.\n\nIf you did not request this, ignore this email.`
-    : `InternNova Email Verification\n\nYour OTP is: ${otp}\nIt expires in 10 minutes.\n\nIf you did not request this, ignore this email.`;
+    ? `INTERNNOVA — PASSWORD RESET CODE\n\nYour reset code is: ${otp}\n\nThis code expires in 10 minutes.\nIf you did not request this, ignore this email — your account remains secure.\n\n— InternNova`
+    : `INTERNNOVA — EMAIL VERIFICATION CODE\n\nYour verification code is: ${otp}\n\nThis code expires in 10 minutes.\nIf you did not request this, ignore this email — your account remains secure.\n\n— InternNova`;
+
+  const subject = isReset
+    ? 'InternNova — Password Reset Code'
+    : 'InternNova — Verify Your Email';
 
   await sendMail({ to: email, subject, html, text });
 }

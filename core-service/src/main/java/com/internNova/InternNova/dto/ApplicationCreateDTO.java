@@ -14,6 +14,6 @@ public class ApplicationCreateDTO {
     @NotBlank(message = "Student ID is required")
     private String studentId;
 
-    private String coverLetter;
+    private String motivationStatement;
     private String resumeUrl;
 }

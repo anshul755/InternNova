@@ -22,15 +22,40 @@ import org.springframework.data.domain.Pageable;
 
 import com.internNova.InternNova.dto.JobCreateDTO;
 import com.internNova.InternNova.dto.JobUpdateDTO;
+import com.internNova.InternNova.entity.Application;
+import com.internNova.InternNova.entity.AuthUser;
+import com.internNova.InternNova.entity.Company;
 import com.internNova.InternNova.entity.Job;
+import com.internNova.InternNova.entity.Talent;
+import com.internNova.InternNova.enums.ApplicationState;
 import com.internNova.InternNova.enums.OpportunityType;
+import com.internNova.InternNova.enums.User;
+import com.internNova.InternNova.repository.ApplicationRepository;
+import com.internNova.InternNova.repository.AuthUserRepository;
+import com.internNova.InternNova.repository.CompanyRepository;
 import com.internNova.InternNova.repository.JobRepository;
+import com.internNova.InternNova.repository.TalentRepository;
 
 @ExtendWith(MockitoExtension.class)
 class JobServiceTest {
 
     @Mock
     private JobRepository jobRepository;
+
+    @Mock
+    private ApplicationRepository applicationRepository;
+
+    @Mock
+    private TalentRepository talentRepository;
+
+    @Mock
+    private CompanyRepository companyRepository;
+
+    @Mock
+    private EmailNotificationService emailNotificationService;
+
+    @Mock
+    private AuthUserRepository authUserRepository;
 
     @InjectMocks
     private JobService jobService;
@@ -84,28 +109,28 @@ class JobServiceTest {
     @Test
     void testGetAllJobs() {
         List<Job> jobs = Arrays.asList(testJob);
-        when(jobRepository.findByIsDeletedFalseAndStatus("ACTIVE")).thenReturn(jobs);
+        when(jobRepository.findOpenJobsByStatus(eq("ACTIVE"), any(LocalDate.class))).thenReturn(jobs);
 
         List<Job> result = jobService.getAllJobs();
 
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(testJob.getTitle(), result.get(0).getTitle());
-        verify(jobRepository).findByIsDeletedFalseAndStatus("ACTIVE");
+        verify(jobRepository).findOpenJobsByStatus(eq("ACTIVE"), any(LocalDate.class));
     }
 
     @Test
     void testGetAllJobsWithPagination() {
         Pageable pageable = PageRequest.of(0, 10);
         Page<Job> jobPage = new PageImpl<>(Arrays.asList(testJob));
-        when(jobRepository.findByIsDeletedFalseAndStatus("ACTIVE", pageable)).thenReturn(jobPage);
+        when(jobRepository.findOpenJobsByStatus(eq("ACTIVE"), any(LocalDate.class), eq(pageable))).thenReturn(jobPage);
 
         Page<Job> result = jobService.getAllJobs(pageable);
 
         assertNotNull(result);
         assertEquals(1, result.getContent().size());
         assertEquals(testJob.getTitle(), result.getContent().get(0).getTitle());
-        verify(jobRepository).findByIsDeletedFalseAndStatus("ACTIVE", pageable);
+        verify(jobRepository).findOpenJobsByStatus(eq("ACTIVE"), any(LocalDate.class), eq(pageable));
     }
 
     @Test
@@ -232,12 +257,52 @@ class JobServiceTest {
     void testSearchJobs() {
         Pageable pageable = PageRequest.of(0, 10);
         Page<Job> jobPage = new PageImpl<>(Arrays.asList(testJob));
-        when(jobRepository.searchActiveJobs("Java", pageable)).thenReturn(jobPage);
+        when(jobRepository.searchOpenJobs(eq("Java"), any(LocalDate.class), eq(pageable))).thenReturn(jobPage);
 
         Page<Job> result = jobService.searchJobs("Java", pageable);
 
         assertNotNull(result);
         assertEquals(1, result.getContent().size());
-        verify(jobRepository).searchActiveJobs("Java", pageable);
+        verify(jobRepository).searchOpenJobs(eq("Java"), any(LocalDate.class), eq(pageable));
+    }
+
+    @Test
+    void testPublishResultsSendsShortlistEmail() {
+        testJob.setApplicationDeadline(LocalDate.now().minusDays(1));
+        testJob.setResultsPublished(false);
+
+        Application application = new Application();
+        application.setJobId("job1");
+        application.setStudentId("talent1");
+        application.setStatus(ApplicationState.SHORTLISTED);
+
+        Talent talent = new Talent();
+        talent.setId("talent1");
+        talent.setUser(User.Talent);
+        talent.setName("Asha");
+
+        AuthUser authUser = new AuthUser();
+        authUser.setId("talent1");
+        authUser.setEmail("asha@example.com");
+
+        Company company = new Company();
+        company.setId("company1");
+        company.setCompanyName("FDSE");
+
+        when(jobRepository.findByIdAndIsDeletedFalse("job1")).thenReturn(Optional.of(testJob));
+        when(jobRepository.save(any(Job.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(applicationRepository.findByJobIdAndIsDeletedFalse("job1")).thenReturn(List.of(application));
+        when(companyRepository.findById("company1")).thenReturn(Optional.of(company));
+        when(talentRepository.findById("talent1")).thenReturn(Optional.of(talent));
+        when(authUserRepository.findById("talent1")).thenReturn(Optional.of(authUser));
+
+        Job result = jobService.publishResults("job1");
+
+        assertTrue(result.isResultsPublished());
+        verify(emailNotificationService).sendShortlistEmail(
+                "asha@example.com",
+                "Asha",
+                "Software Engineer Intern",
+                "FDSE");
     }
 }

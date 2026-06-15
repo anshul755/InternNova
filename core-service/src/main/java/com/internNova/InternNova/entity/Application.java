@@ -21,7 +21,7 @@ public class Application {
     private String jobId;
     private String studentId;
     private ApplicationState status = ApplicationState.APPLIED;
-    private String coverLetter;
+    private String motivationStatement;
     private String resumeUrl;
     private Double aiMatchScore;
     private String recruiterNotes;
@@ -34,4 +34,11 @@ public class Application {
 
     // Structured resume produced by the AI parser step, stored as-is for later use.
     private Map<String, Object> parsedResume;
+
+    // Set when the async AI evaluation fails — lets the frontend show that evaluation
+    // needs attention instead of silently staying APPLIED forever.
+    private String evaluationError;
+
+    // Timestamp of the last AI evaluation attempt (success or failure).
+    private LocalDateTime evaluationAttemptedAt;
 }

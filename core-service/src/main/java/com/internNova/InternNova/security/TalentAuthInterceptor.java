@@ -22,6 +22,12 @@ public class TalentAuthInterceptor implements HandlerInterceptor {
                              Object handler) throws Exception {
 
         String method = request.getMethod();
+        String path = request.getRequestURI();
+
+        if ("POST".equalsIgnoreCase(method)
+                && (path.endsWith("/talent/v1") || path.endsWith("/talent/v1/"))) {
+            return true;
+        }
 
         if ("GET".equalsIgnoreCase(method) || "OPTIONS".equalsIgnoreCase(method)) {
             String authHeader = request.getHeader("Authorization");

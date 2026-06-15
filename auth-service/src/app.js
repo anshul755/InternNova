@@ -82,6 +82,22 @@ app.use((err, req, res, _next) => {
     stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
   });
 
+  const message = String(err.message || '');
+  const isDatabaseNetworkError =
+    err.name === 'MongoNetworkError' ||
+    message.includes('getaddrinfo') ||
+    message.includes('ENOTFOUND') ||
+    message.includes('querySrv') ||
+    message.includes('server selection timed out');
+
+  if (isDatabaseNetworkError) {
+    return sendError(
+      res,
+      503,
+      'Database connection is temporarily unavailable. Please try again.'
+    );
+  }
+
   const statusCode = err.statusCode || err.status || 500;
   sendError(
     res,

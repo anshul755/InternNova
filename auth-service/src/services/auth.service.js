@@ -24,18 +24,67 @@ function AppError(message, statusCode) {
 
 async function register({ email, password, role }) {
   const existing = await User.findOne({ email });
-  if (existing) {
 
-    throw AppError('An account with this email already exists.', 409);
+  if (existing) {
+    // If the account is already verified, reject
+    if (existing.isEmailVerified) {
+      throw AppError('An account with this email already exists.', 409);
+    }
+
+    // Account exists but is unverified — allow re-registration:
+    // update password, resend OTP (clean up stale OTPs first)
+    await existing.setPassword(password);
+    await existing.save();
+
+    const { OTP } = require('../models/OTP.model');
+    await OTP.deleteMany({ email, type: 'EMAIL_VERIFICATION' });
+
+    try {
+      await createAndSendOTP(email, 'EMAIL_VERIFICATION');
+    } catch (emailErr) {
+      logger.error('Failed to resend OTP during re-registration', {
+        email,
+        error: emailErr.message,
+      });
+      throw AppError(
+        'Failed to send verification email. Please try again later.',
+        502,
+      );
+    }
+
+    logger.info('User re-registered (was unverified)', {
+      userId: existing._id,
+      role,
+    });
+    return {
+      userId: existing._id,
+      email: existing.email,
+      role: existing.role,
+    };
   }
 
+  // Brand-new user — save first, then send email.
+  // If email fails, roll back the user so the email isn't orphaned.
   const user = new User({ email, role });
   await user.setPassword(password);
   await user.save();
 
-  await createAndSendOTP(email, 'EMAIL_VERIFICATION');
-  logger.info('User registered', { userId: user._id, role });
+  try {
+    await createAndSendOTP(email, 'EMAIL_VERIFICATION');
+  } catch (emailErr) {
+    // Rollback: delete the user we just created
+    await User.deleteOne({ _id: user._id });
+    logger.error('Registration rolled back — OTP email failed', {
+      email,
+      error: emailErr.message,
+    });
+    throw AppError(
+      'Failed to send verification email. Please check your email address and try again.',
+      502,
+    );
+  }
 
+  logger.info('User registered', { userId: user._id, role });
   return { userId: user._id, email: user.email, role: user.role };
 }
 

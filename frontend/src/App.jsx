@@ -1,0 +1,166 @@
+import { lazy } from "react";
+import { Routes, Route } from "react-router-dom";
+import AppLayout from "./components/AppLayout.jsx";
+import ScrollToTop from "./components/ScrollToTop.jsx";
+
+import Landing from "./pages/Landing.jsx";
+import Login from "./pages/Login.jsx";
+import RegisterChoice from "./pages/RegisterChoice.jsx";
+import JobListings from "./pages/JobListings.jsx";
+import JobDetails from "./pages/JobDetails.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import RoleProtectedRoute from "./components/RoleProtectedRoute.jsx";
+const CompanyRegister = lazy(() => import("./pages/CompanyRegister.jsx"));
+const TalentRegister = lazy(() => import("./pages/TalentRegister.jsx"));
+const Dashboard = lazy(() => import("./pages/Dashboard.jsx"));
+const TalentDashboard = lazy(() => import("./pages/TalentDashboard.jsx"));
+const CompanyDashboard = lazy(() => import("./pages/CompanyDashboard.jsx"));
+const CompanyJobs = lazy(() => import("./pages/CompanyJobs.jsx"));
+const CompanyApplications = lazy(() => import("./pages/CompanyApplications.jsx"));
+const PostJob = lazy(() => import("./pages/PostJob.jsx"));
+const JobEdit = lazy(() => import("./pages/JobEdit.jsx"));
+const ApplicationManagement = lazy(() => import("./pages/ApplicationManagement.jsx"));
+const ApplicationDetail = lazy(() => import("./pages/ApplicationDetail.jsx"));
+const SavedJobs = lazy(() => import("./pages/SavedJobs.jsx"));
+const TalentProfileEdit = lazy(() => import("./pages/TalentProfileEdit.jsx"));
+const CompanyProfileEdit = lazy(() => import("./pages/CompanyProfileEdit.jsx"));
+const VerifyEmail = lazy(() => import("./pages/VerifyEmail.jsx"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword.jsx"));
+const LegalPrivacyPage = lazy(() => import("./pages/LegalPrivacyPage.jsx"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService.jsx"));
+
+function App() {
+  return (
+    <>
+      <ScrollToTop />
+      <Routes>
+        <Route element={<AppLayout />}>
+          <Route path="/" element={<Landing />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register/user" element={<TalentRegister />} />
+          <Route path="/register/talent" element={<TalentRegister />} />
+          <Route path="/register/company" element={<CompanyRegister />} />
+
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/talent"
+            element={
+              <RoleProtectedRoute role="Talent">
+                <TalentDashboard />
+              </RoleProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/company"
+            element={
+              <RoleProtectedRoute role="Company">
+                <CompanyDashboard />
+              </RoleProtectedRoute>
+            }
+          />
+          <Route
+            path="/company/jobs"
+            element={
+              <RoleProtectedRoute role="Company">
+                <CompanyJobs />
+              </RoleProtectedRoute>
+            }
+          />
+
+          <Route path="/jobs" element={<JobListings />} />
+          <Route
+            path="/jobs/create"
+            element={
+              <RoleProtectedRoute role="Company">
+                <PostJob />
+              </RoleProtectedRoute>
+            }
+          />
+          <Route path="/jobs/:id" element={<JobDetails />} />
+          <Route
+            path="/jobs/:id/edit"
+            element={
+              <RoleProtectedRoute role="Company">
+                <JobEdit />
+              </RoleProtectedRoute>
+            }
+          />
+          <Route
+            path="/jobs/:id/applications"
+            element={
+              <RoleProtectedRoute role="Company">
+                <CompanyApplications />
+              </RoleProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/company/applications"
+            element={
+              <RoleProtectedRoute role="Company">
+                <CompanyApplications />
+              </RoleProtectedRoute>
+            }
+          />
+          <Route
+            path="/applications"
+            element={
+              <RoleProtectedRoute role="Talent">
+                <ApplicationManagement />
+              </RoleProtectedRoute>
+            }
+          />
+          <Route
+            path="/applications/:id"
+            element={
+              <ProtectedRoute>
+                <ApplicationDetail />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/saved-jobs"
+            element={
+              <RoleProtectedRoute role="Talent">
+                <SavedJobs />
+              </RoleProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/profile/edit"
+            element={
+              <RoleProtectedRoute role="Talent">
+                <TalentProfileEdit />
+              </RoleProtectedRoute>
+            }
+          />
+          <Route
+            path="/company/profile/edit"
+            element={
+              <RoleProtectedRoute role="Company">
+                <CompanyProfileEdit />
+              </RoleProtectedRoute>
+            }
+          />
+
+          <Route path="/register" element={<RegisterChoice />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/privacy-policy" element={<LegalPrivacyPage />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
+        </Route>
+      </Routes>
+    </>
+  );
+}
+
+export default App;

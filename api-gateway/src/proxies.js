@@ -24,9 +24,11 @@ function proxyOptions(target, pathFilter) {
     // Preserve original host header so backend can log real origin if needed
     // but rewrite Origin so CORS on backends won't reject.
     xfwd: true,
-    // Timeout: if a backend hangs, fail fast instead of blocking the client.
-    proxyTimeout: 30_000,
-    timeout: 30_000,
+    // Timeout: the AI evaluation on application submission can take up to ~90 s
+    // (PDF download + parse + LLM shortlist). Match the core-service's RestClient
+    // read timeout so we don't 502 before the backend responds.
+    proxyTimeout: 90_000,
+    timeout: 90_000,
 
     // Narrow requests to only those matching this route's prefix.
     // Using pathFilter (instead of Express mount paths) prevents Express
