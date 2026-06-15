@@ -1,7 +1,11 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useFormContext } from "react-hook-form";
-import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5";
+import {
+  IoCheckmarkCircle,
+  IoEyeOutline,
+  IoEyeOffOutline,
+} from "react-icons/io5";
+import FieldError from "../FieldError.jsx";
 
 const AccountSetupStep = () => {
   const {
@@ -12,60 +16,59 @@ const AccountSetupStep = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-sm font-semibold text-slate-900 mb-1">
-        Step 1 - Account setup
-      </h2>
-      <p className="text-[0.75rem] text-slate-500 mb-3">
-        Create your login credentials. Use a strong password to protect your
-        account.
+    <div className="space-y-6">
+      <p className="text-sm leading-6 text-slate-400">
+        Use an email you check often. We will send verification and application
+        updates there.
       </p>
 
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         <label
           htmlFor="email"
-          className="block text-xs font-medium text-slate-600"
+          className="block text-xs font-semibold text-slate-300 uppercase tracking-wider"
         >
-          Email<span className="text-rose-400"> *</span>
+          Email
         </label>
-        <input
-          id="email"
-          type="email"
-          {...register("email")}
-          className={`input-glass text-sm ${
-            errors.email ? "border-rose-400" : "border-white/70"
-          }`}
-          placeholder="you@studentmail.com"
-        />
-        {errors.email && (
-          <p className="text-[0.7rem] text-rose-400 mt-1">
-            {errors.email.message}
-          </p>
-        )}
+        <div className="relative">
+          <input
+            id="email"
+            type="email"
+            {...register("email")}
+            className={`input-glass py-3.5 text-sm sm:text-base ${
+              errors.email
+                ? "border-rose-400 focus:border-rose-400 focus:ring-rose-400/20"
+                : ""
+            }`}
+            placeholder="you@studentmail.com"
+          />
+        </div>
+        <FieldError message={errors.email?.message} persistent />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-1.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div className="space-y-2">
           <label
             htmlFor="password"
-            className="block text-xs font-medium text-slate-600"
+            className="block text-xs font-semibold text-slate-300 uppercase tracking-wider"
           >
-            Password<span className="text-rose-400"> *</span>
+            Password
           </label>
           <div className="relative">
             <input
               id="password"
               type={showPassword ? "text" : "password"}
               {...register("password")}
-              className={`input-glass pr-12 text-sm ${
-                errors.password ? "border-rose-400" : "border-white/70"
+              className={`input-glass py-3.5 pr-14 text-sm sm:text-base ${
+                errors.password
+                  ? "border-rose-400 focus:border-rose-400 focus:ring-rose-400/20"
+                  : ""
               }`}
-              placeholder="8+ chars, Aa1@#$_"
+              placeholder="Create a strong password"
             />
             <button
               type="button"
               onClick={() => setShowPassword((prev) => !prev)}
-              className="absolute inset-y-0 right-0 flex items-center justify-center px-3 text-slate-500 hover:text-slate-700"
+              className="absolute inset-y-0 right-0 flex items-center justify-center px-4 text-slate-400 hover:text-slate-200 transition-colors"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? (
@@ -75,34 +78,32 @@ const AccountSetupStep = () => {
               )}
             </button>
           </div>
-          {errors.password && (
-            <p className="text-[0.7rem] text-rose-400 mt-1">
-              {errors.password.message}
-            </p>
-          )}
+          <FieldError message={errors.password?.message} persistent />
         </div>
 
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <label
             htmlFor="confirmPassword"
-            className="block text-xs font-medium text-slate-600"
+            className="block text-xs font-semibold text-slate-300 uppercase tracking-wider"
           >
-            Confirm password<span className="text-rose-400"> *</span>
+            Confirm Password
           </label>
           <div className="relative">
             <input
               id="confirmPassword"
               type={showConfirmPassword ? "text" : "password"}
               {...register("confirmPassword")}
-              className={`input-glass pr-12 text-sm ${
-                errors.confirmPassword ? "border-rose-400" : "border-white/70"
+              className={`input-glass py-3.5 pr-14 text-sm sm:text-base ${
+                errors.confirmPassword
+                  ? "border-rose-400 focus:border-rose-400 focus:ring-rose-400/20"
+                  : ""
               }`}
-              placeholder="Re-enter password"
+              placeholder="Re-enter your password"
             />
             <button
               type="button"
               onClick={() => setShowConfirmPassword((prev) => !prev)}
-              className="absolute inset-y-0 right-0 flex items-center justify-center px-3 text-slate-500 hover:text-slate-700"
+              className="absolute inset-y-0 right-0 flex items-center justify-center px-4 text-slate-400 hover:text-slate-200 transition-colors"
               aria-label={
                 showConfirmPassword ? "Hide password" : "Show password"
               }
@@ -114,20 +115,29 @@ const AccountSetupStep = () => {
               )}
             </button>
           </div>
-          {errors.confirmPassword && (
-            <p className="text-[0.7rem] text-rose-400 mt-1">
-              {errors.confirmPassword.message}
-            </p>
-          )}
+          <FieldError message={errors.confirmPassword?.message} persistent />
         </div>
       </div>
 
-      <ul className="text-[0.7rem] text-slate-500 list-disc list-inside space-y-1 mt-1">
-        <li>Minimum 8 characters.</li>
-        <li>
-          Include uppercase, lowercase, a number, and a special character.
-        </li>
-      </ul>
+      <div className="rounded-2xl border border-white/10 bg-white/[0.035] px-5 py-4">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+          Password Requirements
+        </p>
+        <ul className="grid gap-2 text-sm text-slate-400 sm:grid-cols-2">
+          {[
+            "Minimum 8 characters",
+            "One uppercase letter",
+            "One lowercase letter",
+            "One number",
+            "One special character",
+          ].map((item) => (
+            <li key={item} className="flex items-center gap-2">
+              <IoCheckmarkCircle className="h-4 w-4 shrink-0 text-emerald-400" />
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };

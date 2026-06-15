@@ -50,13 +50,13 @@ export default function Footer() {
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex flex-col sm:flex-row flex-wrap justify-between gap-10 lg:gap-16">
           <div className="max-w-sm">
-            <Link to="/" className="flex items-center gap-0.1 group" aria-label="InternNova Home">
+            <Link to="/" className="flex items-center gap-1.5 group" aria-label="InternNova Home">
               <img
                 src={useLight ? "/internNova-light.png" : "/internNova-dark.png"}
                 alt="InternNova Logo"
                 className="h-10 w-auto object-contain transition-transform group-hover:scale-105"
               />
-              <span className={`font-semibold tracking-wide text-sm ${useLight ? "text-slate-900" : "text-slate-100"}`}>
+              <span className={`font-semibold tracking-wide text-sm mt-1 ${useLight ? "text-slate-900" : "text-slate-100"}`}>
                 InternNova
               </span>
             </Link>

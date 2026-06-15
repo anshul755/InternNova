@@ -1,5 +1,6 @@
 import React from "react";
 import { useFormContext } from "react-hook-form";
+import FieldError from "../FieldError.jsx";
 
 const LinksUploadsStep = () => {
   const {
@@ -8,19 +9,16 @@ const LinksUploadsStep = () => {
   } = useFormContext();
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-sm font-semibold text-slate-900 mb-1">
-        Step 5 - Links & uploads
-      </h2>
-      <p className="text-[0.75rem] text-slate-500 mb-3">
+    <div className="space-y-6">
+      <p className="text-sm sm:text-base text-slate-400 leading-relaxed">
         Add your professional links and upload optional files.
       </p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-1.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div className="space-y-2">
           <label
             htmlFor="linkedinUrl"
-            className="block text-xs font-medium text-slate-600"
+            className="block text-xs font-semibold text-slate-300 uppercase tracking-wider"
           >
             LinkedIn profile<span className="text-rose-400"> *</span>
           </label>
@@ -28,22 +26,18 @@ const LinksUploadsStep = () => {
             id="linkedinUrl"
             type="url"
             {...register("linkedinUrl")}
-            className={`input-glass text-sm ${
+            className={`input-glass text-sm sm:text-base py-3.5 ${
               errors.linkedinUrl ? "border-rose-400" : "border-white/70"
             }`}
             placeholder="https://linkedin.com/in/username"
           />
-          {errors.linkedinUrl && (
-            <p className="text-[0.7rem] text-rose-400 mt-1">
-              {errors.linkedinUrl.message}
-            </p>
-          )}
+          <FieldError message={errors.linkedinUrl?.message} persistent />
         </div>
 
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <label
             htmlFor="githubUrl"
-            className="block text-xs font-medium text-slate-600"
+            className="block text-xs font-semibold text-slate-300 uppercase tracking-wider"
           >
             GitHub profile<span className="text-rose-400"> *</span>
           </label>
@@ -51,23 +45,19 @@ const LinksUploadsStep = () => {
             id="githubUrl"
             type="url"
             {...register("githubUrl")}
-            className={`input-glass text-sm ${
+            className={`input-glass text-sm sm:text-base py-3.5 ${
               errors.githubUrl ? "border-rose-400" : "border-white/70"
             }`}
             placeholder="https://github.com/username"
           />
-          {errors.githubUrl && (
-            <p className="text-[0.7rem] text-rose-400 mt-1">
-              {errors.githubUrl.message}
-            </p>
-          )}
+          <FieldError message={errors.githubUrl?.message} persistent />
         </div>
       </div>
 
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         <label
           htmlFor="portfolioUrl"
-          className="block text-xs font-medium text-slate-600"
+          className="block text-xs font-semibold text-slate-300 uppercase tracking-wider"
         >
           Portfolio / personal site
         </label>
@@ -75,23 +65,19 @@ const LinksUploadsStep = () => {
           id="portfolioUrl"
           type="url"
           {...register("portfolioUrl")}
-          className={`input-glass text-sm ${
+          className={`input-glass text-sm sm:text-base py-3.5 ${
             errors.portfolioUrl ? "border-rose-400" : "border-white/70"
           }`}
           placeholder="https://portfolio.com"
         />
-        {errors.portfolioUrl && (
-          <p className="text-[0.7rem] text-rose-400 mt-1">
-            {errors.portfolioUrl.message}
-          </p>
-        )}
+        <FieldError message={errors.portfolioUrl?.message} persistent />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-        <div className="space-y-1.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-2">
+        <div className="space-y-2">
           <label
             htmlFor="avatarFile"
-            className="block text-xs font-medium text-slate-600"
+            className="block text-xs font-semibold text-slate-300 uppercase tracking-wider"
           >
             Avatar file (optional)
           </label>
@@ -100,14 +86,14 @@ const LinksUploadsStep = () => {
             type="file"
             accept="image/*"
             {...register("avatarFile")}
-            className="block w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border file:border-white/60 file:text-xs file:font-medium file:bg-white/70 file:text-slate-700 hover:file:bg-white"
+            className="block w-full text-sm text-slate-400 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border file:border-white/10 file:text-sm file:font-medium file:bg-white/[0.04] file:text-slate-300 hover:file:bg-white/[0.08] file:transition-colors file:cursor-pointer"
           />
         </div>
 
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <label
             htmlFor="resumeFile"
-            className="block text-xs font-medium text-slate-600"
+            className="block text-xs font-semibold text-slate-300 uppercase tracking-wider"
           >
             Resume file (optional)
           </label>
@@ -116,7 +102,7 @@ const LinksUploadsStep = () => {
             type="file"
             accept="application/pdf"
             {...register("resumeFile")}
-            className="block w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border file:border-white/60 file:text-xs file:font-medium file:bg-white/70 file:text-slate-700 hover:file:bg-white"
+            className="block w-full text-sm text-slate-400 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border file:border-white/10 file:text-sm file:font-medium file:bg-white/[0.04] file:text-slate-300 hover:file:bg-white/[0.08] file:transition-colors file:cursor-pointer"
           />
         </div>
       </div>

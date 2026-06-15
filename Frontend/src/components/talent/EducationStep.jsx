@@ -1,8 +1,14 @@
 import React from "react";
 import { useFormContext } from "react-hook-form";
 import GlassSelect from "../GlassSelect.jsx";
+import FieldError from "../FieldError.jsx";
 
-const years = Array.from({ length: 2100 - 1990 + 1 }, (_, i) => 1990 + i);
+const currentYear = new Date().getFullYear();
+const maxGraduationYear = currentYear + 6;
+const years = Array.from(
+  { length: maxGraduationYear - 1990 + 1 },
+  (_, i) => 1990 + i,
+);
 
 const degreeLevels = ["Bachelor", "Master", "PhD", "Diploma", "Other"];
 
@@ -33,18 +39,15 @@ const EducationStep = () => {
   const graduationYear = watch("graduationYear");
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-sm font-semibold text-slate-900 mb-1">
-        Step 3 - Education
-      </h2>
-      <p className="text-[0.75rem] text-slate-500 mb-3">
+    <div className="space-y-6">
+      <p className="text-sm sm:text-base text-slate-400 leading-relaxed">
         Share your current or most recent education details.
       </p>
 
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         <label
           htmlFor="university"
-          className="block text-xs font-medium text-slate-600"
+          className="block text-xs font-semibold text-slate-300 uppercase tracking-wider"
         >
           University<span className="text-rose-400"> *</span>
         </label>
@@ -52,22 +55,18 @@ const EducationStep = () => {
           id="university"
           type="text"
           {...register("university")}
-          className={`input-glass text-sm ${
+          className={`input-glass text-sm sm:text-base py-3.5 ${
             errors.university ? "border-rose-400" : "border-white/70"
           }`}
           placeholder="Indian Institute of Technology, Delhi"
         />
-        {errors.university && (
-          <p className="text-[0.7rem] text-rose-400 mt-1">
-            {errors.university.message}
-          </p>
-        )}
+        <FieldError message={errors.university?.message} persistent />
       </div>
 
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         <label
           htmlFor="degreeLevel"
-          className="block text-xs font-medium text-slate-600"
+          className="block text-xs font-semibold text-slate-300 uppercase tracking-wider"
         >
           Degree level<span className="text-rose-400"> *</span>
         </label>
@@ -85,17 +84,13 @@ const EducationStep = () => {
             label: level,
           }))}
         />
-        {errors.degreeLevel && (
-          <p className="text-[0.7rem] text-rose-400 mt-1">
-            {errors.degreeLevel.message}
-          </p>
-        )}
+        <FieldError message={errors.degreeLevel?.message} persistent />
       </div>
 
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         <label
           htmlFor="majorOption"
-          className="block text-xs font-medium text-slate-600"
+          className="block text-xs font-semibold text-slate-300 uppercase tracking-wider"
         >
           Major / Program<span className="text-rose-400"> *</span>
         </label>
@@ -113,18 +108,14 @@ const EducationStep = () => {
             label: major,
           }))}
         />
-        {errors.majorOption && (
-          <p className="text-[0.7rem] text-rose-400 mt-1">
-            {errors.majorOption.message}
-          </p>
-        )}
+        <FieldError message={errors.majorOption?.message} persistent />
       </div>
 
       {selectedMajor === "OTHER" && (
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <label
             htmlFor="majorOther"
-            className="block text-xs font-medium text-slate-600"
+            className="block text-xs font-semibold text-slate-300 uppercase tracking-wider"
           >
             Other major / program<span className="text-rose-400"> *</span>
           </label>
@@ -132,24 +123,20 @@ const EducationStep = () => {
             id="majorOther"
             type="text"
             {...register("majorOther")}
-            className={`input-glass text-sm ${
+            className={`input-glass text-sm sm:text-base py-3.5 ${
               errors.majorOther ? "border-rose-400" : "border-white/70"
             }`}
             placeholder="e.g. B.Sc Data Science"
           />
-          {errors.majorOther && (
-            <p className="text-[0.7rem] text-rose-400 mt-1">
-              {errors.majorOther.message}
-            </p>
-          )}
+          <FieldError message={errors.majorOther?.message} persistent />
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-1.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div className="space-y-2">
           <label
             htmlFor="graduationYear"
-            className="block text-xs font-medium text-slate-600"
+            className="block text-xs font-semibold text-slate-300 uppercase tracking-wider"
           >
             Graduation year<span className="text-rose-400"> *</span>
           </label>
@@ -167,17 +154,13 @@ const EducationStep = () => {
               label: String(year),
             }))}
           />
-          {errors.graduationYear && (
-            <p className="text-[0.7rem] text-rose-400 mt-1">
-              {errors.graduationYear.message}
-            </p>
-          )}
+          <FieldError message={errors.graduationYear?.message} persistent />
         </div>
 
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <label
             htmlFor="cgpa"
-            className="block text-xs font-medium text-slate-600"
+            className="block text-xs font-semibold text-slate-300 uppercase tracking-wider"
           >
             CGPA (0.0 - 10.0)<span className="text-rose-400"> *</span>
           </label>
@@ -188,16 +171,12 @@ const EducationStep = () => {
             min="0"
             max="10"
             {...register("cgpa")}
-            className={`input-glass text-sm ${
+            className={`input-glass text-sm sm:text-base py-3.5 ${
               errors.cgpa ? "border-rose-400" : "border-white/70"
             }`}
             placeholder="8.5"
           />
-          {errors.cgpa && (
-            <p className="text-[0.7rem] text-rose-400 mt-1">
-              {errors.cgpa.message}
-            </p>
-          )}
+          <FieldError message={errors.cgpa?.message} persistent />
         </div>
       </div>
     </div>

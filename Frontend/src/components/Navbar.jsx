@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { IoClose, IoMenu } from "react-icons/io5";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useTheme } from "../lib/ThemeContext.jsx";
@@ -10,7 +10,7 @@ function Logo({ light }) {
   return (
     <Link
       to="/"
-      className="flex items-center gap-0.1 group"
+      className="flex items-center gap-1.5 group"
       aria-label="InternNova Home"
     >
       <img
@@ -19,7 +19,7 @@ function Logo({ light }) {
         className="h-8 md:h-10 w-auto object-contain transition-transform group-hover:scale-105"
       />
       <span
-        className={`font-semibold tracking-wide text-[1.05rem] ${light ? "text-slate-900" : "text-slate-100"}`}
+        className={`font-semibold tracking-wide text-xl mt-1 ${light ? "text-slate-900" : "text-slate-100"}`}
       >
         InternNova
       </span>
@@ -30,6 +30,7 @@ function Logo({ light }) {
 export default function Navbar({ hideGuestCenterNav = false }) {
   const { user, loading } = useAuth();
   const { resolvedTheme } = useTheme();
+  const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -50,13 +51,7 @@ export default function Navbar({ hideGuestCenterNav = false }) {
     return <AuthenticatedNavbar />;
   }
 
-  const landingLinks = hideGuestCenterNav
-    ? []
-    : [
-        { label: "Features", href: "#features" },
-        { label: "How it works", href: "#how-it-works" },
-        { label: "Pricing", href: "#pricing" },
-      ];
+  const landingLinks = [];
 
   const headerBg = scrolled
     ? "saas-nav saas-nav--solid"
@@ -77,51 +72,42 @@ export default function Navbar({ hideGuestCenterNav = false }) {
           <Logo light={useLight} />
         </div>
 
-        <div className="hidden md:flex items-center gap-1">
-          {landingLinks.map(({ label, href }) => (
-            <a
-              key={href}
-              href={href}
-              className={`px-2 py-2 text-sm font-medium transition-colors border-b-2 border-transparent ${
-                useLight
-                  ? "text-slate-600 hover:text-slate-900 hover:border-slate-300"
-                  : "text-slate-300 hover:text-white hover:border-white/30"
-              }`}
-            >
-              {label}
-            </a>
-          ))}
-        </div>
+        <div className="hidden md:flex items-center gap-1" />
 
         <div className="flex items-center gap-3">
           <ThemeToggle className="hidden sm:inline-flex" />
           <Link
             to="/login"
-            className={`hidden sm:inline-flex items-center px-2 py-2 text-sm font-medium border-b-2 border-transparent transition-colors ${
-              useLight
-                ? "text-slate-600 hover:text-slate-900 hover:border-slate-300"
-                : "text-slate-300 hover:text-white hover:border-white/30"
-            }`}
+            className={`hidden sm:inline-flex items-center px-2 py-2 text-base font-medium border-b-2 transition-colors ${location.pathname === "/login"
+              ? useLight
+                ? "border-slate-900 text-slate-900"
+                : "border-white text-white"
+              : useLight
+                ? "border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300"
+                : "border-transparent text-white hover:border-white/30"
+              }`}
           >
             Login
           </Link>
           <Link
             to="/register"
-            className={`hidden sm:inline-flex items-center px-2 py-2 text-sm font-semibold border-b-2 transition-colors ${
-              useLight
-                ? "text-slate-900 border-slate-400 hover:border-slate-900"
-                : "text-white border-white/50 hover:border-white"
-            }`}
+            className={`hidden sm:inline-flex items-center px-2 py-2 text-base font-semibold border-b-2 transition-colors ${location.pathname === "/register"
+              ? useLight
+                ? "border-slate-900 text-slate-900"
+                : "border-white text-white"
+              : useLight
+                ? "border-transparent text-slate-900 hover:border-slate-900"
+                : "border-transparent text-white hover:border-white"
+              }`}
           >
             Get Started
           </Link>
 
           <button
-            className={`md:hidden p-2 rounded-lg transition-colors ${
-              useLight
-                ? "hover:bg-white/60 text-slate-700"
-                : "hover:bg-white/[0.06] text-slate-300"
-            }`}
+            className={`md:hidden p-2 rounded-lg transition-colors ${useLight
+              ? "hover:bg-white/60 text-slate-700"
+              : "hover:bg-white/[0.06] text-slate-300"
+              }`}
             onClick={() => setMobileOpen((value) => !value)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
@@ -137,11 +123,10 @@ export default function Navbar({ hideGuestCenterNav = false }) {
 
       {mobileOpen && (
         <div
-          className={`md:hidden mx-4 mb-4 rounded-xl p-4 animate-slide-down ${
-            useLight
-              ? "bg-white/50 border border-white/50 shadow-glass backdrop-blur-lg"
-              : "glass-panel border-white/[0.06]"
-          }`}
+          className={`md:hidden mx-4 mb-4 rounded-xl p-4 animate-slide-down ${useLight
+            ? "bg-white/50 border border-white/50 shadow-glass backdrop-blur-lg"
+            : "glass-panel border-white/[0.06]"
+            }`}
           role="navigation"
           aria-label="Mobile navigation"
         >
@@ -150,11 +135,10 @@ export default function Navbar({ hideGuestCenterNav = false }) {
               <a
                 key={href}
                 href={href}
-                className={`px-4 py-3 text-sm font-medium transition-colors border-b border-transparent ${
-                  useLight
-                    ? "text-slate-600 hover:text-slate-900 hover:border-slate-300"
-                    : "text-slate-300 hover:text-white hover:border-white/25"
-                }`}
+                className={`px-4 py-3 text-sm font-medium transition-colors border-b border-transparent ${useLight
+                  ? "text-slate-600 hover:text-slate-900 hover:border-slate-300"
+                  : "text-slate-300 hover:text-white hover:border-white/25"
+                  }`}
                 onClick={() => setMobileOpen(false)}
               >
                 {label}
@@ -164,22 +148,20 @@ export default function Navbar({ hideGuestCenterNav = false }) {
             <div className="flex flex-col gap-2 mt-3 pt-3 border-t border-white/[0.06]">
               <Link
                 to="/login"
-                className={`px-4 py-3 text-sm font-medium transition-colors border-b border-transparent ${
-                  useLight
-                    ? "text-slate-600 hover:text-slate-900 hover:border-slate-300"
-                    : "text-slate-300 hover:text-white hover:border-white/25"
-                }`}
+                className={`px-4 py-3 text-base font-medium transition-colors border-b border-transparent ${useLight
+                  ? "text-slate-600 hover:text-slate-900 hover:border-slate-300"
+                  : "text-white hover:text-white hover:border-white/25"
+                  }`}
                 onClick={() => setMobileOpen(false)}
               >
                 Login
               </Link>
               <Link
                 to="/register"
-                className={`px-4 py-3 text-sm font-semibold transition-colors border-b border-transparent ${
-                  useLight
-                    ? "text-slate-900 hover:border-slate-900"
-                    : "text-white hover:border-white"
-                }`}
+                className={`px-4 py-3 text-base font-semibold transition-colors border-b border-transparent ${useLight
+                  ? "text-slate-900 hover:border-slate-900"
+                  : "text-white hover:border-white"
+                  }`}
                 onClick={() => setMobileOpen(false)}
               >
                 Get Started

@@ -46,13 +46,11 @@ export default function ResumeGeneratorButton({
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
 
-  // form state
   const [template, setTemplate] = useState("classic");
   const [phone, setPhone] = useState("");
   const [jobTitle, setJobTitle] = useState("");
   const [jobDescription, setJobDescription] = useState("");
 
-  // result state
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [pdfUrl, setPdfUrl] = useState(null);
@@ -159,7 +157,6 @@ export default function ResumeGeneratorButton({
             aria-modal="true"
             aria-label="Generate resume"
           >
-            {/* backdrop */}
             <button
               aria-label="Close"
               onClick={closeModal}
@@ -170,12 +167,10 @@ export default function ResumeGeneratorButton({
               }}
             />
 
-            {/* panel */}
             <div
               className="glass-panel relative w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 sm:p-7 animate-slide-down"
               style={{ color: T.text }}
             >
-              {/* header */}
               <div className="flex items-start justify-between gap-4 mb-6">
                 <div className="flex items-center gap-3">
                   <span
@@ -216,7 +211,6 @@ export default function ResumeGeneratorButton({
               </div>
 
               <div className="space-y-5">
-                {/* template picker */}
                 <div>
                   <label
                     className="block text-[0.7rem] font-semibold uppercase tracking-wider mb-2.5"
@@ -282,7 +276,6 @@ export default function ResumeGeneratorButton({
                   </div>
                 </div>
 
-                {/* contact + tailoring */}
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
                     <label
@@ -368,7 +361,6 @@ export default function ResumeGeneratorButton({
                 )}
               </div>
 
-              {/* footer actions */}
               <div
                 className="flex flex-wrap items-center justify-between gap-3 mt-6 pt-4"
                 style={{ borderTop: `1px solid ${T.border}` }}

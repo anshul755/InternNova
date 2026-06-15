@@ -1,5 +1,6 @@
 import React from "react";
 import { useFormContext } from "react-hook-form";
+import FieldError from "../FieldError.jsx";
 
 const SKILL_OPTIONS = [];
 const LOCATION_OPTIONS = [];
@@ -79,9 +80,9 @@ const MultiCheckboxGroup = ({ name, options, label, placeholder }) => {
   }, [options, selected]);
 
   return (
-    <div className="space-y-1.5">
-      <p className="block text-xs font-medium text-slate-600">{label}</p>
-      <div className="flex flex-wrap gap-2 mt-1">
+    <div className="space-y-2">
+      <p className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">{label}</p>
+      <div className="flex flex-wrap gap-2.5 mt-1">
         {allOptions.map((option) => {
           const id = `${name}-${option}`;
           const isSelected = selected.includes(option);
@@ -89,10 +90,10 @@ const MultiCheckboxGroup = ({ name, options, label, placeholder }) => {
             <label
               key={option}
               htmlFor={id}
-              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-[0.7rem] cursor-pointer transition-colors ${
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-xs sm:text-sm cursor-pointer transition-colors ${
                 isSelected
-                  ? "bg-emerald-500/15 border-emerald-400 text-emerald-700"
-                  : "bg-white/70 border-white/60 text-slate-600 hover:border-slate-300"
+                  ? "bg-emerald-500/15 border-emerald-400/40 text-emerald-300"
+                  : "bg-white/[0.04] border-white/10 text-slate-400 hover:border-white/20 hover:text-slate-300"
               }`}
             >
               <input
@@ -115,7 +116,7 @@ const MultiCheckboxGroup = ({ name, options, label, placeholder }) => {
                       { shouldValidate: true },
                     );
                   }}
-                  className="text-emerald-600 text-[0.6rem] hover:text-emerald-700"
+                  className="text-emerald-400 text-xs hover:text-emerald-300"
                 >
                   ✕
                 </button>
@@ -125,29 +126,25 @@ const MultiCheckboxGroup = ({ name, options, label, placeholder }) => {
         })}
       </div>
       {placeholder && (
-        <div className="mt-2 flex items-center gap-2">
+        <div className="mt-3 flex items-center gap-3">
           <input
             type="text"
             value={customValue}
             onChange={(e) => setCustomValue(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="input-glass text-xs"
+            className="input-glass text-sm py-3"
             placeholder={placeholder}
           />
           <button
             type="button"
             onClick={handleAddCustom}
-            className="btn-secondary text-[0.7rem] px-3 py-1"
+            className="btn-secondary text-sm px-4 py-2"
           >
             Add
           </button>
         </div>
       )}
-      {errors[name] && (
-        <p className="text-[0.7rem] text-rose-400 mt-1">
-          {errors[name]?.message}
-        </p>
-      )}
+      <FieldError message={errors[name]?.message} persistent />
     </div>
   );
 };
@@ -179,28 +176,28 @@ const LocationMultiSelect = () => {
   const summaryText = "Choose preferred locations";
 
   return (
-    <div className="space-y-1.5 relative">
-      <p className="block text-xs font-medium text-slate-600">
+    <div className="space-y-2 relative">
+      <p className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
         Preferred locations
       </p>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="w-full inline-flex items-center justify-between rounded-lg bg-white/70 border border-white/60 px-3 py-1.5 text-xs sm:text-sm text-slate-700 hover:border-slate-300"
+        className="w-full inline-flex items-center justify-between rounded-xl bg-white/[0.04] border border-white/10 px-4 py-3 text-sm text-slate-300 hover:border-white/20 transition-colors"
       >
         <span className="truncate text-left mr-2">{summaryText}</span>
-        <span className="text-slate-400 text-xs">v</span>
+        <span className="text-slate-500 text-xs">▾</span>
       </button>
 
       {open && (
-        <ul className="absolute z-10 mt-1 max-h-52 w-full overflow-auto rounded-lg bg-white/90 border border-white/70 text-xs sm:text-sm text-slate-700 shadow-lg">
+        <ul className="absolute z-10 mt-1 max-h-52 w-full overflow-auto rounded-xl bg-slate-900/95 border border-white/10 text-sm text-slate-300 shadow-lg backdrop-blur-md">
           {INDIAN_CITIES.map((city) => {
             const isSelected = selected.includes(city);
             return (
               <li
                 key={city}
-                className={`px-3 py-1.5 cursor-pointer hover:bg-white ${
-                  isSelected ? "bg-emerald-50" : ""
+                className={`px-4 py-2.5 cursor-pointer hover:bg-white/5 transition-colors ${
+                  isSelected ? "bg-emerald-500/10 text-emerald-300" : ""
                 }`}
                 onMouseDown={(e) => {
                   e.preventDefault();
@@ -215,26 +212,22 @@ const LocationMultiSelect = () => {
       )}
 
       {selected.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-2">
+        <div className="flex flex-wrap gap-2.5 mt-2">
           {selected.map((city) => (
             <button
               key={city}
               type="button"
               onClick={() => toggleCity(city)}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-[0.7rem] cursor-pointer transition-colors bg-emerald-500/15 border-emerald-400 text-emerald-700 hover:bg-emerald-500/20"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border text-xs sm:text-sm cursor-pointer transition-colors bg-emerald-500/15 border-emerald-400/40 text-emerald-300 hover:bg-emerald-500/20"
             >
               <span>{city}</span>
-              <span className="text-emerald-600 text-[0.6rem]">x</span>
+              <span className="text-emerald-400 text-xs">✕</span>
             </button>
           ))}
         </div>
       )}
 
-      {errors.preferredLocations && (
-        <p className="text-[0.7rem] text-rose-400 mt-1">
-          {errors.preferredLocations.message}
-        </p>
-      )}
+      <FieldError message={errors.preferredLocations?.message} persistent />
     </div>
   );
 };
@@ -245,11 +238,8 @@ const SkillsPreferencesStep = () => {
   } = useFormContext();
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-sm font-semibold text-slate-900 mb-1">
-        Step 4 - Skills & preferences
-      </h2>
-      <p className="text-[0.75rem] text-slate-500 mb-3">
+    <div className="space-y-6">
+      <p className="text-sm sm:text-base text-slate-400 leading-relaxed">
         Choose skills and preferences so we can match you with the right
         opportunities.
       </p>
@@ -274,11 +264,7 @@ const SkillsPreferencesStep = () => {
         placeholder="Type an industry and press Enter to add"
       />
 
-      {errors.skills && (
-        <p className="text-[0.7rem] text-rose-400 mt-1">
-          {errors.skills.message}
-        </p>
-      )}
+      <FieldError message={errors.skills?.message} persistent />
     </div>
   );
 };

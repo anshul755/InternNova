@@ -10,6 +10,7 @@ import {
   IoCheckmark,
 } from "react-icons/io5";
 import { useAlert } from "../../lib/AlertContext.jsx";
+import FormErrorBanner from "../FormErrorBanner.jsx";
 
 const EMPTY_ITEM = (fields) => {
   const obj = {};
@@ -217,7 +218,6 @@ export default function CrudSection({
 
   return (
     <div className="glass-card p-4">
-      {/* header */}
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
@@ -237,13 +237,11 @@ export default function CrudSection({
 
       {expanded && (
         <div className="mt-3 space-y-3">
-          {error && (
-            <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-600">
-              {error}
-            </div>
-          )}
+          <FormErrorBanner
+            message={error}
+            onDismiss={() => setError("")}
+          />
 
-          {/* existing items */}
           {items.map((item, index) => {
             const currentId = getItemId(item, index);
             const isEditing = editingId === currentId;
@@ -253,7 +251,6 @@ export default function CrudSection({
                 className="rounded-lg border border-slate-200/60 bg-white/40 p-3"
               >
                 {isEditing ? (
-                  /* ── edit form ── */
                   <div className="space-y-3">
                     {fields.map((field) => {
                       // Checkbox labels are rendered inside renderField
@@ -299,7 +296,6 @@ export default function CrudSection({
                     </div>
                   </div>
                 ) : (
-                  /* ── display mode ── */
                   <div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5">
                       {fields.map((field) => {
@@ -350,7 +346,6 @@ export default function CrudSection({
             </p>
           )}
 
-          {/* add form */}
           {adding && (
             <div className="rounded-lg border border-emerald-200/80 bg-emerald-50/30 p-3 space-y-3">
               <p className="text-xs font-semibold text-emerald-700">
@@ -400,7 +395,6 @@ export default function CrudSection({
             </div>
           )}
 
-          {/* add button */}
           {!adding && (
             <button
               type="button"

@@ -22,7 +22,7 @@ function Logo({ light }) {
   return (
     <Link
       to="/"
-      className="flex items-center gap-0.1 group"
+      className="flex items-center gap-1.5 group"
       aria-label="InternNova Home"
     >
       <img
@@ -30,8 +30,8 @@ function Logo({ light }) {
         alt="InternNova Logo"
         className="h-8 md:h-10 w-auto object-contain transition-transform group-hover:scale-105"
       />
-      <span 
-        className={`font-semibold tracking-wide text-[1.05rem] ${light ? "text-slate-900" : "text-slate-100"}`}
+      <span
+        className={`font-semibold tracking-wide text-[1.05rem] mt-1 ${light ? "text-slate-900" : "text-slate-100"}`}
       >
         InternNova
       </span>
@@ -64,38 +64,37 @@ function UserDropdown({ user, onLogout, light, displayName, avatarUrl }) {
 
   const menuItems = isCompany
     ? [
-        { label: "Dashboard", icon: IoGridOutline, to: "/dashboard/company" },
-        { label: "Post Job", icon: IoBriefcaseOutline, to: "/jobs/create" },
-        {
-          label: "Applications",
-          icon: IoDocumentTextOutline,
-          to: "/company/applications",
-        },
-        {
-          label: "Edit Profile",
-          icon: IoPersonOutline,
-          to: "/company/profile/edit",
-        },
-      ]
+      { label: "Dashboard", icon: IoGridOutline, to: "/dashboard/company" },
+      { label: "Post Job", icon: IoBriefcaseOutline, to: "/jobs/create" },
+      {
+        label: "Applications",
+        icon: IoDocumentTextOutline,
+        to: "/company/applications",
+      },
+      {
+        label: "Edit Profile",
+        icon: IoPersonOutline,
+        to: "/company/profile/edit",
+      },
+    ]
     : [
-        { label: "Dashboard", icon: IoGridOutline, to: "/dashboard/talent" },
-        { label: "Browse Jobs", icon: IoBriefcaseOutline, to: "/jobs" },
-        {
-          label: "My Applications",
-          icon: IoDocumentTextOutline,
-          to: "/applications",
-        },
-        { label: "Saved Jobs", icon: IoBookmarkOutline, to: "/saved-jobs" },
-        { label: "Edit Profile", icon: IoPersonOutline, to: "/profile/edit" },
-      ];
+      { label: "Dashboard", icon: IoGridOutline, to: "/dashboard/talent" },
+      { label: "Browse Jobs", icon: IoBriefcaseOutline, to: "/jobs" },
+      {
+        label: "My Applications",
+        icon: IoDocumentTextOutline,
+        to: "/applications",
+      },
+      { label: "Saved Jobs", icon: IoBookmarkOutline, to: "/saved-jobs" },
+      { label: "Edit Profile", icon: IoPersonOutline, to: "/profile/edit" },
+    ];
 
   return (
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((value) => !value)}
-        className={`flex items-center gap-2 rounded-full py-1.5 pl-1.5 pr-3 transition-colors ${
-          light ? "hover:bg-white/60" : "hover:bg-white/[0.06]"
-        }`}
+        className={`flex items-center gap-2 rounded-full py-1.5 pl-1.5 pr-3 transition-colors ${light ? "hover:bg-white/60" : "hover:bg-white/[0.06]"
+          }`}
         aria-expanded={open}
         aria-haspopup="menu"
         aria-label="User menu"
@@ -114,25 +113,22 @@ function UserDropdown({ user, onLogout, light, displayName, avatarUrl }) {
           </span>
         )}
         <span
-          className={`hidden sm:block text-sm max-w-[180px] truncate ${
-            light ? "text-slate-700" : "text-slate-300"
-          }`}
+          className={`hidden sm:block text-sm max-w-[180px] truncate ${light ? "text-slate-700" : "text-slate-300"
+            }`}
         >
-          {user?.email}
+          {displayName || user?.displayName || user?.name || user?.companyName || "User"}
         </span>
         <IoChevronDown
-          className={`w-3.5 h-3.5 transition-transform duration-200 ${
-            light ? "text-slate-400" : "text-slate-400"
-          } ${open ? "rotate-180" : ""}`}
+          className={`w-3.5 h-3.5 transition-transform duration-200 ${light ? "text-slate-400" : "text-slate-400"
+            } ${open ? "rotate-180" : ""}`}
         />
       </button>
 
       <div
-        className={`navbar-user-menu absolute right-0 top-full mt-2 w-56 glass-panel border border-white/60 py-2 overflow-hidden z-50 origin-top-right transition-all duration-200 ease-out will-change-transform ${
-          open
+        className={`navbar-user-menu absolute right-0 top-full mt-2 w-56 glass-panel border border-white/60 py-2 overflow-hidden z-50 origin-top-right transition-all duration-200 ease-out will-change-transform ${open
             ? "pointer-events-auto visible opacity-100 translate-y-0 scale-100"
             : "pointer-events-none invisible opacity-0 -translate-y-2 scale-95"
-        }`}
+          }`}
         role="menu"
         aria-labelledby="user-menu-button"
       >
@@ -171,11 +167,10 @@ function UserDropdown({ user, onLogout, light, displayName, avatarUrl }) {
                 key={to}
                 to={to}
                 onClick={() => setOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2.5 mx-1 my-0.5 rounded-lg text-sm transition-all duration-300 ${
-                  light
+                className={`flex items-center gap-3 px-3 py-2.5 mx-1 my-0.5 rounded-lg text-sm transition-all duration-300 ${light
                     ? "text-slate-700 hover:text-slate-900 hover:bg-[#f4f8f2] hover:shadow-[0_0_14px_rgba(124,200,74,0.4)]"
                     : "text-slate-300 hover:text-white hover:bg-white/5 hover:shadow-[0_0_16px_rgba(159,232,112,0.25)]"
-                }`}
+                  }`}
                 role="menuitem"
               >
                 <MenuIcon className="w-4 h-4 text-slate-500" />
@@ -191,11 +186,10 @@ function UserDropdown({ user, onLogout, light, displayName, avatarUrl }) {
               setOpen(false);
               onLogout();
             }}
-            className={`flex w-[calc(100%-0.5rem)] items-center gap-3 px-3 py-2.5 mx-1 my-0.5 rounded-lg text-sm transition-all duration-300 ${
-              light
+            className={`flex w-[calc(100%-0.5rem)] items-center gap-3 px-3 py-2.5 mx-1 my-0.5 rounded-lg text-sm transition-all duration-300 ${light
                 ? "text-slate-700 hover:text-slate-900 hover:bg-[#f4f8f2] hover:shadow-[0_0_14px_rgba(124,200,74,0.4)]"
                 : "text-slate-300 hover:text-white hover:bg-white/5 hover:shadow-[0_0_16px_rgba(159,232,112,0.25)]"
-            }`}
+              }`}
             role="menuitem"
           >
             <IoLogOutOutline className="w-4 h-4" />
@@ -214,7 +208,9 @@ export default function AuthenticatedNavbar() {
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [displayName, setDisplayName] = useState("");
+  const [displayName, setDisplayName] = useState(
+    () => user?.displayName || user?.name || user?.companyName || ""
+  );
   const [avatarUrl, setAvatarUrl] = useState(null);
 
   const useLight = resolvedTheme !== "dark";
@@ -245,7 +241,6 @@ export default function AuthenticatedNavbar() {
         user?.displayName ||
         user?.name ||
         user?.companyName ||
-        user?.email ||
         "";
 
       try {
@@ -278,7 +273,6 @@ export default function AuthenticatedNavbar() {
     isCompany,
     user?.companyName,
     user?.displayName,
-    user?.email,
     user?.id,
     user?.name,
   ]);
@@ -291,15 +285,17 @@ export default function AuthenticatedNavbar() {
   const contextLabel = isCompany ? "Company Dashboard" : "Talent Dashboard";
   const navLinks = isCompany
     ? [
-        { label: "My Jobs", to: "/company/jobs" },
-        { label: "Post Job", to: "/jobs/create" },
-        { label: "Applications", to: "/company/applications" },
-      ]
+      { label: "Dashboard", to: "/dashboard/company" },
+      { label: "My Jobs", to: "/company/jobs" },
+      { label: "Post Job", to: "/jobs/create" },
+      { label: "Applications", to: "/company/applications" },
+    ]
     : [
-        { label: "Jobs", to: "/jobs" },
-        { label: "Applications", to: "/applications" },
-        { label: "Saved", to: "/saved-jobs" },
-      ];
+      { label: "Dashboard", to: "/dashboard/talent" },
+      { label: "Jobs", to: "/jobs" },
+      { label: "Applications", to: "/applications" },
+      { label: "Saved", to: "/saved-jobs" },
+    ];
 
   const headerBg = scrolled
     ? "saas-nav saas-nav--solid"
@@ -318,20 +314,6 @@ export default function AuthenticatedNavbar() {
       >
         <div className="flex items-center gap-4">
           <Logo light={useLight} />
-          <span
-            className={`hidden sm:block w-px h-5 ${useLight ? "bg-slate-200" : "bg-white/10"}`}
-            aria-hidden="true"
-          />
-          <Link
-            to="/dashboard"
-            className={`hidden sm:block text-sm font-medium transition-colors ${
-              useLight
-                ? "text-slate-600 hover:text-slate-900"
-                : "text-slate-300 hover:text-white"
-            }`}
-          >
-            {contextLabel}
-          </Link>
         </div>
 
         <div className="hidden md:flex items-center gap-1">
@@ -340,14 +322,13 @@ export default function AuthenticatedNavbar() {
               key={to}
               to={to}
               className={({ isActive }) =>
-                `px-2 py-2 text-sm font-medium transition-colors border-b-2 ${
-                  useLight
-                    ? isActive
-                      ? "text-slate-900 border-slate-900"
-                      : "text-slate-600 border-transparent hover:text-slate-900 hover:border-slate-300"
-                    : isActive
-                      ? "text-white border-[#ecfccb] shadow-[0_1px_0_0_rgba(236,252,203,0.7)]"
-                      : "text-slate-300 border-transparent hover:text-white hover:border-white/30"
+                `px-2 py-2 text-sm font-medium transition-colors border-b-2 ${useLight
+                  ? isActive
+                    ? "text-slate-900 border-slate-900"
+                    : "text-slate-600 border-transparent hover:text-slate-900 hover:border-slate-300"
+                  : isActive
+                    ? "text-white border-[#ecfccb] shadow-[0_1px_0_0_rgba(236,252,203,0.7)]"
+                    : "text-slate-300 border-transparent hover:text-white hover:border-white/30"
                 }`
               }
             >
@@ -368,16 +349,15 @@ export default function AuthenticatedNavbar() {
               user?.displayName ||
               user?.name ||
               user?.companyName ||
-              user?.email
+              "User"
             }
             avatarUrl={avatarUrl}
           />
           <button
-            className={`md:hidden p-2 rounded-lg transition-colors ${
-              useLight
+            className={`md:hidden p-2 rounded-lg transition-colors ${useLight
                 ? "hover:bg-white/60 text-slate-700"
                 : "hover:bg-white/[0.06] text-slate-300"
-            }`}
+              }`}
             onClick={() => setMobileOpen((value) => !value)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
@@ -393,11 +373,10 @@ export default function AuthenticatedNavbar() {
 
       {mobileOpen && (
         <div
-          className={`md:hidden mx-4 mb-4 rounded-xl p-4 animate-slide-down ${
-            useLight
+          className={`md:hidden mx-4 mb-4 rounded-xl p-4 animate-slide-down ${useLight
               ? "bg-white/50 border border-white/50 shadow-glass backdrop-blur-lg"
               : "glass-panel border-white/[0.06]"
-          }`}
+            }`}
           role="navigation"
           aria-label="Mobile navigation"
         >
@@ -408,14 +387,13 @@ export default function AuthenticatedNavbar() {
                 to={to}
                 onClick={() => setMobileOpen(false)}
                 className={({ isActive }) =>
-                  `px-4 py-3 text-sm font-medium transition-colors border-b-2 border-transparent ${
-                    useLight
-                      ? isActive
-                        ? "text-slate-900 border-slate-900"
-                        : "text-slate-600 hover:text-slate-900 hover:border-slate-300"
-                      : isActive
-                        ? "text-white border-[#ecfccb] shadow-[0_1px_0_0_rgba(236,252,203,0.1)]"
-                        : "text-slate-300 hover:text-white hover:border-white/25"
+                  `px-4 py-3 text-sm font-medium transition-colors border-b-2 border-transparent ${useLight
+                    ? isActive
+                      ? "text-slate-900 border-slate-900"
+                      : "text-slate-600 hover:text-slate-900 hover:border-slate-300"
+                    : isActive
+                      ? "text-white border-[#ecfccb] shadow-[0_1px_0_0_rgba(236,252,203,0.1)]"
+                      : "text-slate-300 hover:text-white hover:border-white/25"
                   }`
                 }
               >
@@ -437,11 +415,10 @@ export default function AuthenticatedNavbar() {
                   setMobileOpen(false);
                   handleLogout();
                 }}
-                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium w-full transition-colors border-b border-transparent ${
-                  useLight
+                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium w-full transition-colors border-b border-transparent ${useLight
                     ? "text-slate-600 hover:text-slate-900 hover:border-slate-300"
                     : "text-slate-300 hover:text-white hover:border-white/25"
-                }`}
+                  }`}
               >
                 <IoLogOutOutline className="w-4 h-4" />
                 Sign out

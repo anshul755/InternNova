@@ -1,10 +1,15 @@
 import { useState } from "react";
 import { useAuth } from "../lib/AuthContext";
+import { useCurrency } from "../lib/CurrencyContext.jsx";
+import CurrencyToggle from "./CurrencyToggle.jsx";
+import FieldError from "./FieldError.jsx";
+import FormErrorBanner from "./FormErrorBanner.jsx";
 
 const JobApplicationForm = ({ job, onSubmit, onCancel }) => {
   const { user } = useAuth();
+  const { currency } = useCurrency();
   const [formData, setFormData] = useState({
-    coverLetter: "",
+    motivationStatement: "",
     resumeFile: null,
     additionalInfo: "",
     availableStartDate: "",
@@ -38,24 +43,18 @@ const JobApplicationForm = ({ job, onSubmit, onCancel }) => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.coverLetter.trim()) {
-      newErrors.coverLetter = "Cover letter is required";
-    } else if (formData.coverLetter.trim().length < 50) {
-      newErrors.coverLetter = "Cover letter must be at least 50 characters";
+    if (!formData.motivationStatement.trim()) {
+      newErrors.motivationStatement = "Please explain why you want to join this company";
+    } else if (formData.motivationStatement.trim().split(/\s+/).length > 250) {
+      newErrors.motivationStatement = "Please keep your answer to 250 words or less";
     }
 
     if (!formData.resumeFile) {
       newErrors.resumeFile = "Resume file is required";
     } else if (formData.resumeFile.size > 5 * 1024 * 1024) {
       newErrors.resumeFile = "Resume file must be less than 5MB";
-    } else if (
-      ![
-        "application/pdf",
-        "application/msword",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      ].includes(formData.resumeFile.type)
-    ) {
-      newErrors.resumeFile = "Resume must be a PDF or Word document";
+    } else if (formData.resumeFile.type !== "application/pdf") {
+      newErrors.resumeFile = "Resume must be a PDF";
     }
 
     if (!formData.availableStartDate) {
@@ -140,24 +139,27 @@ const JobApplicationForm = ({ job, onSubmit, onCancel }) => {
     }
   };
 
+  const companyName = job?.company?.companyName || job?.companyName || "this company";
+
   const formatSalary = (min, max) => {
     if (min == null && max == null) return "Salary not disclosed";
+    const loc = currency === "₹" ? "en-IN" : "en-US";
     if (min != null && max != null)
-      return `$${Number(min).toLocaleString()} - $${Number(max).toLocaleString()}`;
-    if (min != null) return `From $${Number(min).toLocaleString()}`;
-    return `Up to $${Number(max).toLocaleString()}`;
+      return `${currency}${Number(min).toLocaleString(loc)} – ${currency}${Number(max).toLocaleString(loc)}`;
+    if (min != null) return `From ${currency}${Number(min).toLocaleString(loc)}`;
+    return `Up to ${currency}${Number(max).toLocaleString(loc)}`;
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 pt-24 z-[100]">
-      <div className="glass-card p-8 max-w-4xl w-full max-h-[calc(100vh-8rem)] overflow-y-auto">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 pt-24" style={{ background: 'var(--app-overlay)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+      <div className="glass-panel p-8 max-w-4xl w-full max-h-[calc(100vh-8rem)] overflow-y-auto">
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">
+          <h2 className="text-2xl font-bold text-[var(--app-text)] mb-2">
             Apply for Position
           </h2>
-          <div className="text-slate-700">
+          <div className="text-[var(--app-text-secondary)]">
             <p className="font-medium">{job.title}</p>
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-[var(--app-text-muted)]">
               {job.company?.companyName || job.companyName || "Company"} •{" "}
               {job.location || "Location not specified"} •{" "}
               {formatSalary(job.salaryMin, job.salaryMax)}
@@ -165,83 +167,87 @@ const JobApplicationForm = ({ job, onSubmit, onCancel }) => {
           </div>
         </div>
 
-        {errors.submit && (
-          <div className="mb-4 p-3 rounded-lg border border-red-500/30 bg-red-500/10 text-red-400 text-sm">
-            {errors.submit}
-          </div>
-        )}
+        <FormErrorBanner
+          message={errors.submit}
+          onDismiss={() => setErrors((prev) => ({ ...prev, submit: "" }))}
+        />
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6" noValidate>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="md:col-span-2">
               <label
-                htmlFor="coverLetter"
-                className="block text-sm font-medium text-slate-700 mb-2"
+                htmlFor="motivationStatement"
+                className="block text-sm font-medium text-[var(--app-text-secondary)] mb-2"
               >
-                Cover Letter *{" "}
-                <span className="text-xs text-slate-500">
-                  (minimum 50 characters)
+                Why do you want to join {companyName}? *{" "}
+                <span className="text-xs text-[var(--app-text-muted)]">
+                  (up to 250 words)
                 </span>
               </label>
               <textarea
-                id="coverLetter"
-                name="coverLetter"
+                id="motivationStatement"
+                name="motivationStatement"
                 rows={8}
-                value={formData.coverLetter}
+                value={formData.motivationStatement}
                 onChange={handleInputChange}
-                className={`input-glass placeholder-slate-400 resize-vertical ${
-                  errors.coverLetter ? "border-red-500" : "border-white/60"
+                className={`input-glass placeholder:text-[var(--app-text-muted)] resize-vertical ${
+                  errors.motivationStatement ? "!border-rose-400" : ""
                 }`}
-                placeholder="Dear Hiring Manager,
+                placeholder={`I am excited about the opportunity to join ${companyName} because...
 
-I am writing to express my strong interest in the [Position Title] role at [Company Name]. With my background in... 
+Share what draws you to this company:
+• What about their mission, culture, or work excites you?
+• How does this role align with your career goals?
+• What unique value can you bring to their team?
 
-Please highlight:
-• Your relevant experience and skills
-• Why you're interested in this specific role
-• What you can bring to the company
-• Your enthusiasm for the opportunity
-
-Best regards,
-[Your Name]"
+Be genuine and specific — we read every response.`}
               />
-              {errors.coverLetter && (
-                <p className="mt-1 text-sm text-red-500">
-                  {errors.coverLetter}
-                </p>
-              )}
-              <p className="mt-1 text-xs text-slate-500">
-                {formData.coverLetter.length} characters
+              <FieldError
+                message={errors.motivationStatement}
+                id="motivationStatement-error"
+                onDismiss={() =>
+                  setErrors((prev) => ({ ...prev, motivationStatement: "" }))
+                }
+              />
+              <p className="mt-1 text-xs text-[var(--app-text-muted)]">
+                {formData.motivationStatement.trim()
+                  ? formData.motivationStatement.trim().split(/\s+/).length
+                  : 0}{" "}
+                / 250 words
               </p>
             </div>
             <div>
               <label
                 htmlFor="resumeFile"
-                className="block text-sm font-medium text-slate-700 mb-2"
+                className="block text-sm font-medium text-[var(--app-text-secondary)] mb-2"
               >
                 Resume *{" "}
-                <span className="text-xs text-slate-500">
-                  (PDF or Word, max 5MB)
+                <span className="text-xs text-[var(--app-text-muted)]">
+                  (text-based PDF, max 5MB)
                 </span>
               </label>
               <input
                 type="file"
                 id="resumeFile"
                 name="resumeFile"
-                accept=".pdf,.doc,.docx"
+                accept="application/pdf,.pdf"
                 onChange={handleInputChange}
-                className={`input-glass file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-white/60 file:text-sm file:font-medium file:bg-white/70 file:text-slate-700 hover:file:bg-white/80 ${
-                  errors.resumeFile ? "border-red-500" : "border-white/60"
+                className={`input-glass ${
+                  errors.resumeFile ? "!border-rose-400" : ""
                 }`}
               />
-              {errors.resumeFile && (
-                <p className="mt-1 text-sm text-red-500">{errors.resumeFile}</p>
-              )}
+              <FieldError
+                message={errors.resumeFile}
+                id="resumeFile-error"
+                onDismiss={() =>
+                  setErrors((prev) => ({ ...prev, resumeFile: "" }))
+                }
+              />
             </div>
             <div>
               <label
                 htmlFor="availableStartDate"
-                className="block text-sm font-medium text-slate-700 mb-2"
+                className="block text-sm font-medium text-[var(--app-text-secondary)] mb-2"
               >
                 Available Start Date *
               </label>
@@ -255,50 +261,49 @@ Best regards,
                 onChange={handleInputChange}
                 className={`input-glass ${
                   errors.availableStartDate
-                    ? "border-red-500"
-                    : "border-white/60"
+                    ? "!border-rose-400"
+                    : ""
                 }`}
               />
-              {errors.availableStartDate && (
-                <p className="mt-1 text-sm text-red-500">
-                  {errors.availableStartDate}
-                </p>
-              )}
+              <FieldError
+                message={errors.availableStartDate}
+                id="availableStartDate-error"
+                onDismiss={() =>
+                  setErrors((prev) => ({ ...prev, availableStartDate: "" }))
+                }
+              />
             </div>
             <div>
               <label
                 htmlFor="expectedSalary"
-                className="block text-sm font-medium text-slate-700 mb-2"
+                className="block text-sm font-medium text-[var(--app-text-secondary)] mb-2"
               >
-                Expected Monthly Salary
+                Expected Monthly Salary ({currency}) <CurrencyToggle />
               </label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400">
-                  $
-                </span>
-                <input
-                  type="number"
-                  id="expectedSalary"
-                  name="expectedSalary"
-                  value={formData.expectedSalary}
-                  onChange={handleInputChange}
-                  className={`input-glass pl-8 placeholder-slate-400 ${
-                    errors.expectedSalary ? "border-red-500" : "border-white/60"
-                  }`}
-                  placeholder="5000"
-                  min="0"
-                />
-              </div>
-              {errors.expectedSalary && (
-                <p className="mt-1 text-sm text-red-500">
-                  {errors.expectedSalary}
-                </p>
-              )}
+              <input
+                type="number"
+                id="expectedSalary"
+                name="expectedSalary"
+                value={formData.expectedSalary}
+                onChange={handleInputChange}
+                className={`input-glass ${
+                  errors.expectedSalary ? "!border-rose-400" : ""
+                }`}
+                placeholder="5000"
+                min="0"
+              />
+              <FieldError
+                message={errors.expectedSalary}
+                id="expectedSalary-error"
+                onDismiss={() =>
+                  setErrors((prev) => ({ ...prev, expectedSalary: "" }))
+                }
+              />
             </div>
             <div>
               <label
                 htmlFor="portfolioUrl"
-                className="block text-sm font-medium text-slate-700 mb-2"
+                className="block text-sm font-medium text-[var(--app-text-secondary)] mb-2"
               >
                 Portfolio URL
               </label>
@@ -308,21 +313,23 @@ Best regards,
                 name="portfolioUrl"
                 value={formData.portfolioUrl}
                 onChange={handleInputChange}
-                className={`input-glass placeholder-slate-400 ${
-                  errors.portfolioUrl ? "border-red-500" : "border-white/60"
+                className={`input-glass ${
+                  errors.portfolioUrl ? "!border-rose-400" : ""
                 }`}
                 placeholder="https://yourportfolio.com"
               />
-              {errors.portfolioUrl && (
-                <p className="mt-1 text-sm text-red-500">
-                  {errors.portfolioUrl}
-                </p>
-              )}
+              <FieldError
+                message={errors.portfolioUrl}
+                id="portfolioUrl-error"
+                onDismiss={() =>
+                  setErrors((prev) => ({ ...prev, portfolioUrl: "" }))
+                }
+              />
             </div>
             <div>
               <label
                 htmlFor="linkedinUrl"
-                className="block text-sm font-medium text-slate-700 mb-2"
+                className="block text-sm font-medium text-[var(--app-text-secondary)] mb-2"
               >
                 LinkedIn Profile
               </label>
@@ -332,21 +339,23 @@ Best regards,
                 name="linkedinUrl"
                 value={formData.linkedinUrl}
                 onChange={handleInputChange}
-                className={`input-glass placeholder-slate-400 ${
-                  errors.linkedinUrl ? "border-red-500" : "border-white/60"
+                className={`input-glass ${
+                  errors.linkedinUrl ? "!border-rose-400" : ""
                 }`}
                 placeholder="https://linkedin.com/in/yourprofile"
               />
-              {errors.linkedinUrl && (
-                <p className="mt-1 text-sm text-red-500">
-                  {errors.linkedinUrl}
-                </p>
-              )}
+              <FieldError
+                message={errors.linkedinUrl}
+                id="linkedinUrl-error"
+                onDismiss={() =>
+                  setErrors((prev) => ({ ...prev, linkedinUrl: "" }))
+                }
+              />
             </div>
             <div>
               <label
                 htmlFor="githubUrl"
-                className="block text-sm font-medium text-slate-700 mb-2"
+                className="block text-sm font-medium text-[var(--app-text-secondary)] mb-2"
               >
                 GitHub Profile
               </label>
@@ -356,19 +365,23 @@ Best regards,
                 name="githubUrl"
                 value={formData.githubUrl}
                 onChange={handleInputChange}
-                className={`input-glass placeholder-slate-400 ${
-                  errors.githubUrl ? "border-red-500" : "border-white/60"
+                className={`input-glass ${
+                  errors.githubUrl ? "!border-rose-400" : ""
                 }`}
                 placeholder="https://github.com/yourusername"
               />
-              {errors.githubUrl && (
-                <p className="mt-1 text-sm text-red-500">{errors.githubUrl}</p>
-              )}
+              <FieldError
+                message={errors.githubUrl}
+                id="githubUrl-error"
+                onDismiss={() =>
+                  setErrors((prev) => ({ ...prev, githubUrl: "" }))
+                }
+              />
             </div>
             <div className="md:col-span-2">
               <label
                 htmlFor="additionalInfo"
-                className="block text-sm font-medium text-slate-700 mb-2"
+                className="block text-sm font-medium text-[var(--app-text-secondary)] mb-2"
               >
                 Additional Information
               </label>
@@ -378,12 +391,12 @@ Best regards,
                 rows={4}
                 value={formData.additionalInfo}
                 onChange={handleInputChange}
-                className="input-glass placeholder-slate-400 resize-vertical"
+                className="input-glass resize-vertical"
                 placeholder="Any additional information you'd like to share about your qualifications, projects, or why you're interested in this role..."
               />
             </div>
           </div>
-          <div className="flex flex-col-reverse sm:flex-row gap-3 pt-6 border-t border-white/40">
+          <div className="flex flex-col-reverse sm:flex-row gap-3 pt-6 border-t border-[var(--app-border)]">
             <button
               type="button"
               onClick={onCancel}
