@@ -17,6 +17,14 @@ let forceShutdownTimer;
 async function bootstrap() {
   await connectDB();
 
+  // Verify SMTP connection on startup (non-blocking — warns but doesn't crash)
+  const { verifyConnection } = require('./src/config/email');
+  verifyConnection().then((ok) => {
+    if (!ok) {
+      logger.warn('SMTP connection failed — emails will not be sent. Check SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS in .env');
+    }
+  });
+
   server = http.createServer(app);
 
   server.listen(PORT, () => {

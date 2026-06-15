@@ -82,7 +82,7 @@ app.get("/health", async (_req, res) => {
   const probes = Object.entries(config.services).map(async ([name, url]) => {
     try {
       const healthPath = config.healthPaths[name] || "/health";
-      const resp = await fetch(`${url}${healthPath}`, { signal: AbortSignal.timeout(3000) });
+      const resp = await fetch(`${url}${healthPath}`, { signal: AbortSignal.timeout(5000) });
       services[name] = resp.ok ? "ok" : `degraded (HTTP ${resp.status})`;
     } catch {
       services[name] = "unreachable";

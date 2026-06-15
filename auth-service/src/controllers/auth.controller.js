@@ -2,6 +2,33 @@ const authService = require('../services/auth.service');
 const { sendSuccess, sendError } = require('../utils/response');
 const logger = require('../utils/logger');
 
+function isTransientMongoNetworkError(err) {
+  const message = String(err?.message || '');
+  return (
+    err?.name === 'MongoNetworkError' ||
+    message.includes('getaddrinfo') ||
+    message.includes('ENOTFOUND') ||
+    message.includes('querySrv') ||
+    message.includes('server selection timed out')
+  );
+}
+
+async function retryTransientMongo(operation) {
+  try {
+    return await operation();
+  } catch (err) {
+    if (!isTransientMongoNetworkError(err)) {
+      throw err;
+    }
+
+    logger.warn('Transient MongoDB network error, retrying once', {
+      error: err.message,
+    });
+    await new Promise((resolve) => setTimeout(resolve, 750));
+    return operation();
+  }
+}
+
 
 async function register(req, res, next) {
   try {
@@ -44,19 +71,22 @@ async function resendOTP(req, res, next) {
 async function login(req, res, next) {
   try {
     const { email, password } = req.body;
-    const { accessToken, refreshToken, user } = await authService.login({ email, password });
+    const { accessToken, refreshToken, user } = await retryTransientMongo(() =>
+      authService.login({ email, password })
+    );
 
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'Strict',
+      sameSite: process.env.NODE_ENV === 'production' ? 'Strict' : 'Lax',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       path: '/auth/v1/refresh',
     });
 
     sendSuccess(res, 200, 'Login successful.', {
       accessToken,
+      refreshToken,
       user: { id: user._id, email: user.email, role: user.role },
     });
   } catch (err) {
