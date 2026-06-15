@@ -13,7 +13,7 @@ React + Vite app styled with Tailwind CSS v4 for InternNova.
 Install dependencies and run the dev server:
 
 ```bash
-cd Frontend
+cd frontend
 npm install
 npm run dev
 ```

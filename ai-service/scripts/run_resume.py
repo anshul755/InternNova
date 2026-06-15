@@ -3,15 +3,15 @@
 Two modes:
 
   # Full pipeline (needs core-service running + a real talentId):
-  AI/venv/Scripts/python.exe scripts/run_resume.py --talent <talentId> \
+  ai-service/.venv/Scripts/python.exe scripts/run_resume.py --talent <talentId> \
       --template modern --email me@example.com [--jd path/to/jd.txt]
 
   # Offline mode (no core-service): feed a profile JSON matching the
   # /talent/v1/profile/{id}/full shape (see examples/sample_profile.json):
-  AI/venv/Scripts/python.exe scripts/run_resume.py --profile examples/sample_profile.json \
+  ai-service/.venv/Scripts/python.exe scripts/run_resume.py --profile examples/sample_profile.json \
       --template classic --email me@example.com
 
-Writes the assembled .tex and compiled .pdf to AI/scripts/out/ for inspection.
+Writes the assembled .tex and compiled .pdf to ai-service/scripts/out/ for inspection.
 """
 
 import argparse
@@ -21,7 +21,7 @@ import json
 import sys
 from pathlib import Path
 
-# Make the AI/ package importable when run from anywhere.
+# Make the ai-service/ package importable when run from anywhere.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.features.resume_generator.graph import (  # noqa: E402

@@ -2,7 +2,7 @@
 
 Resolution order (highest priority first):
     1. explicit init args
-    2. AI/.env file          <- primary source
+    2. ai-service/.env file          <- primary source
     3. OS environment vars   <- fallback (e.g. system-wide GROQ_API_KEY / OLLAMA_API_KEY)
     4. field defaults
 
@@ -10,6 +10,7 @@ This makes a local .env win, while still falling back to whatever is exported in
 the user's system environment.
 """
 
+import sys
 from functools import lru_cache
 from pathlib import Path
 
@@ -19,7 +20,7 @@ from pydantic_settings import (
     SettingsConfigDict,
 )
 
-# AI/.env lives two parents above this file: core -> app -> AI
+# ai-service/.env lives two parents above this file: core -> app -> ai-service
 ENV_PATH = Path(__file__).resolve().parents[2] / ".env"
 
 
@@ -63,8 +64,8 @@ class Settings(BaseSettings):
     resume_latex_parser_online: bool = False
 
     # Local engine (offline mode). Empty => the Tectonic binary vendored in
-    # AI/tools/tectonic.exe, falling back to a `tectonic` on PATH. Override with
-    # LATEX_LOCAL_COMMAND to point at a system pdflatex/tectonic.
+    # ai-service/tools/tectonic.exe (Windows only), falling back to a `tectonic` on PATH.
+    # Override with LATEX_LOCAL_COMMAND to point at a system pdflatex/tectonic/xelatex.
     latex_local_command: str = ""
     latex_local_timeout: int = 60
 
@@ -76,15 +77,17 @@ class Settings(BaseSettings):
     def resolved_latex_local_command(self) -> str:
         """The local LaTeX engine to invoke in offline mode.
 
-        Prefers an explicit override, then the vendored Tectonic binary, then a
-        `tectonic` discovered on PATH.
+        Prefers an explicit override, then the vendored Tectonic binary (Windows only),
+        then a `tectonic` discovered on PATH.
         """
         if self.latex_local_command:
             return self.latex_local_command
-        # AI/ is two parents above app/core/config.py.
-        vendored = Path(__file__).resolve().parents[2] / "tools" / "tectonic.exe"
-        if vendored.exists():
-            return str(vendored)
+        # The vendored tectonic.exe is Windows-only — skip on other platforms.
+        if sys.platform == "win32":
+            # ai-service/ is two parents above app/core/config.py.
+            vendored = Path(__file__).resolve().parents[2] / "tools" / "tectonic.exe"
+            if vendored.exists():
+                return str(vendored)
         return "tectonic"
 
     @classmethod

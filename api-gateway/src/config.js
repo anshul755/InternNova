@@ -19,6 +19,13 @@ export const config = {
     ai: process.env.AI_SERVICE_URL || "http://localhost:8000",
   },
 
+  // ── Health-check paths (per-service, Spring Boot uses /actuator/health) ───
+  healthPaths: {
+    auth: "/health",
+    core: "/actuator/health",
+    ai: "/health",
+  },
+
   // ── CORS ─────────────────────────────────────────────────────────────────
   allowedOrigins: (process.env.ALLOWED_ORIGINS || "http://localhost:5173,http://localhost:3000")
     .split(",")

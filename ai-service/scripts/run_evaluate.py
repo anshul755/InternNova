@@ -1,7 +1,7 @@
 """Local harness for the full evaluate step (parse -> shortlist) without a server.
 
 Usage:
-    AI/venv/Scripts/python.exe scripts/run_evaluate.py <resume_pdf_url> <job_json_path> \
+    ai-service/.venv/Scripts/python.exe scripts/run_evaluate.py <resume_pdf_url> <job_json_path> \
         [applicationId] [studentId] [jobId]
 
 The job JSON file matches the `job` object of POST /pipeline/v1/evaluate — see
@@ -13,7 +13,7 @@ import json
 import sys
 from pathlib import Path
 
-# Make the AI/ package importable when run from anywhere.
+# Make the ai-service/ package importable when run from anywhere.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.features.evaluate import EvaluateInput, evaluate_application  # noqa: E402

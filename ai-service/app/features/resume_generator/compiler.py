@@ -2,7 +2,7 @@
 
 Two interchangeable backends, selected by `settings.resume_latex_parser_online`:
 
-  * offline (default): a LOCAL engine (Tectonic by default, vendored in AI/tools/).
+  * offline (default): a LOCAL engine (Tectonic by default, vendored in ai-service/tools/).
     Fast (~4s) and dependency-free once its bundle is cached — no per-request network.
   * online: the hosted LaTeX.Online service — needs no local install, but is a
     third-party network dependency and slow on a cache miss (~25s).
@@ -80,7 +80,7 @@ async def _compile_local(tex: str, settings) -> bytes:
         except FileNotFoundError as exc:
             raise ResumeGenerationError(
                 f"Local LaTeX engine not found: '{cmd}'. Install it (run "
-                f"AI/scripts/install_tectonic.ps1) or set LATEX_LOCAL_COMMAND, or "
+                f"ai-service/scripts/install_tectonic.ps1) or set LATEX_LOCAL_COMMAND, or "
                 f"switch to RESUME_LATEX_PARSER_ONLINE=true."
             ) from exc
         except asyncio.TimeoutError as exc:

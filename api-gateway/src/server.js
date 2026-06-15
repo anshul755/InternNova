@@ -81,7 +81,8 @@ app.get("/health", async (_req, res) => {
   // Probe each backend in parallel
   const probes = Object.entries(config.services).map(async ([name, url]) => {
     try {
-      const resp = await fetch(`${url}/health`, { signal: AbortSignal.timeout(3000) });
+      const healthPath = config.healthPaths[name] || "/health";
+      const resp = await fetch(`${url}${healthPath}`, { signal: AbortSignal.timeout(3000) });
       services[name] = resp.ok ? "ok" : `degraded (HTTP ${resp.status})`;
     } catch {
       services[name] = "unreachable";

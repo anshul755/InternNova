@@ -1,7 +1,7 @@
 """Local harness to verify the parser step without a server.
 
 Usage:
-    AI/venv/Scripts/python.exe scripts/run_parser.py <resume_pdf_url> [appId] [studentId] [jobId]
+    ai-service/.venv/Scripts/python.exe scripts/run_parser.py <resume_pdf_url> [appId] [studentId] [jobId]
 """
 
 import asyncio
@@ -9,7 +9,7 @@ import json
 import sys
 from pathlib import Path
 
-# Make the AI/ package importable when run from anywhere.
+# Make the ai-service/ package importable when run from anywhere.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.features.parser import ParseInput, parse_resume  # noqa: E402
