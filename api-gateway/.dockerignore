@@ -1,0 +1,19 @@
+# Dependencies
+node_modules
+npm-debug.log*
+
+# Environment (never bake secrets into images)
+.env
+.env.local
+.env.production
+
+# Runtime artifacts
+*.log
+
+# VCS
+.git
+.gitignore
+
+# Build
+Dockerfile
+.dockerignore

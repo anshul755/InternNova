@@ -1,0 +1,37 @@
+# Python virtual env
+.venv
+venv
+env
+
+# Python bytecode / cache
+__pycache__
+*.pyc
+*.pyo
+.pytest_cache
+.mypy_cache
+.ruff_cache
+
+# Vendored tools (tectonic.exe — Windows only, not for Linux containers)
+tools
+
+# Scripts (dev-only)
+scripts/out
+scripts/__pycache__
+
+# Examples / test data
+examples
+tests
+
+# Environment (never bake secrets into images)
+.env
+.env.local
+.env.production
+
+# VCS
+.git
+.gitignore
+
+# Build
+Dockerfile
+.dockerignore
+*.md

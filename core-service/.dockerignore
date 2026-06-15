@@ -1,0 +1,34 @@
+# Build output
+target
+
+# Maven wrapper (not needed inside container — use the installed Maven)
+.mvn
+mvnw
+mvnw.cmd
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docs
+HELP.md
+*.md
+
+# Environment
+.env
+.env.local
+.env.production
+
+# VCS
+.git
+.gitignore
+
+# Build
+Dockerfile
+.dockerignore
