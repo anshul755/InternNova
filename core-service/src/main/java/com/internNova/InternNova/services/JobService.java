@@ -54,11 +54,11 @@ public class JobService {
     }
 
     public List<Job> getAllJobs() {
-        return jobRepository.findByIsDeletedFalseAndStatus("ACTIVE");
+        return jobRepository.findOpenJobsByStatus("ACTIVE", LocalDate.now());
     }
 
     public Page<Job> getAllJobs(Pageable pageable) {
-        return jobRepository.findByIsDeletedFalseAndStatus("ACTIVE", pageable);
+        return jobRepository.findOpenJobsByStatus("ACTIVE", LocalDate.now(), pageable);
     }
 
     public Optional<Job> getJobById(String id, String viewerId) {
@@ -85,15 +85,15 @@ public class JobService {
     }
 
     public Page<Job> getJobsByType(OpportunityType jobType, Pageable pageable) {
-        return jobRepository.findByJobTypeAndStatusActive(jobType, pageable);
+        return jobRepository.findOpenJobsByJobType(jobType, LocalDate.now(), pageable);
     }
 
     public Page<Job> getJobsByLocation(String location, Pageable pageable) {
-        return jobRepository.findByLocationContainingIgnoreCaseAndStatusActive(location, pageable);
+        return jobRepository.findOpenJobsByLocationContainingIgnoreCase(location, LocalDate.now(), pageable);
     }
 
     public Page<Job> searchJobs(String keyword, Pageable pageable) {
-        return jobRepository.searchActiveJobs(keyword, pageable);
+        return jobRepository.searchOpenJobs(keyword, LocalDate.now(), pageable);
     }
 
     public Job updateJob(String id, JobUpdateDTO jobUpdateDTO) {
@@ -136,7 +136,6 @@ public class JobService {
         job.setResultsPublished(true);
         job = jobRepository.save(job);
 
-        // Send emails
         List<Application> applications = applicationRepository.findByJobIdAndIsDeletedFalse(jobId);
         Company company = companyRepository.findById(job.getCompanyId()).orElse(null);
         String companyName = company != null ? company.getCompanyName() : "The Company";

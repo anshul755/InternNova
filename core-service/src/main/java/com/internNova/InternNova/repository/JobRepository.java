@@ -1,5 +1,6 @@
 package com.internNova.InternNova.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,9 +16,11 @@ import com.internNova.InternNova.enums.OpportunityType;
 @Repository
 public interface JobRepository extends MongoRepository<Job, String> {
 
-List<Job> findByIsDeletedFalseAndStatus(String status);
+    @Query("{'isDeleted': false, 'status': ?0, $or: [{'applicationDeadline': null}, {'applicationDeadline': {$gte: ?1}}]}")
+    List<Job> findOpenJobsByStatus(String status, LocalDate today);
 
-    Page<Job> findByIsDeletedFalseAndStatus(String status, Pageable pageable);
+    @Query("{'isDeleted': false, 'status': ?0, $or: [{'applicationDeadline': null}, {'applicationDeadline': {$gte: ?1}}]}")
+    Page<Job> findOpenJobsByStatus(String status, LocalDate today, Pageable pageable);
 
     List<Job> findByIsDeletedFalseAndStatusAndApplicationDeadlineBefore(String status, java.time.LocalDate date);
 
@@ -27,14 +30,14 @@ List<Job> findByIsDeletedFalseAndStatus(String status);
 
     Page<Job> findByCompanyIdAndIsDeletedFalse(String companyId, Pageable pageable);
 
-    @Query("{'isDeleted': false, 'status': 'ACTIVE', 'jobType': ?0}")
-    Page<Job> findByJobTypeAndStatusActive(OpportunityType jobType, Pageable pageable);
+    @Query("{'isDeleted': false, 'status': 'ACTIVE', 'jobType': ?0, $or: [{'applicationDeadline': null}, {'applicationDeadline': {$gte: ?1}}]}")
+    Page<Job> findOpenJobsByJobType(OpportunityType jobType, LocalDate today, Pageable pageable);
 
-    @Query("{'isDeleted': false, 'status': 'ACTIVE', 'location': {$regex: ?0, $options: 'i'}}")
-    Page<Job> findByLocationContainingIgnoreCaseAndStatusActive(String location, Pageable pageable);
+    @Query("{'isDeleted': false, 'status': 'ACTIVE', 'location': {$regex: ?0, $options: 'i'}, $or: [{'applicationDeadline': null}, {'applicationDeadline': {$gte: ?1}}]}")
+    Page<Job> findOpenJobsByLocationContainingIgnoreCase(String location, LocalDate today, Pageable pageable);
 
-    @Query("{'isDeleted': false, 'status': 'ACTIVE', $or: [{'title': {$regex: ?0, $options: 'i'}}, {'description': {$regex: ?0, $options: 'i'}}, {'skillsRequired': {$in: [?0]}}]}")
-    Page<Job> searchActiveJobs(String keyword, Pageable pageable);
+    @Query("{'isDeleted': false, 'status': 'ACTIVE', $and: [{$or: [{'applicationDeadline': null}, {'applicationDeadline': {$gte: ?1}}]}, {$or: [{'title': {$regex: ?0, $options: 'i'}}, {'description': {$regex: ?0, $options: 'i'}}, {'skillsRequired': {$in: [?0]}}]}]}")
+    Page<Job> searchOpenJobs(String keyword, LocalDate today, Pageable pageable);
     
     long countByCompanyIdAndIsDeletedFalse(String companyId);
 }

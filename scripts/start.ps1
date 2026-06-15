@@ -13,14 +13,30 @@ foreach ($path in @($runtimeRoot, $pidRoot, $logRoot)) {
     }
 }
 
+# ── Load project .env so service processes inherit secrets ───────────────────────
+$envFile = Join-Path $projectRoot ".env"
+if (Test-Path $envFile) {
+    Get-Content $envFile | ForEach-Object {
+        $line = $_.Trim()
+        if ($line -and -not $line.StartsWith("#") -and $line.Contains("=")) {
+            $parts = $line -split "=", 2
+            $key = $parts[0].Trim()
+            $val = $parts[1].Trim()
+            if ($key -and (-not [Environment]::GetEnvironmentVariable($key, "Process"))) {
+                [Environment]::SetEnvironmentVariable($key, $val, "Process")
+            }
+        }
+    }
+}
+
 # Services are started in dependency order:
 #   AI / Core / Auth (no deps) -> API Gateway -> Frontend
 $services = @(
     @{
         Name = "ai-service"
         DisplayName = "AI Service"
-        WorkingDirectory = Join-Path $projectRoot "AI"
-        Command = Join-Path $projectRoot "AI\.venv\Scripts\python.exe"
+        WorkingDirectory = Join-Path $projectRoot "ai-service"
+        Command = Join-Path $projectRoot "ai-service\.venv\Scripts\python.exe"
         Arguments = @("-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000")
         Port = 8000
     },
@@ -32,8 +48,9 @@ $services = @(
         Arguments = @("spring-boot:run")
         Port = 8080
         Env = @{
-            # Share JWT secret with auth-service so tokens can be verified
-            JWT_ACCESS_SECRET = "change_me_to_a_very_long_random_secret_at_least_32_chars"
+            # JWT secret already loaded from root .env (line 17-30).
+            # Only override if you need a different value for local dev.
+            # JWT_ACCESS_SECRET = "override-example"
         }
     },
     @{
@@ -131,6 +148,24 @@ function Assert-ServicePrerequisites {
         $commandPath = Join-Path $Service.WorkingDirectory ($Service.Command -replace '^\.\\', '')
         if (-not (Test-Path -LiteralPath $commandPath)) {
             throw "Service command not found: $commandPath"
+        }
+    }
+
+    # Special check: if this is the AI service, verify the venv exists
+    if ($Service.Name -eq "ai-service") {
+        if (-not (Test-Path -LiteralPath $Service.Command)) {
+            throw @"
+AI service virtual environment not found at:
+  $($Service.Command)
+
+Please set it up first:
+  cd $($Service.WorkingDirectory)
+  python -m venv .venv
+  .venv\Scripts\python.exe -m pip install -r requirements.txt
+
+Or use the setup script:
+  powershell -ExecutionPolicy Bypass -File $($Service.WorkingDirectory)\scripts\setup.ps1
+"@
         }
     }
 }

@@ -15,4 +15,5 @@ public class EvaluateRequestDTO {
     private String jobId;
     private String resumeUrl;
     private JobContextDTO job;
+    private ApplicationContextDTO applicationContext;
 }

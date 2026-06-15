@@ -72,7 +72,7 @@ public class ApplicationService {
         Application application = new Application();
         application.setJobId(applicationCreateDTO.getJobId());
         application.setStudentId(applicationCreateDTO.getStudentId());
-        application.setCoverLetter(applicationCreateDTO.getCoverLetter());
+        application.setMotivationStatement(applicationCreateDTO.getMotivationStatement());
 
 
         application.setJobTitle(job.getTitle());
@@ -98,11 +98,11 @@ public class ApplicationService {
 
         jobService.incrementApplicationCount(applicationCreateDTO.getJobId());
 
-        // Fire-and-forget AI screening: parses the resume and moves the application to
-        // SHORTLISTED / UNDER_REVIEW / REJECTED off the request thread. Stays APPLIED if it fails.
-        applicationEvaluationService.evaluate(savedApplication, job);
-
-        return savedApplication;
+        // Run AI screening synchronously so the response already carries the decision.
+        // The caller (frontend) sees SHORTLISTED / UNDER_REVIEW / REJECTED immediately;
+        // on failure the application stays APPLIED with evaluationError populated.
+        Application evaluated = applicationEvaluationService.evaluateSync(savedApplication, job);
+        return evaluated;
     }
 
     public List<ApplicationResponseDTO> getApplicationsByJob(String jobId) {
@@ -202,7 +202,7 @@ public class ApplicationService {
         dto.setJobId(application.getJobId());
         dto.setStudentId(application.getStudentId());
         
-        dto.setCoverLetter(application.getCoverLetter());
+        dto.setMotivationStatement(application.getMotivationStatement());
         dto.setResumeUrl(application.getResumeUrl());
         dto.setAiMatchScore(application.getAiMatchScore());
         dto.setRecruiterNotes(application.getRecruiterNotes());
@@ -210,6 +210,9 @@ public class ApplicationService {
 
         dto.setJobTitle(application.getJobTitle());
         dto.setCompanyName(application.getCompanyName());
+
+        dto.setEvaluationError(application.getEvaluationError());
+        dto.setEvaluationAttemptedAt(application.getEvaluationAttemptedAt());
 
         ApplicationState finalStatus = application.getStatus();
 
@@ -221,10 +224,11 @@ public class ApplicationService {
                 dto.setCompanyName(company.get().getCompanyName());
             }
 
-            // Mask AI status for students if results are not published
+            // Mask all AI/recruiter statuses for students until the company publishes results.
+            // Before publish, every application looks like "APPLIED" to the candidate.
             if (forStudent && !job.get().isResultsPublished()) {
-                if (finalStatus == ApplicationState.SHORTLISTED || finalStatus == ApplicationState.REJECTED) {
-                    finalStatus = ApplicationState.UNDER_REVIEW;
+                if (finalStatus != ApplicationState.WITHDRAWN) {
+                    finalStatus = ApplicationState.APPLIED;
                 }
             }
         }

@@ -70,14 +70,14 @@ class ApplicationServiceTest {
         testApplication.setJobId("job1");
         testApplication.setStudentId("talent1");
         testApplication.setStatus(ApplicationState.APPLIED);
-        testApplication.setCoverLetter("I am interested in this position");
+        testApplication.setMotivationStatement("I am interested in this position");
         testApplication.setAppliedAt(LocalDateTime.now());
         testApplication.setDeleted(false);
 
         createDTO = new ApplicationCreateDTO();
         createDTO.setJobId("job1");
         createDTO.setStudentId("talent1");
-        createDTO.setCoverLetter("I am interested in this position");
+        createDTO.setMotivationStatement("I am interested in this position");
 
         testJob = new Job();
         testJob.setId("job1");

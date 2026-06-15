@@ -15,7 +15,7 @@ public class ApplicationResponseDTO {
     private String jobId;
     private String studentId;
     private ApplicationState status;
-    private String coverLetter;
+    private String motivationStatement;
     private String resumeUrl;
     private Double aiMatchScore;
     private String recruiterNotes;
@@ -23,6 +23,10 @@ public class ApplicationResponseDTO {
 
     private String jobTitle;
     private String companyName;
-    
+
     private String studentName;
+
+    // AI evaluation tracking — null = not yet attempted, non-null error = failed.
+    private String evaluationError;
+    private LocalDateTime evaluationAttemptedAt;
 }
