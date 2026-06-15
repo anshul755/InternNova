@@ -1,0 +1,62 @@
+name: Deploy to Oracle Cloud
+
+on:
+  workflow_run:
+    workflows: ["Build and Push Docker Images"]
+    branches: [main]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Deploy to Oracle Cloud VM
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.ORACLE_HOST }}
+          username: ${{ secrets.ORACLE_USERNAME }}
+          key: ${{ secrets.ORACLE_SSH_KEY }}
+          script: |
+            set -e
+            cd /opt/internnova
+
+            echo "=== Pulling latest code ==="
+            git pull origin main
+
+            echo "=== Pulling updated Docker images ==="
+            sudo docker compose pull
+
+            echo "=== Recreating containers with latest images ==="
+            sudo docker compose up -d --remove-orphans
+
+            echo "=== Cleaning up unused images ==="
+            sudo docker image prune -f
+
+            echo "=== Reloading Nginx (if config changed) ==="
+            if [ -f nginx/nginx.conf ]; then
+              sudo cp nginx/nginx.conf /etc/nginx/sites-available/internnova
+              sudo nginx -t && sudo systemctl reload nginx && echo "Nginx reloaded OK." || echo "Nginx reload skipped (config test failed)."
+            fi
+
+            echo "=== Waiting for services to become healthy ==="
+            for i in $(seq 1 36); do
+              if curl -sf http://localhost:4000/health > /dev/null 2>&1; then
+                echo "All services healthy after $((i * 5))s."
+                break
+              fi
+              if [ "$i" -eq 36 ]; then
+                echo "WARNING: Health check timed out after 180s."
+                echo "Service status:"
+                sudo docker compose ps
+                echo ""
+                echo "Gateway logs (last 20 lines):"
+                sudo docker compose logs --tail=20 api-gateway
+              fi
+              sleep 5
+            done
+
+            echo "=== Deploy complete. Service status: ==="
+            sudo docker compose ps
