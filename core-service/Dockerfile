@@ -21,7 +21,7 @@ USER appuser
 # JVM heap capped at 512MB — Oracle free tier has 24GB, plenty safe
 ENV JAVA_TOOL_OPTIONS="-Xmx512m"
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=45s --retries=5 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=45s --retries=5 \
+  CMD wget -q -T 10 -O /dev/null http://localhost:8080/actuator/health || exit 1
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
