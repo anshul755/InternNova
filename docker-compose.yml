@@ -1,0 +1,165 @@
+name: internnova
+
+services:
+  # ── MongoDB ────────────────────────────────────────────────────────────────
+  mongodb:
+    image: mongo:7
+    container_name: internnova-mongo
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: internnova-dev
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - internnova
+
+  # ── API Gateway (entry point from Nginx) ──────────────────────────────────
+  api-gateway:
+    build: ./api-gateway
+    container_name: internnova-gateway
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      NODE_ENV: production
+      PORT: "4000"
+      AUTH_SERVICE_URL: http://auth-service:5001
+      CORE_SERVICE_URL: http://core-service:8080
+      AI_SERVICE_URL: http://ai-service:8000
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:5173,http://localhost:3000}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      RATE_LIMIT_WINDOW_MS: "60000"
+      RATE_LIMIT_MAX_REQUESTS: "200"
+    depends_on:
+      - auth-service
+      - core-service
+      - ai-service
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - internnova
+
+  # ── Auth Service ─────────────────────────────────────────────────────────
+  auth-service:
+    build: ./auth-service
+    container_name: internnova-auth
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "5001"
+      MONGODB_URI: ${MONGODB_URI:-mongodb://mongodb:27017/internnova-dev}
+      MONGODB_DB_NAME: ${MONGODB_DB_NAME:-internnova-dev}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-dev-secret-change-in-production-min-32-chars}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-dev-refresh-secret-change-in-production-32}
+      JWT_ACCESS_TTL: ${JWT_ACCESS_TTL:-15m}
+      JWT_REFRESH_TTL: ${JWT_REFRESH_TTL:-7d}
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-dev@localhost}
+      SMTP_PASS: ${SMTP_PASS:-dev-password}
+      EMAIL_FROM: ${EMAIL_FROM:-"InternNova <no-reply@internnova.com>"}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:5173}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      LOG_DIR: /app/logs
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - internnova
+
+  # ── Core Service (Spring Boot) ────────────────────────────────────────────
+  core-service:
+    build: ./core-service
+    container_name: internnova-core
+    restart: unless-stopped
+    environment:
+      SERVER_PORT: "8080"
+      MONGODB_URI: ${MONGODB_URI:-mongodb://mongodb:27017/internnova-dev}
+      MONGODB_DB_NAME: ${MONGODB_DB_NAME:-internnova-dev}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-dev}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-dev}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-dev}
+      AI_SERVICE_URL: http://ai-service:8000
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-dev-jwt-access-secret-min-32-chars-xxx}
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN:-dev-internal-token}
+      CORS_ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:5173}
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_AUTH: ${SMTP_AUTH:-true}
+      SMTP_STARTTLS_ENABLE: ${SMTP_STARTTLS_ENABLE:-true}
+      SMTP_STARTTLS_REQUIRED: ${SMTP_STARTTLS_REQUIRED:-true}
+      EMAIL_FROM: ${EMAIL_FROM:-"InternNova <no-reply@internnova.com>"}
+      MAIL_FORCE_CONFIGURED_FROM: ${MAIL_FORCE_CONFIGURED_FROM:-false}
+      JAVA_TOOL_OPTIONS: "-Xmx512m"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - internnova
+
+  # ── AI Service (FastAPI · LangChain · LaTeX) ───────────────────────────────
+  # Resume parsing, application shortlisting, AI evaluation, PDF resume generation
+  ai-service:
+    build: ./ai-service
+    container_name: internnova-ai
+    restart: unless-stopped
+    environment:
+      LLM_PROVIDER: ${LLM_PROVIDER:-groq}
+      GROQ_API_KEY: ${GROQ_API_KEY:-dev-key}
+      GROQ_MODEL: ${GROQ_MODEL:-openai/gpt-oss-120b}
+      OLLAMA_API_KEY: ${OLLAMA_API_KEY:-}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://localhost:11434}
+      CORE_SERVICE_BASE_URL: http://core-service:8080
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN:-dev-internal-token}
+      LATEX_LOCAL_COMMAND: xelatex
+      LATEX_LOCAL_TIMEOUT: "60"
+      RESUME_LATEX_PARSER_ONLINE: "false"
+      LATEX_COMPILE_URL: https://latexonline.cc/compile
+      LATEX_COMPILE_TIMEOUT: "90"
+      MAX_PDF_MB: "20"
+      PORT: "8000"
+    depends_on:
+      - core-service
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - internnova
+
+volumes:
+  mongo_data:
+
+networks:
+  internnova:
+    driver: bridge
