@@ -5,23 +5,43 @@ import "./index.css";
 import App from "./App.jsx";
 import { AuthProvider } from "./lib/AuthContext.jsx";
 import { AlertProvider } from "./lib/AlertContext.jsx";
+import { CurrencyProvider } from "./lib/CurrencyContext.jsx";
 import { ThemeProvider } from "./lib/ThemeContext.jsx";
+
+// Prevent number inputs from changing value on scroll
+document.addEventListener("wheel", (e) => {
+  if (document.activeElement?.type === "number") {
+    document.activeElement.blur();
+  }
+}, { passive: true });
+
+// Prevent non-numeric characters (e, E, +, -) in number inputs
+document.addEventListener("keydown", (e) => {
+  if (
+    document.activeElement?.type === "number" &&
+    ["e", "E", "+", "-"].includes(e.key)
+  ) {
+    e.preventDefault();
+  }
+});
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <ThemeProvider>
-      <BrowserRouter
-        future={{
-          v7_startTransition: true,
-          v7_relativeSplatPath: true,
-        }}
-      >
-        <AuthProvider>
-          <AlertProvider>
-            <App />
-          </AlertProvider>
-        </AuthProvider>
-      </BrowserRouter>
+      <CurrencyProvider>
+        <BrowserRouter
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true,
+          }}
+        >
+          <AuthProvider>
+            <AlertProvider>
+              <App />
+            </AlertProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </CurrencyProvider>
     </ThemeProvider>
   </StrictMode>,
 );

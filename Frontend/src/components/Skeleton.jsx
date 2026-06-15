@@ -265,7 +265,6 @@ export const TalentDashboardSkeleton = memo(function TalentDashboardSkeleton() {
     >
       <HeroSkeleton ctaCount={3} />
 
-      {/* Stats row — matches grid-cols-2 lg:grid-cols-4 */}
       <Box
         sx={{
           ...safeContainerSx,
@@ -282,7 +281,6 @@ export const TalentDashboardSkeleton = memo(function TalentDashboardSkeleton() {
         ))}
       </Box>
 
-      {/* Main content — matches xl:grid-cols-[0.9fr_1.1fr] */}
       <Box
         sx={{
           ...safeContainerSx,
@@ -351,7 +349,6 @@ export const CompanyDashboardSkeleton = memo(
       >
         <HeroSkeleton ctaCount={2} />
 
-        {/* Stats row — matches grid-cols-2 lg:grid-cols-5 */}
         <Box
           sx={{
             ...safeContainerSx,
@@ -368,7 +365,6 @@ export const CompanyDashboardSkeleton = memo(
           ))}
         </Box>
 
-        {/* Main content — matches xl:grid-cols-[minmax(0,1fr)_24rem] */}
         <Box
           sx={{
             ...safeContainerSx,
@@ -475,14 +471,12 @@ export const CompanyJobsSkeleton = memo(function CompanyJobsSkeleton() {
       aria-label="Loading jobs dashboard"
       sx={{ ...safeContainerSx, display: "grid", gap: 4 }}
     >
-      {/* Page header */}
       <Box sx={{ ...safeContainerSx }}>
         <PremiumSkeleton width="18%" height={14} />
         <PremiumSkeleton width="28%" height={48} sx={{ mt: 1 }} />
         <PremiumSkeleton width="64%" height={16} sx={{ mt: 1.2 }} />
       </Box>
 
-      {/* Stats row — matches grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 */}
       <Box
         sx={{
           ...safeContainerSx,
@@ -500,7 +494,6 @@ export const CompanyJobsSkeleton = memo(function CompanyJobsSkeleton() {
         ))}
       </Box>
 
-      {/* Main content — matches xl:grid-cols-[1.1fr_0.9fr] */}
       <Box
         sx={{
           ...safeContainerSx,
@@ -588,7 +581,7 @@ export const CompanyJobsSkeleton = memo(function CompanyJobsSkeleton() {
   );
 });
 
-/* ─── Job Listing Card Skeleton (reused in lists) ──────────────────────── */
+/* ─── Job Listing Card Skeleton ─────────────────────────────────────────── */
 const JobListingCardSkeleton = memo(function JobListingCardSkeleton() {
   return (
     <Card className="glass-card" elevation={0} sx={{ ...cardSafeSx, p: 3 }}>
@@ -647,7 +640,6 @@ export const JobListingsSkeleton = memo(function JobListingsSkeleton() {
       aria-label="Loading job listings"
       sx={{ ...safeContainerSx, display: "grid", gap: 3 }}
     >
-      {/* Filter bar */}
       <Card className="glass-card" elevation={0} sx={{ ...cardSafeSx, p: 3 }}>
         <Box
           sx={{
@@ -669,19 +661,16 @@ export const JobListingsSkeleton = memo(function JobListingsSkeleton() {
         </Box>
       </Card>
 
-      {/* Results heading */}
       <Box sx={{ display: "flex", justifyContent: "space-between" }}>
         <PremiumSkeleton width={180} height={26} />
       </Box>
 
-      {/* Job cards */}
       <Stack spacing={2}>
         {Array.from({ length: 5 }).map((_, i) => (
           <JobListingCardSkeleton key={i} />
         ))}
       </Stack>
 
-      {/* Pagination */}
       <Stack
         direction="row"
         spacing={1.5}
@@ -704,7 +693,6 @@ export const JobDetailsSkeleton = memo(function JobDetailsSkeleton() {
       aria-label="Loading job details"
       sx={{ ...safeContainerSx, maxWidth: 960, mx: "auto", display: "grid", gap: 3, px: { xs: 2, sm: 3, lg: 4 }, py: 4 }}
     >
-      {/* Hero card */}
       <Card className="glass-card" elevation={0} sx={{ ...cardSafeSx, p: 4 }}>
         <Box
           sx={{
@@ -736,7 +724,6 @@ export const JobDetailsSkeleton = memo(function JobDetailsSkeleton() {
             <PremiumSkeleton width="60%" height={12} sx={{ alignSelf: "flex-end" }} />
           </Stack>
         </Box>
-        {/* Skills row */}
         <Box sx={{ mt: 3, pt: 3, borderTop: "1px solid var(--app-border)" }}>
           <PremiumSkeleton width="12%" height={12} sx={{ mb: 1.5 }} />
           <Stack direction="row" spacing={1}>
@@ -747,7 +734,6 @@ export const JobDetailsSkeleton = memo(function JobDetailsSkeleton() {
         </Box>
       </Card>
 
-      {/* Content grid — lg:grid-cols-3 */}
       <Box
         sx={{
           display: "grid",
@@ -755,7 +741,6 @@ export const JobDetailsSkeleton = memo(function JobDetailsSkeleton() {
           gridTemplateColumns: { xs: "1fr", lg: "2fr 1fr" },
         }}
       >
-        {/* Left column — description cards */}
         <Stack spacing={3}>
           {Array.from({ length: 3 }).map((_, i) => (
             <Card key={i} className="glass-card" elevation={0} sx={{ ...cardSafeSx, p: 3 }}>
@@ -768,7 +753,6 @@ export const JobDetailsSkeleton = memo(function JobDetailsSkeleton() {
           ))}
         </Stack>
 
-        {/* Right column — sidebar */}
         <Stack spacing={3}>
           <Card className="glass-card" elevation={0} sx={{ ...cardSafeSx, p: 3 }}>
             <PremiumSkeleton width="40%" height={20} sx={{ mb: 2.5 }} />
@@ -796,10 +780,8 @@ export const ApplicationManagementSkeleton = memo(function ApplicationManagement
       aria-label="Loading applications"
       sx={{ ...safeContainerSx, maxWidth: 960, mx: "auto", display: "grid", gap: 3, px: { xs: 2, sm: 3, lg: 4 }, py: 4 }}
     >
-      {/* Title */}
       <PremiumSkeleton width={200} height={30} />
 
-      {/* Stats row — grid-cols-2 sm:grid-cols-4 */}
       <Box
         sx={{
           display: "grid",
@@ -818,7 +800,6 @@ export const ApplicationManagementSkeleton = memo(function ApplicationManagement
         ))}
       </Box>
 
-      {/* Application cards */}
       <Stack spacing={2}>
         {Array.from({ length: 4 }).map((_, i) => (
           <Card key={i} className="glass-card" elevation={0} sx={{ ...cardSafeSx, p: 3 }}>
@@ -854,14 +835,12 @@ export const ApplicationDetailSkeleton = memo(function ApplicationDetailSkeleton
       aria-label="Loading application detail"
       sx={{ ...safeContainerSx, maxWidth: 896, mx: "auto", display: "grid", gap: 3, px: { xs: 2, sm: 3, lg: 4 }, py: 4 }}
     >
-      {/* Breadcrumb */}
       <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
         <PremiumSkeleton width={50} height={16} />
         <PremiumSkeleton width={8} height={16} />
         <PremiumSkeleton width={130} height={16} />
       </Stack>
 
-      {/* Status banner */}
       <Card elevation={0} sx={{ ...cardSafeSx, p: 2.5 }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Box>
@@ -872,7 +851,6 @@ export const ApplicationDetailSkeleton = memo(function ApplicationDetailSkeleton
         </Box>
       </Card>
 
-      {/* Details grid — md:grid-cols-2 */}
       <Box sx={{ display: "grid", gap: 3, gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" } }}>
         {Array.from({ length: 2 }).map((_, i) => (
           <Card key={i} className="glass-card" elevation={0} sx={{ ...cardSafeSx, p: 3 }}>
@@ -890,7 +868,6 @@ export const ApplicationDetailSkeleton = memo(function ApplicationDetailSkeleton
         ))}
       </Box>
 
-      {/* Cover letter card */}
       <Card className="glass-card" elevation={0} sx={{ ...cardSafeSx, p: 3 }}>
         <PremiumSkeleton width="20%" height={20} sx={{ mb: 2 }} />
         <PremiumSkeleton width="100%" height={14} />
@@ -899,7 +876,6 @@ export const ApplicationDetailSkeleton = memo(function ApplicationDetailSkeleton
         <PremiumSkeleton width="60%" height={14} sx={{ mt: 1 }} />
       </Card>
 
-      {/* Withdraw button */}
       <PremiumSkeleton width={170} height={38} sx={{ borderRadius: 2 }} />
     </Box>
   );
@@ -914,7 +890,6 @@ export const SavedJobsSkeleton = memo(function SavedJobsSkeleton() {
       aria-label="Loading saved jobs"
       sx={{ ...safeContainerSx, maxWidth: 960, mx: "auto", display: "grid", gap: 3, px: { xs: 2, sm: 3, lg: 4 }, py: 4 }}
     >
-      {/* Header row */}
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <Box>
           <PremiumSkeleton width={160} height={28} />
@@ -923,7 +898,6 @@ export const SavedJobsSkeleton = memo(function SavedJobsSkeleton() {
         <PremiumSkeleton width={140} height={38} sx={{ borderRadius: 99 }} />
       </Box>
 
-      {/* Job cards */}
       <Stack spacing={2}>
         {Array.from({ length: 4 }).map((_, i) => (
           <Card key={i} className="glass-card" elevation={0} sx={{ ...cardSafeSx, p: 3 }}>
@@ -966,16 +940,13 @@ export const ProfileEditSkeleton = memo(function ProfileEditSkeleton() {
       aria-label="Loading profile editor"
       sx={{ ...safeContainerSx, maxWidth: 896, mx: "auto", display: "grid", gap: 3, px: { xs: 2, sm: 3, lg: 4 }, py: 4 }}
     >
-      {/* Header */}
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <PremiumSkeleton width={200} height={26} />
         <PremiumSkeleton width={160} height={16} />
       </Box>
 
-      {/* Form card */}
       <Card className="glass-card" elevation={0} sx={{ ...cardSafeSx, p: 3 }}>
         <Stack spacing={3}>
-          {/* 2-col field grid — 6 rows */}
           <Box
             sx={{
               display: "grid",
@@ -991,13 +962,11 @@ export const ProfileEditSkeleton = memo(function ProfileEditSkeleton() {
             ))}
           </Box>
 
-          {/* Textarea */}
           <Box>
             <PremiumSkeleton width="10%" height={12} sx={{ mb: 0.75 }} />
             <PremiumSkeleton width="100%" height={90} sx={{ borderRadius: 2 }} />
           </Box>
 
-          {/* CRUD sections (experience, projects, etc.) */}
           {Array.from({ length: 3 }).map((_, i) => (
             <Card key={i} elevation={0} sx={{ ...cardSafeSx, p: 2.5 }}>
               <Stack direction="row" spacing={1.5} sx={{ alignItems: "center", mb: 2 }}>
@@ -1008,7 +977,6 @@ export const ProfileEditSkeleton = memo(function ProfileEditSkeleton() {
             </Card>
           ))}
 
-          {/* File uploads */}
           <Box sx={{ display: "grid", gap: 2, gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" } }}>
             <Box>
               <PremiumSkeleton width="20%" height={12} sx={{ mb: 0.75 }} />
@@ -1020,7 +988,6 @@ export const ProfileEditSkeleton = memo(function ProfileEditSkeleton() {
             </Box>
           </Box>
 
-          {/* Buttons */}
           <Stack direction="row" spacing={1.5} sx={{ pt: 1 }}>
             <PremiumSkeleton width={120} height={40} sx={{ borderRadius: 99 }} />
             <PremiumSkeleton width={80} height={40} sx={{ borderRadius: 99 }} />
@@ -1040,7 +1007,6 @@ export const JobEditSkeleton = memo(function JobEditSkeleton() {
       aria-label="Loading job editor"
       sx={{ ...safeContainerSx }}
     >
-      {/* Top bar */}
       <Box sx={{ borderBottom: "1px solid var(--app-border)", px: { xs: 2, sm: 3, lg: 4 } }}>
         <Box sx={{ maxWidth: 896, mx: "auto", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <PremiumSkeleton width={160} height={22} />
@@ -1048,11 +1014,9 @@ export const JobEditSkeleton = memo(function JobEditSkeleton() {
         </Box>
       </Box>
 
-      {/* Form card */}
       <Box sx={{ maxWidth: 896, mx: "auto", px: { xs: 2, sm: 3, lg: 4 }, py: 4 }}>
         <Card className="glass-card" elevation={0} sx={{ ...cardSafeSx, p: 3 }}>
           <Stack spacing={3}>
-            {/* Section 1: Basic Info */}
             <Box>
               <PremiumSkeleton width="14%" height={18} sx={{ mb: 2 }} />
               <PremiumSkeleton width="100%" height={38} sx={{ borderRadius: 2, mb: 2 }} />
@@ -1070,7 +1034,6 @@ export const JobEditSkeleton = memo(function JobEditSkeleton() {
               </Stack>
             </Box>
 
-            {/* Section 2: Details */}
             <Box>
               <PremiumSkeleton width="10%" height={18} sx={{ mb: 2 }} />
               {Array.from({ length: 4 }).map((_, i) => (
@@ -1081,7 +1044,6 @@ export const JobEditSkeleton = memo(function JobEditSkeleton() {
               ))}
             </Box>
 
-            {/* Section 3: Skills & Compensation */}
             <Box>
               <PremiumSkeleton width="22%" height={18} sx={{ mb: 2 }} />
               <PremiumSkeleton width="100%" height={38} sx={{ borderRadius: 2, mb: 2 }} />
@@ -1105,7 +1067,6 @@ export const JobEditSkeleton = memo(function JobEditSkeleton() {
               </Box>
             </Box>
 
-            {/* Submit button */}
             <Box sx={{ display: "flex", justifyContent: "flex-end", pt: 2, borderTop: "1px solid var(--app-border)" }}>
               <PremiumSkeleton width={120} height={38} sx={{ borderRadius: 99 }} />
             </Box>
@@ -1125,22 +1086,18 @@ export const CompanyApplicationsSkeleton = memo(function CompanyApplicationsSkel
       aria-label="Loading applications"
       sx={{ ...safeContainerSx, maxWidth: 1152, mx: "auto", display: "grid", gap: 3, px: { xs: 2, sm: 3, lg: 4 }, py: 4 }}
     >
-      {/* Title */}
       <PremiumSkeleton width={220} height={30} />
 
-      {/* Job selector card */}
       <Card className="glass-card" elevation={0} sx={{ ...cardSafeSx, p: 2.5 }}>
         <PremiumSkeleton width="10%" height={12} sx={{ mb: 1 }} />
         <PremiumSkeleton width={360} height={38} sx={{ borderRadius: 2 }} />
       </Card>
 
-      {/* Selected job info card */}
       <Card className="glass-card" elevation={0} sx={{ ...cardSafeSx, p: 2.5 }}>
         <PremiumSkeleton width="30%" height={22} />
         <PremiumSkeleton width="24%" height={14} sx={{ mt: 0.75 }} />
       </Card>
 
-      {/* Pipeline grid — xl:grid-cols-[1.2fr_repeat(3,1fr)] with 2 rows */}
       <Card className="glass-card" elevation={0} sx={{ ...cardSafeSx, p: 2.5 }}>
         <Box
           sx={{

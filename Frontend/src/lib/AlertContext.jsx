@@ -60,13 +60,10 @@ function AlertModal({ modal, onClose }) {
       }}
     >
       <div className="custom-alert-modal" role="alertdialog" aria-modal="true" data-type={alertType}>
-        {/* Top accent bar */}
         <div className="custom-alert-accent" />
 
-        {/* Diagonal noise texture */}
         <div className="custom-alert-noise" />
 
-        {/* Close button */}
         <button
           onClick={() => onClose(modal.kind === "confirm" ? false : modal.kind === "prompt" ? null : undefined)}
           className="custom-alert-close"
@@ -75,19 +72,15 @@ function AlertModal({ modal, onClose }) {
           <IoClose className="h-4 w-4" />
         </button>
 
-        {/* Content */}
         <div className="custom-alert-body">
-          {/* Icon */}
           <div className="custom-alert-icon">
             <IconComponent className="h-6 w-6" />
           </div>
 
-          {/* Message */}
           <p className="custom-alert-message">
             {modal.message}
           </p>
 
-          {/* Prompt input */}
           {modal.kind === "prompt" && (
             <input
               type="text"
@@ -102,7 +95,6 @@ function AlertModal({ modal, onClose }) {
             />
           )}
 
-          {/* Buttons */}
           <div className="custom-alert-actions">
             {modal.kind === "alert" && (
               <button

@@ -15,7 +15,7 @@ export default function GlassSelect({
   className = "",
   disabled = false,
 }) {
-  const selectedValue = value || undefined;
+  const selectedValue = value ?? "";
   const resolvedClearLabel = clearLabel || placeholder;
 
   return (
@@ -43,14 +43,15 @@ export default function GlassSelect({
       <Select.Portal>
         <Select.Content
           position="popper"
+          side="bottom"
           sideOffset={8}
           align="start"
+          avoidCollisions={false}
           style={{
             width: "var(--radix-select-trigger-width)",
             minWidth: "var(--radix-select-trigger-width)",
           }}
           className="glass-select__content"
-          forceMount
         >
           <Select.Viewport className="glass-select__viewport">
             {showClearOption && (

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { getStoredToken, setStoredToken, clearStoredToken } from "./authStorage.js";
+import { getStoredToken, setStoredToken, setStoredRefreshToken, clearStoredToken } from "./authStorage.js";
 import { AUTH_API_BASE } from "./serviceConfig.js";
 
 const AUTH_BASE = AUTH_API_BASE;
@@ -50,26 +50,6 @@ export function AuthProvider({ children }) {
   const [accessToken, setAccessToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const refreshSession = useCallback(async () => {
-    const res = await fetch(`${AUTH_BASE}/refresh`, {
-      method: "POST",
-      credentials: "include",
-    });
-
-    const body = await res.json();
-    if (!res.ok) {
-      throw new Error(body.message || "Session refresh failed.");
-    }
-
-    const token = body?.data?.accessToken;
-    if (!token) {
-      throw new Error("Session refresh did not return an access token.");
-    }
-
-    _storeToken(token);
-    return token;
-  }, []);
-
   useEffect(() => {
     let cancelled = false;
 
@@ -89,15 +69,9 @@ export function AuthProvider({ children }) {
       }
 
       clearStoredToken();
-
-      try {
-        await refreshSession();
-      } catch {
-        if (!cancelled) {
-          _clearToken();
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
+      if (!cancelled) {
+        _clearToken();
+        setLoading(false);
       }
     };
 
@@ -106,7 +80,7 @@ export function AuthProvider({ children }) {
     return () => {
       cancelled = true;
     };
-  }, [refreshSession]);
+  }, []);
 
   const _storeToken = (token, userData) => {
     setStoredToken(token);
@@ -199,8 +173,11 @@ export function AuthProvider({ children }) {
     const body = await res.json();
     if (!res.ok) throw new Error(body.message || "Login failed.");
 
-    const { accessToken: token } = body.data;
+    const { accessToken: token, refreshToken: rToken } = body.data;
     _storeToken(token, body.data.user);
+    if (rToken) {
+      setStoredRefreshToken(rToken);
+    }
     return body.data.user;
   }, []);
 
