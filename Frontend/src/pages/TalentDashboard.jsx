@@ -3,13 +3,14 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
 import { resolveLogoUrl } from "../lib/media.js";
+import { filterOpenJobs } from "../lib/jobs.js";
+import { useCurrency } from "../lib/CurrencyContext.jsx";
 import { TalentDashboardSkeleton } from "../components/Skeleton.jsx";
 import ErrorState from "../components/ErrorState.jsx";
 import StatusBadge from "../components/StatusBadge.jsx";
 import {
   IoBookmarkOutline,
   IoBriefcaseOutline,
-  IoCheckmarkCircleOutline,
   IoDocumentTextOutline,
   IoLocationOutline,
   IoPersonOutline,
@@ -22,6 +23,7 @@ import {
 
 const TalentDashboard = () => {
   const { user } = useAuth();
+  const { currency } = useCurrency();
   const [profile, setProfile] = useState(null);
   const [applications, setApplications] = useState([]);
   const [recentJobs, setRecentJobs] = useState([]);
@@ -57,7 +59,7 @@ const TalentDashboard = () => {
         .then((res) => res.json());
 
       const jobsPromise = api
-        .get("/jobs/v1?page=0&size=5&sortBy=createdAt&sortDir=desc")
+        .get("/jobs/v1?page=0&size=6&sortBy=createdAt&sortDir=desc")
         .then((res) => res.json());
 
       const [profileData, appsData, jobsData] = await Promise.all([
@@ -71,10 +73,8 @@ const TalentDashboard = () => {
         Array.isArray(appsData) ? appsData : appsData.content || [],
       );
       setRecentJobs(
-        Array.isArray(jobsData) ? jobsData : jobsData.content || [],
+        filterOpenJobs(Array.isArray(jobsData) ? jobsData : jobsData.content || []),
       );
-    } catch (err) {
-      setError(err.message || "Failed to load dashboard data");
     } finally {
       setLoading(false);
     }
@@ -87,8 +87,6 @@ const TalentDashboard = () => {
       inProgress: applications.filter((a) =>
         ["UNDER_REVIEW", "SHORTLISTED", "INTERVIEW"].includes(a.status),
       ).length,
-      offers: applications.filter((a) => ["OFFER", "HIRED"].includes(a.status))
-        .length,
       total: applications.length,
     }),
     [applications],
@@ -198,7 +196,7 @@ const TalentDashboard = () => {
         </div>
       </section>
 
-      <section className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <section className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-3">
         {[
           [
             "Applied",
@@ -213,13 +211,6 @@ const TalentDashboard = () => {
             IoTimeOutline,
             "text-emerald-600 dark:text-emerald-400",
             "bg-emerald-500/10",
-          ],
-          [
-            "Offers",
-            stats.offers,
-            IoCheckmarkCircleOutline,
-            "text-lime-600 dark:text-lime-400",
-            "bg-lime-500/10",
           ],
           [
             "Total",
@@ -273,9 +264,6 @@ const TalentDashboard = () => {
                     <div className="glass-card p-4 h-35 transition-colors hover:border-emerald-500/30">
                       <div className="flex items-start justify-between gap-3">
                         <div>
-                          <p className="text-xs font-semibold uppercase tracking-wider opacity-60">
-                            Step {index + 1}
-                          </p>
                           <h3 className="mt-1 font-bold">{app.jobTitle}</h3>
                           <p className="mt-1 text-sm opacity-70">
                             {app.companyName || "Company"}
@@ -343,8 +331,8 @@ const TalentDashboard = () => {
                     </div>
                     {job.salaryMin && job.salaryMax && (
                       <p className="mt-2 text-sm font-bold text-emerald-600 dark:text-emerald-400">
-                        ${job.salaryMin.toLocaleString()} - $
-                        {job.salaryMax.toLocaleString()}
+                        {currency}{job.salaryMin.toLocaleString(currency === "₹" ? "en-IN" : "en-US")} – {currency}
+                        {job.salaryMax.toLocaleString(currency === "₹" ? "en-IN" : "en-US")}
                       </p>
                     )}
                   </Link>

@@ -7,10 +7,12 @@ import { JobDetailsSkeleton } from "../components/Skeleton.jsx";
 import ErrorState from "../components/ErrorState.jsx";
 import JobApplicationForm from "../components/JobApplicationForm";
 import { useAlert } from "../lib/AlertContext.jsx";
+import { useCurrency } from "../lib/CurrencyContext.jsx";
 
-function formatSalary(min, max) {
+function formatSalary(min, max, currency) {
   if (!min && !max) return "Not specified";
-  const fmt = (n) => `₹${Number(n).toLocaleString("en-IN")}`;
+  const locale = currency === "₹" ? "en-IN" : "en-US";
+  const fmt = (n) => `${currency}${Number(n).toLocaleString(locale)}`;
   if (min && max) return `${fmt(min)} – ${fmt(max)}`;
   if (min) return `From ${fmt(min)}`;
   return `Up to ${fmt(max)}`;
@@ -22,6 +24,7 @@ const JobDetails = () => {
   const isCompany = user?.role === "Company";
   const isTalent = user?.role === "Talent";
   const { showAlert } = useAlert();
+  const { currency } = useCurrency();
 
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -75,7 +78,7 @@ const JobDetails = () => {
       const payloadData = {
         jobId: id,
         studentId: user?.id,
-        coverLetter: applicationData.get("coverLetter"),
+        motivationStatement: applicationData.get("motivationStatement"),
         resumeUrl: applicationData.get("resumeUrl") || undefined,
       };
       const formData = new FormData();
@@ -158,7 +161,6 @@ const JobDetails = () => {
           </div>
         )}
 
-        {/* Hero Card */}
         <div className="glass-card p-8 mb-6">
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
             <div className="flex-1">
@@ -187,7 +189,7 @@ const JobDetails = () => {
                 )}
                 <span className="text-slate-300">•</span>
                 <span className="text-emerald-600 font-medium">
-                  {formatSalary(job.salaryMin, job.salaryMax)}
+                  {formatSalary(job.salaryMin, job.salaryMax, currency)}
                 </span>
               </div>
               {(job.startDate || job.applicationDeadline) && (
@@ -291,7 +293,6 @@ const JobDetails = () => {
           )}
         </div>
 
-        {/* Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             {job.description && (
@@ -356,7 +357,7 @@ const JobDetails = () => {
                 <div>
                   <dt className="text-xs text-slate-500">Salary</dt>
                   <dd className="text-emerald-600 font-medium">
-                    {formatSalary(job.salaryMin, job.salaryMax)}
+                    {formatSalary(job.salaryMin, job.salaryMax, currency)}
                   </dd>
                 </div>
                 <div>

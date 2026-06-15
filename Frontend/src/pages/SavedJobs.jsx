@@ -5,23 +5,27 @@ import { api } from "../lib/api";
 import { SavedJobsSkeleton } from "../components/Skeleton.jsx";
 import ErrorState from "../components/ErrorState.jsx";
 import { useAlert } from "../lib/AlertContext.jsx";
+import { useCurrency } from "../lib/CurrencyContext.jsx";
 
-const formatSalary = (min, max) => {
+const formatSalary = (min, max, currency) => {
   if (!min && !max) return "";
+  const loc = currency === "₹" ? "en-IN" : "en-US";
   if (min && max)
-    return `₹${min.toLocaleString("en-IN")} – ₹${max.toLocaleString("en-IN")}`;
-  if (min) return `From ₹${min.toLocaleString("en-IN")}`;
-  return `Up to ₹${max.toLocaleString("en-IN")}`;
+    return `${currency}${min.toLocaleString(loc)} – ${currency}${max.toLocaleString(loc)}`;
+  if (min) return `From ${currency}${min.toLocaleString(loc)}`;
+  return `Up to ${currency}${max.toLocaleString(loc)}`;
 };
 
 const SavedJobs = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { showAlert } = useAlert();
+  const { currency } = useCurrency();
 
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [removingId, setRemovingId] = useState(null);
 
   const fetchSavedJobs = useCallback(async () => {
     if (!user || user.role !== "Talent") return;
@@ -43,11 +47,14 @@ const SavedJobs = () => {
   }, [fetchSavedJobs]);
 
   const removeSavedJob = async (jobId) => {
+    setRemovingId(jobId);
     try {
       await api.delete(`/talent/v1/${user.id}/saved-jobs/${jobId}`);
       setJobs((currentJobs) => currentJobs.filter((job) => job.id !== jobId));
     } catch (err) {
       await showAlert(err.message || "Failed to remove saved job.");
+    } finally {
+      setRemovingId(null);
     }
   };
 
@@ -137,7 +144,7 @@ const SavedJobs = () => {
                       <>
                         <span className="text-slate-300">•</span>
                         <span className="text-emerald-600 font-medium">
-                          {formatSalary(job.salaryMin, job.salaryMax)}
+                          {formatSalary(job.salaryMin, job.salaryMax, currency)}
                         </span>
                       </>
                     )}
@@ -171,9 +178,12 @@ const SavedJobs = () => {
                   </Link>
                   <button
                     onClick={() => removeSavedJob(job.id)}
-                    className="btn-secondary flex-1 px-4 py-2 text-sm"
+                    disabled={removingId === job.id}
+                    className="btn-secondary flex-1 px-4 py-2 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    Remove
+                    {removingId === job.id ? (
+                      <><span className="inline-block h-3 w-3 rounded-full border-2 border-current border-t-transparent animate-spin mr-1.5" />Removing...</>
+                    ) : "Remove"}
                   </button>
                 </div>
               </div>

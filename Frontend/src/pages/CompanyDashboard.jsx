@@ -34,6 +34,7 @@ const CompanyDashboard = () => {
   const [error, setError] = useState("");
   const [jobFilter, setJobFilter] = useState("ALL");
   const [imgError, setImgError] = useState(false);
+  const [mutation, setMutation] = useState(null); // { jobId, action } | null
 
   useEffect(() => {
     if (user) fetchDashboardData();
@@ -91,11 +92,14 @@ const CompanyDashboard = () => {
   const handleDeleteJob = async (jobId) => {
     const confirmed = await showConfirm("Are you sure you want to delete this job posting?", { type: "danger" });
     if (!confirmed) return;
+    setMutation({ jobId, action: "delete" });
     try {
       await api.delete(`/jobs/v1/${jobId}`);
       setJobs((prev) => prev.filter((j) => j.id !== jobId));
     } catch (err) {
       await showAlert(err.message || "Failed to delete job");
+    } finally {
+      setMutation(null);
     }
   };
 
@@ -106,12 +110,15 @@ const CompanyDashboard = () => {
       { type: statusType },
     );
     if (!confirmed) return;
+    setMutation({ jobId, action: newStatus });
     try {
       const res = await api.put(`/jobs/v1/${jobId}`, { status: newStatus });
       const updatedJob = await res.json();
       setJobs((prev) => prev.map((j) => (j.id === jobId ? updatedJob : j)));
     } catch (err) {
       await showAlert(err.message || `Failed to update job status to ${newStatus}`);
+    } finally {
+      setMutation(null);
     }
   };
 
@@ -122,12 +129,15 @@ const CompanyDashboard = () => {
     );
     if (!confirmed) return;
 
+    setMutation({ jobId, action: "publish" });
     try {
       const res = await api.post(`/jobs/v1/${jobId}/publish-results`);
       const updatedJob = await res.json();
       setJobs((prev) => prev.map((j) => (j.id === jobId ? updatedJob : j)));
     } catch (err) {
       await showAlert(err.message || "Failed to publish results");
+    } finally {
+      setMutation(null);
     }
   };
 
@@ -275,7 +285,7 @@ const CompanyDashboard = () => {
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_24rem]">
-        <div className="glass-panel p-6">
+        <div className="glass-panel flex h-[42rem] flex-col p-6">
           <div className="flex flex-col gap-4 border-b border-black/5 dark:border-white/5 pb-5 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
@@ -300,7 +310,7 @@ const CompanyDashboard = () => {
             </div>
           </div>
 
-          <div className="mt-6 max-h-[34rem] space-y-4 overflow-y-auto pr-2 card-scroll-region">
+          <div className="mt-6 flex-1 space-y-4 overflow-y-auto pr-2 card-scroll-region">
             {filteredJobs.length > 0 ? (
               filteredJobs.map((job) => (
                 <article
@@ -350,25 +360,34 @@ const CompanyDashboard = () => {
                     {new Date(job.applicationDeadline) < new Date() && !job.resultsPublished && job.status !== "DRAFT" && (
                       <button
                         onClick={() => handlePublishResults(job.id)}
-                        className="rounded-full bg-indigo-500/10 px-4 py-1.5 text-xs font-semibold text-indigo-700 dark:text-indigo-400 hover:bg-indigo-500/20 transition-colors"
+                        disabled={mutation?.jobId === job.id}
+                        className="rounded-full bg-indigo-500/10 px-4 py-1.5 text-xs font-semibold text-indigo-700 dark:text-indigo-400 hover:bg-indigo-500/20 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                       >
-                        Publish Results
+                        {mutation?.jobId === job.id && mutation?.action === "publish" ? (
+                          <><span className="inline-block h-3 w-3 rounded-full border-2 border-current border-t-transparent animate-spin mr-1.5" />Publishing...</>
+                        ) : "Publish Results"}
                       </button>
                     )}
                     {job.status === "ACTIVE" && (
                       <button
                         onClick={() => handleUpdateJobStatus(job.id, "CLOSED")}
-                        className="rounded-full bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-700 dark:text-amber-400 hover:bg-amber-500/20 transition-colors"
+                        disabled={mutation?.jobId === job.id}
+                        className="rounded-full bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-700 dark:text-amber-400 hover:bg-amber-500/20 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                       >
-                        Close
+                        {mutation?.jobId === job.id && mutation?.action === "CLOSED" ? (
+                          <><span className="inline-block h-3 w-3 rounded-full border-2 border-current border-t-transparent animate-spin mr-1.5" />Closing...</>
+                        ) : "Close"}
                       </button>
                     )}
                     {job.status === "DRAFT" && (
                       <button
                         onClick={() => handleUpdateJobStatus(job.id, "ACTIVE")}
-                        className="rounded-full bg-emerald-500/10 px-4 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/20 transition-colors"
+                        disabled={mutation?.jobId === job.id}
+                        className="rounded-full bg-emerald-500/10 px-4 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/20 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                       >
-                        Publish
+                        {mutation?.jobId === job.id && mutation?.action === "ACTIVE" ? (
+                          <><span className="inline-block h-3 w-3 rounded-full border-2 border-current border-t-transparent animate-spin mr-1.5" />Publishing...</>
+                        ) : "Publish"}
                       </button>
                     )}
                     {job.status === "CLOSED" && (
@@ -377,35 +396,47 @@ const CompanyDashboard = () => {
                           onClick={() =>
                             handleUpdateJobStatus(job.id, "ARCHIVED")
                           }
-                          className="rounded-full bg-black/5 dark:bg-white/10 px-4 py-1.5 text-xs font-semibold hover:bg-black/10 dark:hover:bg-white/20 transition-colors"
+                          disabled={mutation?.jobId === job.id}
+                          className="rounded-full bg-black/5 dark:bg-white/10 px-4 py-1.5 text-xs font-semibold hover:bg-black/10 dark:hover:bg-white/20 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                         >
-                          Archive
+                          {mutation?.jobId === job.id && mutation?.action === "ARCHIVED" ? (
+                            <><span className="inline-block h-3 w-3 rounded-full border-2 border-current border-t-transparent animate-spin mr-1.5" />Archiving...</>
+                          ) : "Archive"}
                         </button>
                         <button
                           onClick={() =>
                             handleUpdateJobStatus(job.id, "ACTIVE")
                           }
-                          className="rounded-full bg-emerald-500/10 px-4 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/20 transition-colors"
+                          disabled={mutation?.jobId === job.id}
+                          className="rounded-full bg-emerald-500/10 px-4 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/20 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                         >
-                          Reopen
+                          {mutation?.jobId === job.id && mutation?.action === "ACTIVE" ? (
+                            <><span className="inline-block h-3 w-3 rounded-full border-2 border-current border-t-transparent animate-spin mr-1.5" />Reopening...</>
+                          ) : "Reopen"}
                         </button>
                       </>
                     )}
                     {job.status === "ARCHIVED" && (
                       <button
                         onClick={() => handleUpdateJobStatus(job.id, "ACTIVE")}
-                        className="rounded-full bg-emerald-500/10 px-4 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/20 transition-colors"
+                        disabled={mutation?.jobId === job.id}
+                        className="rounded-full bg-emerald-500/10 px-4 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/20 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                       >
-                        Reopen
+                        {mutation?.jobId === job.id && mutation?.action === "ACTIVE" ? (
+                          <><span className="inline-block h-3 w-3 rounded-full border-2 border-current border-t-transparent animate-spin mr-1.5" />Reopening...</>
+                        ) : "Reopen"}
                       </button>
                     )}
                     {(!job.applicationsCount || job.applicationsCount === 0) &&
                       job.status !== "ARCHIVED" && (
                         <button
                           onClick={() => handleDeleteJob(job.id)}
-                          className="rounded-full bg-rose-500/10 px-4 py-1.5 text-xs font-semibold text-rose-700 dark:text-rose-400 hover:bg-rose-500/20 transition-colors"
+                          disabled={mutation?.jobId === job.id}
+                          className="rounded-full bg-rose-500/10 px-4 py-1.5 text-xs font-semibold text-rose-700 dark:text-rose-400 hover:bg-rose-500/20 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                         >
-                          Delete
+                          {mutation?.jobId === job.id && mutation?.action === "delete" ? (
+                            <><span className="inline-block h-3 w-3 rounded-full border-2 border-current border-t-transparent animate-spin mr-1.5" />Deleting...</>
+                          ) : "Delete"}
                         </button>
                       )}
                   </div>
@@ -425,8 +456,8 @@ const CompanyDashboard = () => {
           </div>
         </div>
 
-        <aside className="space-y-6">
-          <div className="glass-panel p-6">
+        <aside className="flex flex-col h-[42rem]">
+          <div className="glass-panel flex flex-col p-6 flex-1 min-h-0">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
@@ -441,7 +472,7 @@ const CompanyDashboard = () => {
                 View all
               </Link>
             </div>
-            <div className="mt-6 max-h-[22rem] space-y-3 overflow-y-auto pr-2 card-scroll-region">
+            <div className="mt-6 flex-1 space-y-3 overflow-y-auto pr-2 card-scroll-region">
               {recentApplications.length > 0 ? (
                 recentApplications.map((app) => (
                   <Link
@@ -476,7 +507,7 @@ const CompanyDashboard = () => {
             </div>
           </div>
 
-          <div className="dashboard-hero p-6 text-center lg:text-left">
+          <div className="dashboard-hero p-6 text-center lg:text-left mt-6">
             <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 mb-4">
               <IoFlashOutline className="h-6 w-6" />
             </div>

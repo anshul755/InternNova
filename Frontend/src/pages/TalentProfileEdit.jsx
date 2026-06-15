@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
 import { ProfileEditSkeleton } from "../components/Skeleton.jsx";
+import FormErrorBanner from "../components/FormErrorBanner.jsx";
 import CrudSection from "../components/talent/CrudSection.jsx";
 import {
   IoBriefcaseOutline,
@@ -171,12 +172,11 @@ export default function TalentProfileEdit() {
         </Link>
       </div>
 
-      <form onSubmit={handleSubmit} className="glass-card p-6 space-y-6">
-        {error && (
-          <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-sm text-rose-600">
-            {error}
-          </div>
-        )}
+      <form onSubmit={handleSubmit} className="glass-card p-6 space-y-6" noValidate>
+        <FormErrorBanner
+          message={error}
+          onDismiss={() => setError("")}
+        />
         {success && (
           <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-sm text-emerald-600">
             {success}
@@ -192,8 +192,7 @@ export default function TalentProfileEdit() {
               name="name"
               value={form.name}
               onChange={handleChange}
-              required
-              placeholder="Full Name"
+  placeholder="Full Name"
               className={inputClass}
             />
           </div>
@@ -205,8 +204,7 @@ export default function TalentProfileEdit() {
               name="university"
               value={form.university}
               onChange={handleChange}
-              required
-              placeholder="University"
+  placeholder="University"
               className={inputClass}
             />
           </div>
@@ -218,8 +216,7 @@ export default function TalentProfileEdit() {
               name="major"
               value={form.major}
               onChange={handleChange}
-              required
-              placeholder="Major"
+  placeholder="Major"
               className={inputClass}
             />
           </div>
@@ -231,8 +228,7 @@ export default function TalentProfileEdit() {
               name="graduationYear"
               value={form.graduationYear}
               onChange={handleChange}
-              required
-              placeholder="e.g. 2026"
+  placeholder="e.g. 2026"
               className={inputClass}
             />
           </div>
@@ -260,8 +256,7 @@ export default function TalentProfileEdit() {
               name="skills"
               value={form.skills}
               onChange={handleChange}
-              required
-              placeholder="React, Node.js, Python..."
+  placeholder="React, Node.js, Python..."
               className={inputClass}
             />
           </div>
@@ -273,8 +268,7 @@ export default function TalentProfileEdit() {
               name="linkedinUrl"
               value={form.linkedinUrl}
               onChange={handleChange}
-              required
-              placeholder="https://linkedin.com/in/..."
+  placeholder="https://linkedin.com/in/..."
               className={inputClass}
             />
           </div>
@@ -286,8 +280,7 @@ export default function TalentProfileEdit() {
               name="githubUrl"
               value={form.githubUrl}
               onChange={handleChange}
-              required
-              placeholder="https://github.com/..."
+  placeholder="https://github.com/..."
               className={inputClass}
             />
           </div>

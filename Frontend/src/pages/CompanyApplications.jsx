@@ -4,8 +4,10 @@ import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
 import { CompanyApplicationsSkeleton } from "../components/Skeleton.jsx";
 import GlassSelect from "../components/GlassSelect.jsx";
+import SearchableSelect from "../components/SearchableSelect.jsx";
 import StatusBadge from "../components/StatusBadge.jsx";
 import { useAlert } from "../lib/AlertContext.jsx";
+import FormErrorBanner from "../components/FormErrorBanner.jsx";
 
 const PIPELINE_STAGES = [
   "APPLIED",
@@ -13,6 +15,25 @@ const PIPELINE_STAGES = [
   "SHORTLISTED",
   "REJECTED",
 ];
+
+const STAGE_STYLES = {
+  APPLIED: {
+    header: "bg-sky-50 text-sky-900 border-sky-100",
+    dot: "bg-sky-500",
+  },
+  UNDER_REVIEW: {
+    header: "bg-amber-50 text-amber-900 border-amber-100",
+    dot: "bg-amber-500",
+  },
+  SHORTLISTED: {
+    header: "bg-emerald-50 text-emerald-900 border-emerald-100",
+    dot: "bg-emerald-500",
+  },
+  REJECTED: {
+    header: "bg-rose-50 text-rose-900 border-rose-100",
+    dot: "bg-rose-500",
+  },
+};
 
 export default function CompanyApplications() {
   const { user } = useAuth();
@@ -29,6 +50,7 @@ export default function CompanyApplications() {
   const [updatingId, setUpdatingId] = useState("");
   const [draggedApplicationId, setDraggedApplicationId] = useState("");
   const [dragOverStage, setDragOverStage] = useState("");
+  const [lastRefreshed, setLastRefreshed] = useState(null);
   const { showAlert } = useAlert();
 
   useEffect(() => {
@@ -55,14 +77,14 @@ export default function CompanyApplications() {
         return;
       }
 
+      // If navigated directly via route (/applications/job/:id), select that job.
       if (
         routeJobId &&
         list.some((job) => String(job.id) === String(routeJobId))
       ) {
         setSelectedJobId(String(routeJobId));
-      } else {
-        setSelectedJobId((prev) => prev || String(list[0].id));
       }
+      // Otherwise: no default selection — user picks via searchable dropdown.
     } catch (err) {
       setError(err.message || "Failed to load jobs");
     } finally {
@@ -80,6 +102,7 @@ export default function CompanyApplications() {
       const data = await res.json();
       setApplications(Array.isArray(data) ? data : data.content || []);
       setTotalPages(1);
+      setLastRefreshed(new Date());
     } catch (err) {
       setError(err.message || "Failed to load applications");
     } finally {
@@ -157,7 +180,16 @@ export default function CompanyApplications() {
     );
   } else {
     let applicationsContent;
-    if (loadingApps) {
+    if (!selectedJobId) {
+      applicationsContent = (
+        <div className="glass-card p-14 text-center">
+          <p className="text-slate-400 text-lg mb-2">👆 Select a job above</p>
+          <p className="text-slate-400 text-sm">
+            Choose a job from the dropdown to view its applications.
+          </p>
+        </div>
+      );
+    } else if (loadingApps) {
       applicationsContent = (
         <CompanyApplicationsSkeleton />
       );
@@ -169,14 +201,13 @@ export default function CompanyApplications() {
       );
     } else {
       applicationsContent = (
-        <div className="glass-card p-4 sm:p-5">
+        <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-[0_24px_60px_rgba(15,23,42,0.10)] sm:p-5 dark:border-white/10 dark:bg-white/[0.04]">
           <div className="grid gap-4 xl:grid-cols-4">
             {PIPELINE_STAGES.map((stage) => {
               const appsInStage = applications.filter(
                 (a) => a.status === stage,
               );
-              const isApplied = stage === "APPLIED";
-              const stagePosition = "";
+              const stageStyle = STAGE_STYLES[stage];
               return (
                 <div
                   key={stage}
@@ -195,23 +226,28 @@ export default function CompanyApplications() {
                       handleDrop(applicationId, stage);
                     }
                   }}
-                  className={`glass-card flex flex-col overflow-hidden transition-all ${stagePosition} min-h-[400px] xl:min-h-[560px] ${
+                  className={`flex min-h-[390px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-slate-50/80 shadow-sm transition-all dark:border-white/10 dark:bg-white/[0.035] ${
                     dragOverStage === stage
                       ? "ring-2 ring-emerald-300 shadow-lg shadow-emerald-200/40"
                       : ""
                   }`}
                 >
-                  <div className="p-3 border-b border-white/40 flex justify-between items-center bg-white/60 rounded-t-xl">
-                    <span className="font-semibold text-sm text-slate-700">
-                      {stage.replace("_", " ")}
-                    </span>
-                    <span className="px-2 py-0.5 bg-white/70 rounded-full text-xs text-slate-600 border border-white/60">
-                      {appsInStage.length}
-                    </span>
+                  <div className={`border-b p-3 ${stageStyle.header}`}>
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <span className={`h-2.5 w-2.5 rounded-full ${stageStyle.dot}`} />
+                        <span className="font-semibold text-sm">
+                          {stage.replace("_", " ")}
+                        </span>
+                      </div>
+                      <span className="rounded-full border border-white/70 bg-white px-2.5 py-0.5 text-xs font-semibold text-slate-700">
+                        {appsInStage.length}
+                      </span>
+                    </div>
                   </div>
-                  <div className="p-3 space-y-3 flex-1 overflow-y-auto max-h-[28rem] xl:max-h-[32rem]">
+                  <div className="company-stage-scroll flex-1 space-y-3 overflow-y-auto p-3">
                     {appsInStage.length === 0 ? (
-                      <div className="text-center py-4 text-xs text-slate-400 italic">
+                      <div className="flex h-24 items-center justify-center rounded-xl border border-dashed border-slate-200 bg-white/70 text-center text-xs italic text-slate-400 dark:border-white/10 dark:bg-white/[0.03]">
                         No candidates
                       </div>
                     ) : (
@@ -228,7 +264,7 @@ export default function CompanyApplications() {
                             handleDragStart(app.id);
                           }}
                           onDragEnd={handleDragEnd}
-                          className={`bg-white/70 border border-white/60 rounded-lg p-4 hover:border-white/80 transition-colors relative group cursor-grab active:cursor-grabbing ${draggedApplicationId === String(app.id) ? "opacity-60" : ""}`}
+                          className={`relative rounded-xl border border-slate-200 bg-white p-4 shadow-[0_10px_25px_rgba(15,23,42,0.08)] transition-colors hover:border-emerald-200 hover:shadow-[0_14px_32px_rgba(15,23,42,0.12)] cursor-grab active:cursor-grabbing dark:border-white/10 dark:bg-white/[0.055] ${draggedApplicationId === String(app.id) ? "opacity-60" : ""}`}
                         >
                           <Link
                             to={`/applications/${app.id}`}
@@ -270,9 +306,20 @@ export default function CompanyApplications() {
                               label: s.replace("_", " "),
                             }))}
                           />
-                          <p className="mt-2 text-[0.7rem] text-slate-400">
+                          <p className="mt-2 text-[0.7rem] text-slate-500">
                             Drag this card to another column to change status.
                           </p>
+                          {app.status === "APPLIED" && app.evaluationAttemptedAt == null && (
+                            <p className="mt-1 text-[0.7rem] text-amber-600 flex items-center gap-1">
+                              <span className="inline-block w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                              AI evaluation pending…
+                            </p>
+                          )}
+                          {app.evaluationError && (
+                            <p className="mt-1 rounded-lg border border-rose-100 bg-rose-50 px-2 py-1 text-[0.7rem] text-rose-600" title={app.evaluationError}>
+                              AI evaluation needs manual review
+                            </p>
+                          )}
                         </div>
                       ))
                     )}
@@ -287,42 +334,43 @@ export default function CompanyApplications() {
 
     jobsContent = (
       <>
-        <div className="glass-card p-4 mb-6">
-          <label
-            htmlFor="job-select"
-            className="text-xs font-medium text-slate-500 block mb-2"
-          >
-            Select Job
-          </label>
-          <GlassSelect
+        <div className="glass-card p-5 mb-6">
+          <SearchableSelect
             label="Select Job"
             value={selectedJobId}
-            onValueChange={(nextValue) => {
+            onChange={(nextValue) => {
               setSelectedJobId(nextValue);
               setPage(0);
             }}
-            placeholder="Select Job"
-            clearLabel="Select Job"
-            showClearOption={false}
+            placeholder="Select a job to view applications..."
+            emptyMessage="No matching jobs found."
             className="w-full sm:w-[420px]"
             options={jobs.map((job) => ({
               value: String(job.id),
-              label: `${job.title} • ${job.location}`,
+              label: job.title,
+              sublabel: `${job.location}${job.jobType ? ` · ${job.jobType.replace(/_/g, " ")}` : ""}`,
             }))}
           />
+          {selectedJobId && selectedJob && (
+            <div className="flex items-center gap-3 mt-3 pt-3 border-t border-slate-200/60 dark:border-white/[0.06]">
+              <span className="text-sm font-semibold text-slate-900 dark:text-white">
+                {selectedJob.title}
+              </span>
+              <span className="text-xs text-slate-400">·</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400">
+                {selectedJob.location}
+              </span>
+              {selectedJob.jobType && (
+                <>
+                  <span className="text-xs text-slate-400">·</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">
+                    {selectedJob.jobType.replace(/_/g, " ")}
+                  </span>
+                </>
+              )}
+            </div>
+          )}
         </div>
-
-        {selectedJob && (
-          <div className="glass-card p-5 mb-6">
-            <h2 className="text-lg font-semibold text-slate-900">
-              {selectedJob.title}
-            </h2>
-            <p className="text-slate-500 text-sm mt-1">
-              {selectedJob.location} •{" "}
-              {selectedJob.jobType?.replace("_", " ") || "—"}
-            </p>
-          </div>
-        )}
 
         {applicationsContent}
 
@@ -353,15 +401,31 @@ export default function CompanyApplications() {
 
   return (
     <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
-      <h1 className="text-2xl font-bold text-slate-900 mb-6">
-        Manage Applications
-      </h1>
-
-      {error && (
-        <div className="mb-6 p-4 rounded-lg border border-rose-200 text-rose-600 bg-rose-50">
-          {error}
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-slate-900">
+          Manage Applications
+        </h1>
+        <div className="flex items-center gap-3">
+          {lastRefreshed && (
+            <span className="text-xs text-slate-400">
+              Updated {lastRefreshed.toLocaleTimeString()}
+            </span>
+          )}
+          <button
+            onClick={() => loadApplications()}
+            disabled={loadingApps}
+            className="btn-secondary px-3 py-1.5 text-xs font-medium flex items-center gap-1"
+          >
+            <span className={loadingApps ? "animate-spin" : ""}>↻</span>
+            Refresh
+          </button>
         </div>
-      )}
+      </div>
+
+      <FormErrorBanner
+        message={error}
+        onDismiss={() => setError("")}
+      />
 
       {jobsContent}
     </div>

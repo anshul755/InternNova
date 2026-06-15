@@ -5,6 +5,8 @@ import { api } from "../lib/api";
 import { JobListingsSkeleton } from "../components/Skeleton.jsx";
 import ErrorState from "../components/ErrorState.jsx";
 import GlassSelect from "../components/GlassSelect.jsx";
+import { filterOpenJobs } from "../lib/jobs.js";
+import { useCurrency } from "../lib/CurrencyContext.jsx";
 
 const JOB_TYPES = [
   "INTERNSHIP",
@@ -44,6 +46,7 @@ const CompanyAvatar = ({ companyName, logoUrl }) => {
 
 const JobListings = () => {
   const { user } = useAuth();
+  const { currency } = useCurrency();
   const navigate = useNavigate();
   const isCompany = user?.role === "Company";
 
@@ -79,13 +82,15 @@ const JobListings = () => {
       const data = await res.json();
 
       if (Array.isArray(data)) {
-        setJobs(data);
+        const openJobs = filterOpenJobs(data);
+        setJobs(openJobs);
         setTotalPages(1);
-        setTotalElements(data.length);
+        setTotalElements(openJobs.length);
       } else {
-        setJobs(data.content || []);
+        const openJobs = filterOpenJobs(data.content || []);
+        setJobs(openJobs);
         setTotalPages(data.totalPages || 0);
-        setTotalElements(data.totalElements || 0);
+        setTotalElements(openJobs.length);
       }
     } catch (err) {
       setError(err.message || "Failed to load jobs");
@@ -152,10 +157,11 @@ const JobListings = () => {
 
   const formatSalary = (min, max) => {
     if (!min && !max) return "";
+    const loc = currency === "₹" ? "en-IN" : "en-US";
     if (min && max)
-      return `$${min.toLocaleString()} – $${max.toLocaleString()}`;
-    if (min) return `From $${min.toLocaleString()}`;
-    return `Up to $${max.toLocaleString()}`;
+      return `${currency}${min.toLocaleString(loc)} – ${currency}${max.toLocaleString(loc)}`;
+    if (min) return `From ${currency}${min.toLocaleString(loc)}`;
+    return `Up to ${currency}${max.toLocaleString(loc)}`;
   };
 
   const filteredJobs = remoteFilter

@@ -3,6 +3,9 @@ import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
 import { Link, useNavigate } from "react-router-dom";
 import GlassSelect from "../components/GlassSelect.jsx";
+import FormErrorBanner from "../components/FormErrorBanner.jsx";
+import CurrencyToggle from "../components/CurrencyToggle.jsx";
+import { useCurrency } from "../lib/CurrencyContext.jsx";
 
 const JOB_TYPES = [
   "INTERNSHIP",
@@ -32,6 +35,7 @@ const EMPTY_FORM = {
 
 const PostJob = () => {
   const { user } = useAuth();
+  const { currency } = useCurrency();
   const navigate = useNavigate();
   const [form, setForm] = useState(EMPTY_FORM);
   const [skillInput, setSkillInput] = useState("");
@@ -171,13 +175,12 @@ const PostJob = () => {
         </Link>
       </div>
 
-      {error && (
-        <div className="mb-6 p-4 bg-rose-50 border border-rose-200 rounded-lg text-rose-600">
-          {error}
-        </div>
-      )}
+      <FormErrorBanner
+        message={error}
+        onDismiss={() => setError("")}
+      />
 
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <form onSubmit={handleSubmit} className="space-y-8" noValidate>
         <div className="glass-card p-6 space-y-5">
           <h2 className="text-lg font-semibold text-slate-900">
             Basic Information
@@ -294,7 +297,8 @@ const PostJob = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
               <label className="block text-sm font-medium text-slate-600 mb-2">
-                Min Monthly Salary ($)
+                Min Monthly Salary ({currency}){" "}
+                <CurrencyToggle />
               </label>
               <input
                 type="number"
@@ -308,7 +312,7 @@ const PostJob = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-600 mb-2">
-                Max Monthly Salary ($)
+                Max Monthly Salary ({currency})
               </label>
               <input
                 type="number"

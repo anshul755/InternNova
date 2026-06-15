@@ -41,21 +41,21 @@ const CardSwap = ({
   const config =
     easing === 'elastic'
       ? {
-          ease: 'elastic.out(0.6,0.9)',
-          durDrop: 2,
-          durMove: 2,
-          durReturn: 2,
-          promoteOverlap: 0.9,
-          returnDelay: 0.05
-        }
+        ease: 'power3.out',
+        durDrop: 0.9,
+        durMove: 0.7,
+        durReturn: 0.8,
+        promoteOverlap: 0.6,
+        returnDelay: 0.05
+      }
       : {
-          ease: 'power1.inOut',
-          durDrop: 0.8,
-          durMove: 0.8,
-          durReturn: 0.8,
-          promoteOverlap: 0.45,
-          returnDelay: 0.2
-        };
+        ease: 'power2.inOut',
+        durDrop: 0.6,
+        durMove: 0.5,
+        durReturn: 0.6,
+        promoteOverlap: 0.4,
+        returnDelay: 0.15
+      };
 
   const childArr = useMemo(() => Children.toArray(children), [children]);
   const refs = useMemo(
@@ -72,14 +72,27 @@ const CardSwap = ({
 
   useEffect(() => {
     const total = refs.length;
+    order.current = Array.from({ length: total }, (_, i) => i);
     refs.forEach((r, i) => placeNow(r.current, makeSlot(i, cardDistance, verticalDistance, total), skewAmount));
+
+    let scheduledCall = null;
 
     const swap = () => {
       if (order.current.length < 2) return;
 
+      // Kill the previous timeline if it's still running to prevent overlap
+      if (tlRef.current) {
+        tlRef.current.kill();
+      }
+
       const [front, ...rest] = order.current;
       const elFront = refs[front].current;
-      const tl = gsap.timeline();
+      const tl = gsap.timeline({
+        onComplete: () => {
+          // Schedule the NEXT swap only after this one finishes
+          scheduledCall = gsap.delayedCall(delay / 1000, swap);
+        }
+      });
       tlRef.current = tl;
 
       tl.to(elFront, {
@@ -102,7 +115,7 @@ const CardSwap = ({
             duration: config.durMove,
             ease: config.ease
           },
-          `promote+=${i * 0.15}`
+          `promote+=${i * 0.1}`
         );
       });
 
@@ -132,42 +145,46 @@ const CardSwap = ({
       });
     };
 
-    swap();
-    intervalRef.current = window.setInterval(swap, delay);
+    // Start the first swap after initial delay
+    scheduledCall = gsap.delayedCall(delay / 1000, swap);
 
     if (pauseOnHover) {
       const node = container.current;
       const pause = () => {
         tlRef.current?.pause();
-        clearInterval(intervalRef.current);
+        scheduledCall?.pause();
       };
       const resume = () => {
         tlRef.current?.play();
-        intervalRef.current = window.setInterval(swap, delay);
+        scheduledCall?.play();
       };
       node.addEventListener('mouseenter', pause);
       node.addEventListener('mouseleave', resume);
       return () => {
         node.removeEventListener('mouseenter', pause);
         node.removeEventListener('mouseleave', resume);
-        clearInterval(intervalRef.current);
+        scheduledCall?.kill();
+        tlRef.current?.kill();
       };
     }
-    return () => clearInterval(intervalRef.current);
+    return () => {
+      scheduledCall?.kill();
+      tlRef.current?.kill();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cardDistance, verticalDistance, delay, pauseOnHover, skewAmount, easing]);
 
   const rendered = childArr.map((child, i) =>
     isValidElement(child)
       ? cloneElement(child, {
-          key: i,
-          ref: refs[i],
-          style: { width, height, ...(child.props.style ?? {}) },
-          onClick: e => {
-            child.props.onClick?.(e);
-            onCardClick?.(i);
-          }
-        })
+        key: i,
+        ref: refs[i],
+        style: { width, height, ...(child.props.style ?? {}) },
+        onClick: e => {
+          child.props.onClick?.(e);
+          onCardClick?.(i);
+        }
+      })
       : child
   );
 

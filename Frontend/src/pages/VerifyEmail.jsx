@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
+import FormErrorBanner from "../components/FormErrorBanner.jsx";
 
 const OTP_LENGTH = 6;
 
@@ -122,7 +123,7 @@ export default function VerifyEmail() {
           </p>
         </div>
 
-        <form onSubmit={handleVerify} className="space-y-5">
+        <form onSubmit={handleVerify} className="space-y-5" noValidate>
           {!emailFromState && (
             <div className="space-y-1.5">
               <label className="block text-xs font-medium text-slate-600">
@@ -134,7 +135,6 @@ export default function VerifyEmail() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="input-glass text-sm"
                 placeholder="you@example.com"
-                required
               />
             </div>
           )}
@@ -166,11 +166,10 @@ export default function VerifyEmail() {
             </div>
           </div>
 
-          {error && (
-            <p className="text-xs text-rose-600 bg-rose-100 border border-rose-200 rounded-md px-3 py-2">
-              {error}
-            </p>
-          )}
+          <FormErrorBanner
+            message={error}
+            onDismiss={() => setError("")}
+          />
 
           {success && (
             <p className="text-xs text-emerald-700 bg-emerald-100 border border-emerald-200 rounded-md px-3 py-2">

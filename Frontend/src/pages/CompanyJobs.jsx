@@ -30,6 +30,7 @@ export default function CompanyJobs() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [jobFilter, setJobFilter] = useState("ALL");
+  const [mutation, setMutation] = useState(null); // { jobId, action } | null
   const { showAlert, showConfirm } = useAlert();
 
   useEffect(() => {
@@ -64,12 +65,14 @@ export default function CompanyJobs() {
   async function handleDeleteJob(jobId) {
     const confirmed = await showConfirm("Are you sure you want to delete this job posting?", { type: "danger" });
     if (!confirmed) return;
-
+    setMutation({ jobId, action: "delete" });
     try {
       await api.delete(`/jobs/v1/${jobId}`);
       setJobs((prev) => prev.filter((job) => job.id !== jobId));
     } catch (err) {
       await showAlert(err.message || "Failed to delete job");
+    } finally {
+      setMutation(null);
     }
   }
 
@@ -80,7 +83,7 @@ export default function CompanyJobs() {
       { type: statusType },
     );
     if (!confirmed) return;
-
+    setMutation({ jobId, action: newStatus });
     try {
       const res = await api.put(`/jobs/v1/${jobId}`, { status: newStatus });
       const updatedJob = await res.json();
@@ -89,6 +92,8 @@ export default function CompanyJobs() {
       );
     } catch (err) {
       await showAlert(err.message || `Failed to update job status to ${newStatus}`);
+    } finally {
+      setMutation(null);
     }
   }
 
@@ -98,7 +103,7 @@ export default function CompanyJobs() {
       { type: "info" }
     );
     if (!confirmed) return;
-
+    setMutation({ jobId, action: "publish" });
     try {
       const res = await api.post(`/jobs/v1/${jobId}/publish-results`);
       const updatedJob = await res.json();
@@ -107,6 +112,8 @@ export default function CompanyJobs() {
       );
     } catch (err) {
       await showAlert(err.message || "Failed to publish results");
+    } finally {
+      setMutation(null);
     }
   }
 
@@ -319,29 +326,38 @@ export default function CompanyJobs() {
                     {new Date(job.applicationDeadline) < new Date() && !job.resultsPublished && job.status !== "DRAFT" && (
                       <button
                         onClick={() => handlePublishResults(job.id)}
-                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition-colors mr-auto"
+                        disabled={mutation?.jobId === job.id}
+                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition-colors mr-auto disabled:opacity-60 disabled:cursor-not-allowed"
                       >
                         <IoMegaphoneOutline className="w-4 h-4" />
-                        Publish Results
+                        {mutation?.jobId === job.id && mutation?.action === "publish" ? (
+                          <><span className="inline-block h-3 w-3 rounded-full border-2 border-current border-t-transparent animate-spin mr-1.5" />Publishing...</>
+                        ) : "Publish Results"}
                       </button>
                     )}
-                    
+
                     {job.status === "ACTIVE" && (
                       <button
                         onClick={() => handleUpdateJobStatus(job.id, "CLOSED")}
-                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 transition-colors"
+                        disabled={mutation?.jobId === job.id}
+                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                       >
                         <IoCloseCircleOutline className="w-4 h-4" />
-                        Close
+                        {mutation?.jobId === job.id && mutation?.action === "CLOSED" ? (
+                          <><span className="inline-block h-3 w-3 rounded-full border-2 border-current border-t-transparent animate-spin mr-1.5" />Closing...</>
+                        ) : "Close"}
                       </button>
                     )}
                     {job.status === "DRAFT" && (
                       <button
                         onClick={() => handleUpdateJobStatus(job.id, "ACTIVE")}
-                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors"
+                        disabled={mutation?.jobId === job.id}
+                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                       >
                         <IoPlayOutline className="w-4 h-4" />
-                        Publish
+                        {mutation?.jobId === job.id && mutation?.action === "ACTIVE" ? (
+                          <><span className="inline-block h-3 w-3 rounded-full border-2 border-current border-t-transparent animate-spin mr-1.5" />Publishing...</>
+                        ) : "Publish"}
                       </button>
                     )}
                     {job.status === "CLOSED" && (
@@ -350,19 +366,25 @@ export default function CompanyJobs() {
                           onClick={() =>
                             handleUpdateJobStatus(job.id, "ARCHIVED")
                           }
-                          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
+                          disabled={mutation?.jobId === job.id}
+                          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                           <IoArchiveOutline className="w-4 h-4" />
-                          Archive
+                          {mutation?.jobId === job.id && mutation?.action === "ARCHIVED" ? (
+                            <><span className="inline-block h-3 w-3 rounded-full border-2 border-current border-t-transparent animate-spin mr-1" />Archiving...</>
+                          ) : "Archive"}
                         </button>
                         <button
                           onClick={() =>
                             handleUpdateJobStatus(job.id, "ACTIVE")
                           }
-                          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors"
+                          disabled={mutation?.jobId === job.id}
+                          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                           <IoRefreshOutline className="w-4 h-4" />
-                          Reopen
+                          {mutation?.jobId === job.id && mutation?.action === "ACTIVE" ? (
+                            <><span className="inline-block h-3 w-3 rounded-full border-2 border-current border-t-transparent animate-spin mr-1" />Reopening...</>
+                          ) : "Reopen"}
                         </button>
                       </>
                     )}
@@ -372,19 +394,25 @@ export default function CompanyJobs() {
                           onClick={() =>
                             handleUpdateJobStatus(job.id, "ACTIVE")
                           }
-                          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors"
+                          disabled={mutation?.jobId === job.id}
+                          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                           <IoRefreshOutline className="w-4 h-4" />
-                          Reopen
+                          {mutation?.jobId === job.id && mutation?.action === "ACTIVE" ? (
+                            <><span className="inline-block h-3 w-3 rounded-full border-2 border-current border-t-transparent animate-spin mr-1" />Reopening...</>
+                          ) : "Reopen"}
                         </button>
                         {(!job.applicationsCount ||
                           job.applicationsCount === 0) && (
                           <button
                             onClick={() => handleDeleteJob(job.id)}
-                            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium text-rose-600 bg-rose-50 hover:bg-rose-100 transition-colors"
+                            disabled={mutation?.jobId === job.id}
+                            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium text-rose-600 bg-rose-50 hover:bg-rose-100 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                           >
                             <IoTrashOutline className="w-4 h-4" />
-                            Delete
+                            {mutation?.jobId === job.id && mutation?.action === "delete" ? (
+                              <><span className="inline-block h-3 w-3 rounded-full border-2 border-current border-t-transparent animate-spin mr-1" />Deleting...</>
+                            ) : "Delete"}
                           </button>
                         )}
                       </>

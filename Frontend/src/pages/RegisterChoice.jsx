@@ -1,101 +1,119 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const cardClass =
-  "group relative overflow-hidden rounded-3xl border border-white/20 bg-white/5 p-6 sm:p-8 transition-all hover:-translate-y-1 hover:shadow-[0_22px_52px_rgba(2,6,23,0.6)]";
+  "group relative flex min-h-[250px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_14px_35px_rgba(15,23,42,0.07)] transition-all duration-300 hover:-translate-y-1 hover:border-lime-500 hover:shadow-[0_22px_50px_rgba(15,23,42,0.13)] dark:border-white/10 dark:bg-white/[0.04] sm:p-7";
 
 export default function RegisterChoice() {
-  const navigate = useNavigate();
-
   return (
-    <div className="min-h-screen saas-section text-slate-900 px-4 py-8 sm:px-6 lg:px-8 flex items-center justify-center">
-      <div className="w-full max-w-6xl">
-        <div className="glass-panel relative overflow-visible">
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="absolute -top-6 -right-6 z-40 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-slate-950/70 text-white text-base shadow-lg shadow-black/30 transition-colors hover:bg-slate-900 hover:border-white/30"
-            aria-label="Close"
-          >
-            ×
-          </button>
-          <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr]">
-            <section className="p-8 sm:p-10 lg:p-12 border-b lg:border-b-0 lg:border-r border-white/20 bg-white/6">
-              <p className="text-xs uppercase tracking-[0.22em] text-slate-500">
-                Create account
+    <div className="min-h-[calc(100vh-4rem)] bg-slate-50/80 px-4 py-8 text-slate-900 sm:px-6 lg:px-8 font-sans saas-section auth-flow dark:bg-transparent">
+      <div className="mx-auto w-full max-w-[1600px]">
+        <div className="mb-6 flex flex-col gap-3 sm:mb-8 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-lime-600">
+              Create account
+            </p>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl lg:text-5xl">
+              Choose your InternNova role
+            </h1>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-400 sm:text-base">
+              Pick the path that fits you. We will set up the right onboarding
+              flow and dashboard for your account.
+            </p>
+          </div>
+          <p className="text-sm text-slate-400">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="font-semibold text-lime-500 underline decoration-lime-500/30 underline-offset-4 hover:text-lime-400 hover:decoration-lime-500/60"
+            >
+              Sign in
+            </Link>
+          </p>
+        </div>
+
+        <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_28px_70px_rgba(15,23,42,0.12)] dark:border-white/10 dark:bg-[var(--app-glass-strong)] dark:shadow-[0_28px_70px_rgba(0,0,0,0.36)]">
+          <div className="grid grid-cols-1 items-stretch lg:grid-cols-[minmax(0,1.05fr)_minmax(380px,0.7fr)]">
+            <section className="border-b border-slate-200 p-6 sm:p-8 lg:border-b-0 lg:border-r lg:p-10 xl:p-12 dark:border-white/10">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-lime-500">
+                Select role
               </p>
-              <h1 className="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight text-slate-100 max-w-xl">
-                Choose whether you are joining as a talent or a company.
-              </h1>
-              <p className="mt-4 text-sm text-slate-400 max-w-2xl">
-                We use the role you select here to set up the right onboarding
-                flow. Login stays simple with just your email and password.
+              <h2 className="mt-4 max-w-3xl text-2xl font-bold leading-tight text-slate-50 sm:text-3xl lg:text-[2.15rem]">
+                Are you joining as talent or as a company?
+              </h2>
+              <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-400 sm:text-base">
+                This choice controls your onboarding questions and the dashboard
+                you see after signup.
               </p>
 
-              <div className="grid gap-4 sm:grid-cols-2 mt-8">
+              <div className="mt-8 grid gap-5 sm:grid-cols-2">
                 <Link to="/register/talent" className={cardClass}>
-                  <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-3 py-1 text-[0.7rem] font-medium uppercase tracking-[0.18em] text-emerald-300">
+                  <span className="inline-flex w-fit items-center rounded-full border border-lime-500 bg-lime-50 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-lime-600 dark:border-lime-600/20 dark:bg-lime-600/15 dark:text-lime-500">
                     Talent
                   </span>
-                  <h2 className="mt-4 text-2xl font-semibold text-slate-100">
+                  <h3 className="mt-6 min-h-[58px] text-xl font-bold leading-tight text-slate-50 sm:text-2xl">
                     I am looking for internships
-                  </h2>
-                  <p className="mt-3 text-sm text-slate-400">
+                  </h3>
+                  <p className="mt-4 min-h-[66px] text-sm leading-6 text-slate-400">
                     Build your profile, upload your resume, and get matched to
-                    roles.
+                    relevant roles.
                   </p>
-                  <span className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-emerald-300">
+                  <span className="mt-auto inline-flex items-center gap-2 pt-8 text-sm font-semibold text-lime-600 group-hover:gap-3 dark:text-lime-500">
                     Continue as Talent
+                    <span aria-hidden="true">-&gt;</span>
                   </span>
                 </Link>
 
                 <Link to="/register/company" className={cardClass}>
-                  <span className="inline-flex items-center rounded-full bg-lime-400/10 px-3 py-1 text-[0.7rem] font-medium uppercase tracking-[0.18em] text-emerald-300">
+                  <span className="inline-flex w-fit items-center rounded-full border border-lime-500 bg-lime-50 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-lime-600 dark:border-lime-600/20 dark:bg-lime-600/15 dark:text-lime-500">
                     Company
                   </span>
-                  <h2 className="mt-4 text-2xl font-semibold text-slate-100">
+                  <h3 className="mt-6 min-h-[58px] text-xl font-bold leading-tight text-slate-50 sm:text-2xl">
                     I am hiring interns
-                  </h2>
-                  <p className="mt-3 text-sm text-slate-400">
-                    Create your employer profile, post jobs, and manage
+                  </h3>
+                  <p className="mt-4 min-h-[66px] text-sm leading-6 text-slate-400">
+                    Create your employer profile, post internships, and manage
                     applicants.
                   </p>
-                  <span className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-emerald-300">
+                  <span className="mt-auto inline-flex items-center gap-2 pt-8 text-sm font-semibold text-lime-600 group-hover:gap-3 dark:text-lime-500">
                     Continue as Company
+                    <span aria-hidden="true">-&gt;</span>
                   </span>
                 </Link>
               </div>
             </section>
-            <aside className="p-8 sm:p-10 lg:p-12 bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(255,255,255,0.01)_100%)]">
-              <div className="flex h-full flex-col justify-between gap-8">
+
+            <aside className="border-slate-200 bg-slate-50/70 p-6 sm:p-8 lg:p-10 xl:p-12 dark:bg-white/[0.025]">
+              <div className="grid gap-5">
                 <div>
-                  <div className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 text-[0.7rem] uppercase tracking-[0.18em] text-slate-500 border border-white/70">
-                    Simple onboarding
-                  </div>
-                  <h2 className="mt-4 text-2xl font-semibold text-slate-100">
-                    One login, one role, one clear path.
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-lime-500">
+                    Tailored Experience
+                  </p>
+                  <h2 className="mt-4 text-2xl font-bold leading-tight text-slate-50 sm:text-3xl">
+                    Designed for your success.
                   </h2>
-                  <p className="mt-3 text-sm text-slate-400 max-w-md">
-                    After signup, the dashboard and navigation adapt to the role
-                    you chose here.
+                  <p className="mt-4 max-w-md text-sm leading-6 text-slate-400 sm:text-base">
+                    InternNova intelligently adapts to your objectives,
+                    delivering a focused suite of tools the moment you log in.
                   </p>
                 </div>
 
-                <div className="grid gap-3 text-sm text-slate-600">
-                  <div className="rounded-2xl border border-white/10 bg-white/6 p-4 text-slate-300">
-                    Talent users get profile building, job matching, and saved
-                    jobs.
+                <div className="grid gap-4">
+                  <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.04]">
+                    <h3 className="mb-2 text-sm font-semibold text-slate-50">Talent Network</h3>
+                    <p className="text-sm leading-6 text-slate-300">
+                      Gain access to exclusive opportunities, showcase your skills with a dynamic profile, and track your applications effortlessly.
+                    </p>
                   </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/6 p-4 text-slate-300">
-                    Company users get job posting, application tracking, and
-                    hiring controls.
+                  <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.04]">
+                    <h3 className="mb-2 text-sm font-semibold text-slate-50">Employer Portal</h3>
+                    <p className="text-sm leading-6 text-slate-300">
+                      Discover top-tier candidates, publish openings seamlessly, and manage your entire hiring pipeline from a centralized dashboard.
+                    </p>
                   </div>
                 </div>
 
-                <p className="text-xs text-slate-400">
-                  Already have an account?{" "}
-                  <Link to="/login" className="font-medium text-emerald-300">
-                    Sign in
-                  </Link>
+                <p className="text-sm leading-6 text-slate-400">
+                  Select your path to continue. Your workspace will be custom-configured based on your role immediately upon registration.
                 </p>
               </div>
             </aside>

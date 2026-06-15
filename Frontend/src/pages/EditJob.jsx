@@ -4,9 +4,13 @@ import { api } from "../lib/api";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { JobEditSkeleton } from "../components/Skeleton.jsx";
 import GlassSelect from "../components/GlassSelect.jsx";
+import FormErrorBanner from "../components/FormErrorBanner.jsx";
+import CurrencyToggle from "../components/CurrencyToggle.jsx";
+import { useCurrency } from "../lib/CurrencyContext.jsx";
 
 const EditJob = () => {
   const { user } = useAuth();
+  const { currency } = useCurrency();
   const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -150,7 +154,7 @@ const EditJob = () => {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <form onSubmit={handleSubmit} className="glass-card p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="glass-card p-6 space-y-6" noValidate>
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-slate-400 mb-1">
@@ -161,8 +165,7 @@ const EditJob = () => {
                 name="title"
                 value={form.title}
                 onChange={handleChange}
-                required
-                className="w-full px-4 py-2 bg-white/60 border border-white/60 rounded-lg text-slate-900"
+  className="w-full px-4 py-2 bg-white/60 border border-white/60 rounded-lg text-slate-900"
               />
             </div>
 
@@ -213,8 +216,7 @@ const EditJob = () => {
                 name="location"
                 value={form.location}
                 onChange={handleChange}
-                required
-                className="w-full px-4 py-2 bg-white/60 border border-white/60 rounded-lg text-slate-900"
+  className="w-full px-4 py-2 bg-white/60 border border-white/60 rounded-lg text-slate-900"
               />
             </div>
 
@@ -239,8 +241,7 @@ const EditJob = () => {
                 name="description"
                 value={form.description}
                 onChange={handleChange}
-                required
-                rows={4}
+  rows={4}
                 className="w-full px-4 py-2 bg-white/60 border border-white/60 rounded-lg text-slate-900"
               />
             </div>
@@ -314,7 +315,7 @@ const EditJob = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-400 mb-1">
-                  Min Salary ($)
+                  Min Salary ({currency}) <CurrencyToggle />
                 </label>
                 <input
                   type="number"
@@ -326,7 +327,7 @@ const EditJob = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-400 mb-1">
-                  Max Salary ($)
+                  Max Salary ({currency})
                 </label>
                 <input
                   type="number"

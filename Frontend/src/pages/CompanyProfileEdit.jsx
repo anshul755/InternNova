@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
 import { ProfileEditSkeleton } from "../components/Skeleton.jsx";
+import FormErrorBanner from "../components/FormErrorBanner.jsx";
 
 const EMPTY_FORM = {
   companyName: "",
@@ -121,12 +122,11 @@ export default function CompanyProfileEdit() {
         </Link>
       </div>
 
-      <form onSubmit={handleSubmit} className="glass-card p-6 space-y-6">
-        {error && (
-          <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-sm text-rose-600">
-            {error}
-          </div>
-        )}
+      <form onSubmit={handleSubmit} className="glass-card p-6 space-y-6" noValidate>
+        <FormErrorBanner
+          message={error}
+          onDismiss={() => setError("")}
+        />
         {success && (
           <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-sm text-emerald-600">
             {success}
@@ -142,8 +142,7 @@ export default function CompanyProfileEdit() {
               name="companyName"
               value={form.companyName}
               onChange={handleChange}
-              required
-              placeholder="Company Name"
+  placeholder="Company Name"
               className={inputClass}
             />
           </div>
@@ -155,8 +154,7 @@ export default function CompanyProfileEdit() {
               name="companySize"
               value={form.companySize}
               onChange={handleChange}
-              required
-              placeholder="e.g. 10-50"
+  placeholder="e.g. 10-50"
               className={inputClass}
             />
           </div>
@@ -171,8 +169,7 @@ export default function CompanyProfileEdit() {
               type="number"
               min="1800"
               max={new Date().getFullYear()}
-              required
-              placeholder="YYYY"
+  placeholder="YYYY"
               className={inputClass}
             />
           </div>
@@ -184,8 +181,7 @@ export default function CompanyProfileEdit() {
               name="companyType"
               value={form.companyType}
               onChange={handleChange}
-              required
-              placeholder="e.g. Technology"
+  placeholder="e.g. Technology"
               className={inputClass}
             />
           </div>
@@ -197,8 +193,7 @@ export default function CompanyProfileEdit() {
               name="websiteUrl"
               value={form.websiteUrl}
               onChange={handleChange}
-              required
-              placeholder="https://..."
+  placeholder="https://..."
               className={inputClass}
             />
           </div>
@@ -224,7 +219,6 @@ export default function CompanyProfileEdit() {
             name="companyDescription"
             value={form.companyDescription}
             onChange={handleChange}
-            required
             rows={5}
             placeholder="Describe your company..."
             className={inputClass}

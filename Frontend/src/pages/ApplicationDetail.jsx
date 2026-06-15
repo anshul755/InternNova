@@ -18,6 +18,7 @@ export default function ApplicationDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [updating, setUpdating] = useState("");
+  const [withdrawing, setWithdrawing] = useState(false);
 
   useEffect(() => {
     fetchApplication();
@@ -27,7 +28,8 @@ export default function ApplicationDetail() {
     setLoading(true);
     setError("");
     try {
-      const res = await api.get(`/applications/v1/${id}`);
+      const forStudentParam = isCompany ? "" : "?forStudent=true";
+      const res = await api.get(`/applications/v1/${id}${forStudentParam}`);
       const data = await res.json();
       setApplication(data);
     } catch (err) {
@@ -102,7 +104,6 @@ export default function ApplicationDetail() {
       </div>
 
       <div className="space-y-6">
-        {/* Status Banner */}
         <div
           className="flex items-center justify-between p-5 rounded-xl border bg-white/40 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 shadow-sm"
         >
@@ -132,7 +133,8 @@ export default function ApplicationDetail() {
                 ]}
               />
               {updating && (
-                <span className="text-xs text-slate-700 animate-pulse">
+                <span className="inline-flex items-center text-xs text-slate-700">
+                  <span className="inline-block h-3 w-3 rounded-full border-2 border-current border-t-transparent animate-spin mr-1" />
                   Updating...
                 </span>
               )}
@@ -140,7 +142,6 @@ export default function ApplicationDetail() {
           )}
         </div>
 
-        {/* Details Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="glass-card p-6 space-y-4">
             <h2 className="text-base font-semibold text-slate-900">
@@ -216,13 +217,14 @@ export default function ApplicationDetail() {
           </div>
         </div>
 
-        {application.coverLetter && (
+        {application.motivationStatement && (
           <div className="glass-card p-6">
             <h2 className="text-base font-semibold text-slate-900 mb-4">
-              Cover Letter
+              Why {application.applicantName || "they"} want to join{" "}
+              {application.companyName || "this company"}
             </h2>
             <p className="text-slate-600 whitespace-pre-line leading-relaxed text-sm">
-              {application.coverLetter}
+              {application.motivationStatement}
             </p>
           </div>
         )}
@@ -242,16 +244,22 @@ export default function ApplicationDetail() {
               onClick={async () => {
                 const confirmed = await showConfirm("Withdraw this application?", { type: "warning" });
                 if (!confirmed) return;
+                setWithdrawing(true);
                 try {
                   await api.put(`/applications/v1/${id}/withdraw`, {});
                   setApplication((prev) => ({ ...prev, status: "WITHDRAWN" }));
                 } catch (err) {
                   await showAlert(err.message || "Failed to withdraw");
+                } finally {
+                  setWithdrawing(false);
                 }
               }}
-              className="px-5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-lg text-sm font-medium transition-colors"
+              disabled={withdrawing}
+              className="px-5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-lg text-sm font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Withdraw Application
+              {withdrawing ? (
+                <><span className="inline-block h-3 w-3 rounded-full border-2 border-current border-t-transparent animate-spin mr-1.5" />Withdrawing...</>
+              ) : "Withdraw Application"}
             </button>
           )}
       </div>
