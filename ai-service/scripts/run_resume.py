@@ -1,15 +1,18 @@
 """Local harness for the resume generator without the HTTP server.
 
-Two modes:
+Usage (from ai-service/):
 
   # Full pipeline (needs core-service running + a real talentId):
-  ai-service/.venv/Scripts/python.exe scripts/run_resume.py --talent <talentId> \
+  .venv/Scripts/python.exe scripts/run_resume.py --talent <talentId> \
       --template modern --email me@example.com [--jd path/to/jd.txt]
 
   # Offline mode (no core-service): feed a profile JSON matching the
   # /talent/v1/profile/{id}/full shape (see examples/sample_profile.json):
-  ai-service/.venv/Scripts/python.exe scripts/run_resume.py --profile examples/sample_profile.json \
+  .venv/Scripts/python.exe scripts/run_resume.py --profile examples/sample_profile.json \
       --template classic --email me@example.com
+
+Or activate the venv first and run directly:
+  python scripts/run_resume.py --talent <talentId> --template modern --email me@example.com
 
 Writes the assembled .tex and compiled .pdf to ai-service/scripts/out/ for inspection.
 """

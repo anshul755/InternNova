@@ -1,7 +1,11 @@
 """Local harness for the full evaluate step (parse -> shortlist) without a server.
 
-Usage:
-    ai-service/.venv/Scripts/python.exe scripts/run_evaluate.py <resume_pdf_url> <job_json_path> \
+Usage (from ai-service/):
+    .venv/Scripts/python.exe scripts/run_evaluate.py <resume_pdf_url> <job_json_path> \
+        [applicationId] [studentId] [jobId]
+
+Or activate the venv first and run directly:
+    python scripts/run_evaluate.py <resume_pdf_url> <job_json_path> \
         [applicationId] [studentId] [jobId]
 
 The job JSON file matches the `job` object of POST /pipeline/v1/evaluate — see

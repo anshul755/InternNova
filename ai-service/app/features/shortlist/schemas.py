@@ -1,6 +1,6 @@
-"""Pydantic models for the shortlist (Is-Shortlisted) feature.
+"""Pydantic models for the shortlist feature.
 
-`ShortlistDecision` doubles as the LLM's structured-output target — the field
+`ShortlistDecision` doubles as the LLM's structured-output target. Field
 descriptions are read by the model, so keep them instructive. Field names on
 `JobContext` mirror core-service's `Job` entity so the JSON Java sends maps 1:1.
 """
@@ -13,10 +13,7 @@ from app.features.parser.schemas import ResumeData
 
 
 class JobContext(BaseModel):
-    """The job DB fields the shortlist LLM compares the resume against.
-
-    Mirrors core-service `Job` (camelCase) so Java can pass the entity fields as-is.
-    """
+    """The job DB fields the shortlist LLM compares the resume against."""
 
     title: Optional[str] = None
     description: Optional[str] = None
@@ -30,34 +27,43 @@ class JobContext(BaseModel):
     selectionCriteria: Optional[str] = None
 
 
-class ShortlistDecision(BaseModel):
-    """The shortlist node's output — only ever produced for non-fake resumes."""
+class ApplicationContext(BaseModel):
+    """Minimal applicant context used only for resume-name mismatch checks."""
 
-    decision: Literal["UNDER_REVIEW", "SHORTLISTED"] = Field(
+    applicantName: Optional[str] = None
+
+
+class ShortlistDecision(BaseModel):
+    """The shortlist node's output."""
+
+    decision: Literal["REJECTED", "UNDER_REVIEW", "SHORTLISTED"] = Field(
         description=(
+            "REJECTED only for a clear applicant-name mismatch; "
             "SHORTLISTED only for a genuinely strong, evidenced fit; otherwise "
             "UNDER_REVIEW. UNDER_REVIEW is the default when unsure."
         )
     )
-    match_score: float = Field(
-        ge=0.0,
-        le=100.0,
+    match_score: int = Field(
+        ge=0,
+        le=100,
         description=(
-            "0-100 fit score of the resume against THIS job, based on required-skill "
+            "Integer from 0 to 100 for how well the resume fits THIS job, based on required-skill "
             "overlap, relevant experience/projects, and the selection criteria."
         ),
     )
     reasons: List[str] = Field(
         default_factory=list,
         description=(
-            "2-4 short, concrete reasons for the decision, grounded in the resume and "
-            "job (name overlapping skills, relevant experience, or what is missing)."
+            "2-4 short, concrete reasons for the decision, grounded in the resume, "
+            "job, required skills, relevant experience, selection criteria, or the "
+            "applicant-name/resume-name mismatch when decision is REJECTED."
         ),
     )
 
 
 class ShortlistInput(BaseModel):
-    """What the shortlist step receives: a parsed resume plus the job to match against."""
+    """What the shortlist step receives."""
 
     resume: ResumeData
     job: JobContext
+    application_context: Optional[ApplicationContext] = None

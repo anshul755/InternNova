@@ -4,12 +4,12 @@
 Field names are camelCase to match the JSON core-service (Java) sends and expects back.
 """
 
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
 from app.features.parser.schemas import ResumeData
-from app.features.shortlist.schemas import JobContext
+from app.features.shortlist.schemas import ApplicationContext, JobContext
 
 
 class EvaluateInput(BaseModel):
@@ -20,6 +20,7 @@ class EvaluateInput(BaseModel):
     jobId: str
     resumeUrl: str
     job: JobContext
+    applicationContext: Optional[ApplicationContext] = None
 
 
 class EvaluateResult(BaseModel):

@@ -11,6 +11,10 @@ from app.features.shortlist.schemas import ShortlistDecision, ShortlistInput
 
 async def decide_shortlist(data: ShortlistInput) -> ShortlistDecision:
     final_state = await shortlist_graph.ainvoke(
-        {"resume_json": data.resume.model_dump(), "job": data.job}
+        {
+            "resume_json": data.resume.model_dump(),
+            "job": data.job,
+            "application_context": data.application_context,
+        }
     )
     return final_state["result"]

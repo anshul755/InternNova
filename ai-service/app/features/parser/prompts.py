@@ -5,7 +5,9 @@ SYSTEM_PROMPT = """You are a resume parsing and fraud-detection engine for an in
 You receive the raw text extracted from a candidate's resume PDF. Do two things:
 
 1. EXTRACT the resume into the structured schema. Use only information present in the
-   text. Leave fields null or empty when not found. Never invent or guess data.
+   text. When a list field has no items use an empty list []; when an object field has
+   no data use an empty object {}. Never set any field to null — always provide a
+   concrete empty value instead.
    - achievements: capture a dedicated Achievements/Awards section (rankings, awards,
      quantified accomplishments) here rather than folding it into summaries.
    - spoken_languages: ONLY human languages (English, Hindi, ...). Resumes often list a

@@ -1,4 +1,9 @@
-"""Download a resume PDF and extract its text."""
+"""Download a resume PDF and extract its text.
+
+PyMuPDF (fitz) is the primary engine — it handles image-based PDFs, scanned
+documents, and complex layouts that pypdf cannot. pypdf is kept as a fallback
+in the unlikely event PyMuPDF fails.
+"""
 
 import io
 
@@ -35,15 +40,35 @@ async def download_pdf(url: str) -> bytes:
 
 
 def extract_text(pdf_bytes: bytes) -> str:
+    """Extract text with PyMuPDF first; fall back to pypdf."""
+
+    # ── Primary: PyMuPDF (handles scanned/image PDFs) ────────────────────
+    try:
+        import fitz  # PyMuPDF
+    except ImportError:
+        pass
+    else:
+        doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+        try:
+            pages = [page.get_text() or "" for page in doc]
+            text = "\n".join(pages).strip()
+            if len(text) >= 30:
+                return text
+        finally:
+            doc.close()
+
+    # ── Fallback: pypdf (pure Python, no native deps) ────────────────────
     try:
         reader = PdfReader(io.BytesIO(pdf_bytes))
         pages = [page.extract_text() or "" for page in reader.pages]
-    except Exception as exc:  # pypdf raises a variety of read errors
+    except Exception as exc:
         raise ExtractionError(f"Failed to read PDF: {exc}") from exc
 
     text = "\n".join(pages).strip()
     if len(text) < 30:
         raise ExtractionError(
-            "Extracted text is empty or too short (scanned/image-only PDFs are not supported)"
+            "Extracted text is empty or too short. "
+            "The resume appears to be a scanned/image-only PDF. "
+            "Try uploading a text-based PDF."
         )
     return text

@@ -1,11 +1,11 @@
 <#
-Downloads the self-contained Tectonic LaTeX engine into AI/tools/tectonic.exe.
+Downloads the self-contained Tectonic LaTeX engine into ai-service/tools/tectonic.exe.
 
 The resume generator compiles .tex -> PDF locally (offline mode, the default) using
 this binary. It needs no admin rights or package manager. The first real compile
 also downloads Tectonic's package/font bundle once (cached afterwards).
 
-Usage (from AI/):  powershell -ExecutionPolicy Bypass -File scripts/install_tectonic.ps1
+Usage (from ai-service/):  powershell -ExecutionPolicy Bypass -File scripts/install_tectonic.ps1
 #>
 
 $ErrorActionPreference = "Stop"

@@ -33,7 +33,13 @@ async def evaluate_application(data: EvaluateInput) -> EvaluateResult:
         match_score = 0.0
         reasons = parsed["fake_reasons"] or ["Resume flagged as fake or not a genuine resume."]
     else:
-        verdict = await decide_shortlist(ShortlistInput(resume=resume, job=data.job))
+        verdict = await decide_shortlist(
+            ShortlistInput(
+                resume=resume,
+                job=data.job,
+                application_context=data.applicationContext,
+            )
+        )
         decision = verdict.decision
         match_score = verdict.match_score
         reasons = verdict.reasons

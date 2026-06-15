@@ -1,7 +1,10 @@
 """Local harness to verify the parser step without a server.
 
-Usage:
-    ai-service/.venv/Scripts/python.exe scripts/run_parser.py <resume_pdf_url> [appId] [studentId] [jobId]
+Usage (from ai-service/):
+    .venv/Scripts/python.exe scripts/run_parser.py <resume_pdf_url> [appId] [studentId] [jobId]
+
+Or activate the venv first and run directly:
+    python scripts/run_parser.py <resume_pdf_url> [appId] [studentId] [jobId]
 """
 
 import asyncio
