@@ -23,6 +23,7 @@ router.post('/resend-otp',     otpLimiter,     validateResendOTP,     controller
 router.post('/login',          loginLimiter,   validateLogin,         controller.login);
 router.post('/refresh',        generalLimiter,                        controller.refresh);
 router.post('/logout',         authenticate,                          controller.logout);
+router.get('/me',              authenticate,                          controller.getCurrentUser);
 
 
 router.post('/forgot-password',    otpLimiter,     validateForgotPassword,    controller.forgotPassword);
