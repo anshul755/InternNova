@@ -81,13 +81,13 @@ app.use((err, req, res, _next) => {
     stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
   });
 
-  const message = String(err.message || '');
+  const errMessage = String(err.message || '');
   const isDatabaseNetworkError =
     err.name === 'MongoNetworkError' ||
-    message.includes('getaddrinfo') ||
-    message.includes('ENOTFOUND') ||
-    message.includes('querySrv') ||
-    message.includes('server selection timed out');
+    errMessage.includes('getaddrinfo') ||
+    errMessage.includes('ENOTFOUND') ||
+    errMessage.includes('querySrv') ||
+    errMessage.includes('server selection timed out');
 
   if (isDatabaseNetworkError) {
     return sendError(
