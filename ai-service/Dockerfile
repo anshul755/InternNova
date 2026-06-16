@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     texlive-xetex \
     texlive-latex-extra \
     texlive-fonts-recommended \
+    lmodern \
     && rm -rf /var/lib/apt/lists/* \
     && fc-cache -fv
 
