@@ -131,11 +131,15 @@ export default function ResumeGeneratorButton({
   }
 
   const triggerClasses = compact
-    ? "flex items-center gap-3 px-4 py-3 text-sm rounded-lg transition-colors w-full"
-    : `inline-flex items-center gap-1.5 px-3.5 py-2 text-sm rounded-lg font-medium transition-colors ${
+    ? `flex items-center gap-2.5 px-4 py-2.5 text-sm rounded-xl transition-all duration-300 border border-transparent w-full ${
         light
-          ? "text-slate-700 hover:text-slate-900 hover:bg-white/60"
-          : "text-slate-300 hover:text-white hover:bg-white/[0.06]"
+          ? "hover:bg-[#7cc84a]/5 hover:border-[#7cc84a]/25 text-slate-700 hover:text-slate-900"
+          : "hover:bg-[#9fe870]/5 hover:border-[#9fe870]/25 text-slate-300 hover:text-white"
+      }`
+    : `inline-flex items-center gap-1.5 px-4 py-2 text-sm rounded-full font-medium transition-all duration-300 border border-transparent ${
+        light
+          ? "text-slate-700 hover:text-slate-900 hover:bg-[#7cc84a]/5 hover:border-[#7cc84a]/25"
+          : "text-slate-300 hover:text-white hover:bg-[#9fe870]/5 hover:border-[#9fe870]/25"
       }`;
 
   return (

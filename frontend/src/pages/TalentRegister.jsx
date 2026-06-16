@@ -25,7 +25,8 @@ const passwordSchema = z
   .regex(/(?=.*[a-z])/, "Must contain a lowercase letter")
   .regex(/(?=.*[A-Z])/, "Must contain an uppercase letter")
   .regex(/(?=.*\d)/, "Must contain a number")
-  .regex(/(?=.*[@#$%^&+=!_])/, "Must contain a special character");
+  .regex(/(?=.*[@#$%^&+=!_])/, "Must contain a special character")
+  .regex(/^\S*$/, "Password must not contain spaces");
 
 const baseSchema = z.object({
   email: z.string().email("Enter a valid email"),
@@ -34,6 +35,9 @@ const baseSchema = z.object({
   name: z.string().min(1, "Name is required"),
   bio: z.string().optional(),
   location: z.string().optional(),
+  location_country: z.string().optional(),
+  location_state: z.string().optional(),
+  location_city: z.string().optional(),
   university: z.string().min(1, "University is required"),
   degreeLevel: z.string().min(1, "Degree level is required"),
   majorOption: z.string().min(1, "Major is required"),
@@ -60,8 +64,12 @@ const baseSchema = z.object({
     .url("Enter a valid portfolio URL")
     .optional()
     .or(z.literal("")),
-  avatarFile: z.any().optional(),
-  resumeFile: z.any().optional(),
+  avatarFile: z
+    .any()
+    .refine((files) => files && files.length > 0, "Avatar image is required"),
+  resumeFile: z
+    .any()
+    .refine((files) => files && files.length > 0, "Resume PDF is required"),
 });
 
 const schema = baseSchema
@@ -93,10 +101,10 @@ const steps = [
 
 const stepFields = [
   ["email", "password", "confirmPassword"],
-  ["name", "bio", "location"],
+  ["name", "bio", "location", "location_country", "location_state", "location_city"],
   ["university", "degreeLevel", "majorOption", "majorOther", "graduationYear", "cgpa"],
   ["skills", "preferredLocations", "preferredIndustries"],
-  ["linkedinUrl", "githubUrl", "portfolioUrl"],
+  ["linkedinUrl", "githubUrl", "portfolioUrl", "avatarFile", "resumeFile"],
   [],
 ];
 
@@ -134,6 +142,9 @@ const defaultValues = {
   name: "",
   bio: "",
   location: "",
+  location_country: "",
+  location_state: "",
+  location_city: "",
   university: "",
   degreeLevel: "",
   majorOption: "",

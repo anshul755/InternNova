@@ -189,8 +189,8 @@ const TalentDashboard = () => {
               )}
             </div>
 
-            <Link to="/profile/edit" className="btn-primary w-full mt-6">
-              Update profile
+            <Link to="/profile" className="btn-primary w-full mt-6">
+              My Profile
             </Link>
           </div>
         </div>

@@ -17,6 +17,7 @@ import { createServer } from "node:http";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import cookieParser from "cookie-parser";
 import { config, isDev } from "./config.js";
 import { registerProxies } from "./proxies.js";
 import { requestLogger } from "./middleware/logger.js";
@@ -51,6 +52,20 @@ app.use(
     exposedHeaders: ["RateLimit-Limit", "RateLimit-Remaining", "RateLimit-Reset"],
   })
 );
+
+// Cookie parsing
+app.use(cookieParser());
+
+// Gateway-level cookie translation middleware:
+// Extracts 'accessToken' cookie and sets it as 'Authorization: Bearer <token>'
+// for compatibility with downstream microservices.
+app.use((req, _res, next) => {
+  const token = req.cookies?.accessToken;
+  if (token && !req.headers["authorization"]) {
+    req.headers["authorization"] = `Bearer ${token}`;
+  }
+  next();
+});
 
 // Body parsing — needed before proxies so the gateway can inspect the body
 // if needed (e.g. for logging / validation).  http-proxy-middleware will

@@ -91,13 +91,20 @@ async function login(req, res, next) {
       authService.login({ email, password })
     );
 
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'Strict' : 'Lax',
+      maxAge: 15 * 60 * 1000, // 15 mins
+      path: '/',
+    });
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'Strict' : 'Lax',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      path: '/auth/v1/refresh',
+      path: '/',
     });
 
     sendSuccess(res, 200, 'Login successful.', {
@@ -113,7 +120,6 @@ async function login(req, res, next) {
 
 async function refresh(req, res, next) {
   try {
-
     const incomingToken = req.cookies?.refreshToken || req.body?.refreshToken;
     if (!incomingToken) {
       return sendError(res, 401, 'No refresh token. Please log in.');
@@ -123,12 +129,20 @@ async function refresh(req, res, next) {
       incomingToken
     );
 
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'Strict' : 'Lax',
+      maxAge: 15 * 60 * 1000, // 15 mins
+      path: '/',
+    });
+
     res.cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'Strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      path: '/auth/v1/refresh',
+      sameSite: process.env.NODE_ENV === 'production' ? 'Strict' : 'Lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/',
     });
 
     sendSuccess(res, 200, 'Token refreshed.', { accessToken });
@@ -144,7 +158,8 @@ async function logout(req, res, next) {
       await authService.logout(req.user.sub, refreshToken);
     }
 
-    res.clearCookie('refreshToken', { path: '/auth/v1/refresh' });
+    res.clearCookie('accessToken', { path: '/' });
+    res.clearCookie('refreshToken', { path: '/' });
     sendSuccess(res, 200, 'Logged out successfully.');
   } catch (err) {
     next(err);
@@ -180,8 +195,22 @@ async function resetPassword(req, res, next) {
   try {
     const { email, resetSessionId, newPassword } = req.body;
     await authService.resetPassword({ email, resetSessionId, newPassword });
-    res.clearCookie('refreshToken', { path: '/auth/v1/refresh' });
+    res.clearCookie('accessToken', { path: '/' });
+    res.clearCookie('refreshToken', { path: '/' });
     sendSuccess(res, 200, 'Password has been reset successfully. Please log in.');
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function getCurrentUser(req, res, next) {
+  try {
+    if (!req.user) {
+      return sendError(res, 401, 'User not authenticated.');
+    }
+    sendSuccess(res, 200, 'Current user retrieved successfully.', {
+      user: { id: req.user.sub, email: req.user.email, role: req.user.role },
+    });
   } catch (err) {
     next(err);
   }
@@ -197,4 +226,5 @@ module.exports = {
   forgotPassword,
   verifyResetOTP,
   resetPassword,
+  getCurrentUser,
 };

@@ -251,11 +251,11 @@ const CompanyDashboard = () => {
               </div>
             </div>
             <Link
-              to="/company/profile/edit"
+              to="/company/profile"
               className="btn-primary w-full mt-6"
             >
-              <IoCreateOutline className="h-5 w-5" />
-              Complete profile
+              <IoPersonOutline className="h-5 w-5" />
+              Company Profile
             </Link>
           </div>
         </div>

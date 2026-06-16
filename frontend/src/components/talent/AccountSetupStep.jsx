@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useFormContext } from "react-hook-form";
 import {
   IoCheckmarkCircle,
+  IoCloseCircle,
+  IoEllipseOutline,
   IoEyeOutline,
   IoEyeOffOutline,
 } from "react-icons/io5";
@@ -10,10 +12,22 @@ import FieldError from "../FieldError.jsx";
 const AccountSetupStep = () => {
   const {
     register,
+    watch,
     formState: { errors },
   } = useFormContext();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const password = watch("password") || "";
+
+  const requirements = [
+    { label: "Minimum 8 characters", met: password.length >= 8 },
+    { label: "One uppercase letter", met: /[A-Z]/.test(password) },
+    { label: "One lowercase letter", met: /[a-z]/.test(password) },
+    { label: "One number", met: /\d/.test(password) },
+    { label: "One special character", met: /[@#$%^&+=!_]/.test(password) },
+    { label: "No spaces allowed", met: password.length > 0 && !/\s/.test(password) },
+  ];
 
   return (
     <div className="space-y-6">
@@ -124,18 +138,29 @@ const AccountSetupStep = () => {
           Password Requirements
         </p>
         <ul className="grid gap-2 text-sm text-slate-400 sm:grid-cols-2">
-          {[
-            "Minimum 8 characters",
-            "One uppercase letter",
-            "One lowercase letter",
-            "One number",
-            "One special character",
-          ].map((item) => (
-            <li key={item} className="flex items-center gap-2">
-              <IoCheckmarkCircle className="h-4 w-4 shrink-0 text-emerald-400" />
-              <span>{item}</span>
-            </li>
-          ))}
+          {requirements.map((req) => {
+            let icon;
+            let textColor;
+            if (password === "") {
+              icon = <IoEllipseOutline className="h-4 w-4 shrink-0 text-slate-500" />;
+              textColor = "text-slate-400";
+            } else if (req.met) {
+              icon = <IoCheckmarkCircle className="h-4 w-4 shrink-0 text-emerald-400" />;
+              textColor = "text-slate-300";
+            } else {
+              icon = <IoCloseCircle className="h-4 w-4 shrink-0 text-rose-400" />;
+              textColor = "text-slate-400";
+            }
+
+            return (
+              <li key={req.label} className="flex items-center gap-2">
+                {icon}
+                <span className={`${textColor} transition-colors duration-300`}>
+                  {req.label}
+                </span>
+              </li>
+            );
+          })}
         </ul>
       </div>
     </div>

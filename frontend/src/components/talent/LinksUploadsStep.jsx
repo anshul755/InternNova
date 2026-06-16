@@ -79,15 +79,20 @@ const LinksUploadsStep = () => {
             htmlFor="avatarFile"
             className="block text-xs font-semibold text-slate-300 uppercase tracking-wider"
           >
-            Avatar file (optional)
+            Avatar file<span className="text-rose-400"> *</span>
           </label>
           <input
             id="avatarFile"
             type="file"
             accept="image/*"
             {...register("avatarFile")}
-            className="block w-full text-sm text-slate-400 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border file:border-white/10 file:text-sm file:font-medium file:bg-white/[0.04] file:text-slate-300 hover:file:bg-white/[0.08] file:transition-colors file:cursor-pointer"
+            className={`block w-full text-sm text-slate-400 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border file:text-sm file:font-medium file:transition-colors file:cursor-pointer ${
+              errors.avatarFile
+                ? "file:border-rose-400/50 file:bg-rose-500/[0.04]"
+                : "file:border-white/10 file:bg-white/[0.04] hover:file:bg-white/[0.08]"
+            } file:text-slate-300`}
           />
+          <FieldError message={errors.avatarFile?.message} persistent />
         </div>
 
         <div className="space-y-2">
@@ -95,15 +100,20 @@ const LinksUploadsStep = () => {
             htmlFor="resumeFile"
             className="block text-xs font-semibold text-slate-300 uppercase tracking-wider"
           >
-            Resume file (optional)
+            Resume file<span className="text-rose-400"> *</span>
           </label>
           <input
             id="resumeFile"
             type="file"
             accept="application/pdf"
             {...register("resumeFile")}
-            className="block w-full text-sm text-slate-400 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border file:border-white/10 file:text-sm file:font-medium file:bg-white/[0.04] file:text-slate-300 hover:file:bg-white/[0.08] file:transition-colors file:cursor-pointer"
+            className={`block w-full text-sm text-slate-400 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border file:text-sm file:font-medium file:transition-colors file:cursor-pointer ${
+              errors.resumeFile
+                ? "file:border-rose-400/50 file:bg-rose-500/[0.04]"
+                : "file:border-white/10 file:bg-white/[0.04] hover:file:bg-white/[0.08]"
+            } file:text-slate-300`}
           />
+          <FieldError message={errors.resumeFile?.message} persistent />
         </div>
       </div>
     </div>

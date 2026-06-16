@@ -20,7 +20,7 @@ export default function Footer() {
     { to: "/jobs", label: "Jobs" },
     { to: "/applications", label: "Applications" },
     { to: "/saved-jobs", label: "Saved Jobs" },
-    { to: "/profile/edit", label: "Resume Profile" },
+    { to: "/profile", label: "My Profile" },
   ];
 
   const companyLinks = [
@@ -28,7 +28,7 @@ export default function Footer() {
     { to: "/company/jobs", label: "My Jobs" },
     { to: "/jobs/create", label: "Post Job" },
     { to: "/company/applications", label: "Applications" },
-    { to: "/company/profile/edit", label: "Company Profile" },
+    { to: "/company/profile", label: "Company Profile" },
   ];
 
   const headingClass =
@@ -144,10 +144,13 @@ export default function Footer() {
         </div>
 
         <div
-          className={`${dividerClass} flex flex-col sm:flex-row items-center justify-between gap-3`}
+          className={`${dividerClass} flex flex-col items-center sm:flex-row sm:items-start justify-between gap-3`}
         >
           <p className={mutedClass}>
             &copy; {currentYear} InternNova. All rights reserved.
+          </p>
+          <p className={mutedClass}>
+            Disclaimer: This is a prototype; all profiles and job listings are illustrative only.
           </p>
           <p className={mutedClass}>
             Built with care for the next generation of talent.

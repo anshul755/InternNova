@@ -23,7 +23,8 @@ const passwordSchema = z
   .regex(/(?=.*[a-z])/, "Must contain a lowercase letter")
   .regex(/(?=.*[A-Z])/, "Must contain an uppercase letter")
   .regex(/(?=.*\d)/, "Must contain a number")
-  .regex(/(?=.*[@#$%^&+=!_])/, "Must contain a special character");
+  .regex(/(?=.*[@#$%^&+=!_])/, "Must contain a special character")
+  .regex(/^\S*$/, "Password must not contain spaces");
 
 const baseSchema = z.object({
   email: z.string().email("Enter a valid email"),
@@ -51,13 +52,30 @@ const baseSchema = z.object({
   logoFile: z.any().optional(),
 });
 
-const schema = baseSchema.refine(
-  (data) => data.password === data.confirmPassword,
-  {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  },
-);
+const schema = baseSchema
+  .refine(
+    (data) => data.password === data.confirmPassword,
+    {
+      message: "Passwords do not match",
+      path: ["confirmPassword"],
+    },
+  )
+  .refine(
+    (data) => {
+      const hasUrl = typeof data.logoUrl === "string" && data.logoUrl.trim() !== "";
+      const hasFile = data.logoFile && (
+        (typeof FileList !== "undefined" && data.logoFile instanceof FileList && data.logoFile.length > 0) ||
+        (Array.isArray(data.logoFile) && data.logoFile.length > 0) ||
+        (typeof File !== "undefined" && data.logoFile instanceof File) ||
+        (typeof data.logoFile === "object" && data.logoFile.name)
+      );
+      return hasUrl || hasFile;
+    },
+    {
+      message: "Either a logo URL or a logo file is required",
+      path: ["logoUrl"],
+    },
+  );
 
 const steps = [
   { id: "account", label: "Account" },
@@ -71,7 +89,7 @@ const stepFields = [
   ["email", "password", "confirmPassword"],
   ["companyName", "companySize", "companyType", "foundedYear"],
   ["companyDescription", "websiteUrl"],
-  [],
+  ["logoUrl", "logoFile"],
   [],
 ];
 
