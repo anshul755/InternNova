@@ -5,26 +5,8 @@ const { generateOTP } = require('../utils/crypto');
 const logger = require('../utils/logger');
 
 const SALT_ROUNDS = 10;
-const OTP_COOLDOWN_SECONDS = 60; // prevent duplicate sends within this window
 
 async function createAndSendOTP(email, type) {
-  // ── Cooldown check: if an OTP was recently created, skip to avoid duplicate emails
-  const existingOtp = await OTP.findOne({ email, type }).sort({ createdAt: -1 });
-  if (existingOtp) {
-    const ageSeconds = (Date.now() - existingOtp.createdAt.getTime()) / 1000;
-    if (ageSeconds < OTP_COOLDOWN_SECONDS) {
-      const remaining = Math.ceil(OTP_COOLDOWN_SECONDS - ageSeconds);
-      logger.info('OTP request skipped — cooldown active', {
-        email,
-        type,
-        otpAgeSeconds: Math.round(ageSeconds),
-        cooldownRemaining: remaining,
-      });
-      // Return the existing OTP silently — no duplicate email sent
-      return;
-    }
-  }
-
   const otp = generateOTP();
   const otpHash = await bcrypt.hash(otp, SALT_ROUNDS);
   const expiresAt = new Date(Date.now() + OTP_TTL_SECONDS * 1000);
@@ -32,7 +14,6 @@ async function createAndSendOTP(email, type) {
   await OTP.deleteMany({ email, type });
   await OTP.create({ email, otpHash, type, expiresAt });
 
-  // In development, log the OTP to console so developers can test without email
   if (process.env.NODE_ENV !== 'production') {
     console.log('');
     console.log('══════════════════════════════════════════════════');
@@ -49,15 +30,24 @@ async function createAndSendOTP(email, type) {
     await sendOTPEmail(email, otp, type);
     logger.info('OTP created and sent', { email, type });
   } catch (err) {
-    if (process.env.NODE_ENV === 'production') {
-      throw err;
+    if (process.env.NODE_ENV !== 'production' && process.env.DEV_SKIP_EMAIL === 'true') {
+      logger.warn('OTP email failed; using console OTP fallback (DEV_SKIP_EMAIL=true)', {
+        email,
+        type,
+        error: err.message,
+      });
+      return;
     }
 
-    logger.warn('OTP email failed; using console OTP fallback in development', {
+    logger.error('OTP email delivery failed', {
       email,
       type,
       error: err.message,
+      code: err.code,
+      command: err.command,
+      response: err.response,
     });
+    throw err;
   }
 }
 

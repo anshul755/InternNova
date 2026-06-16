@@ -23,6 +23,7 @@ function AppError(message, statusCode) {
 }
 
 async function register({ email, password, role }) {
+  const { OTP } = require('../models/OTP.model');
   const existing = await User.findOne({ email });
 
   if (existing) {
@@ -36,56 +37,56 @@ async function register({ email, password, role }) {
     await existing.setPassword(password);
     await existing.save();
 
-    const { OTP } = require('../models/OTP.model');
     await OTP.deleteMany({ email, type: 'EMAIL_VERIFICATION' });
 
+    let emailSent = true;
     try {
       await createAndSendOTP(email, 'EMAIL_VERIFICATION');
     } catch (emailErr) {
-      logger.error('Failed to resend OTP during re-registration', {
+      emailSent = false;
+      logger.error('Failed to send OTP during re-registration (account preserved)', {
         email,
         error: emailErr.message,
       });
-      throw AppError(
-        'Failed to send verification email. Please try again later.',
-        502,
-      );
     }
 
     logger.info('User re-registered (was unverified)', {
       userId: existing._id,
       role,
+      emailSent,
     });
     return {
       userId: existing._id,
       email: existing.email,
       role: existing.role,
+      emailSent,
     };
   }
 
-  // Brand-new user — save first, then send email.
-  // If email fails, roll back the user so the email isn't orphaned.
+  // Brand-new user — create the account first, then attempt to send the OTP.
+  // If the email fails, DO NOT roll back the user. Preserve the account and
+  // the OTP record so the user can retry via the "Resend OTP" button on the
+  // verify-email page without re-filling the entire registration form.
+  await OTP.deleteMany({ email, type: 'EMAIL_VERIFICATION' });
+
   const user = new User({ email, role });
   await user.setPassword(password);
   await user.save();
 
+  let emailSent = true;
   try {
     await createAndSendOTP(email, 'EMAIL_VERIFICATION');
   } catch (emailErr) {
-    // Rollback: delete the user we just created
-    await User.deleteOne({ _id: user._id });
-    logger.error('Registration rolled back — OTP email failed', {
+    emailSent = false;
+    logger.error('OTP email failed — account preserved for retry', {
       email,
+      userId: user._id,
       error: emailErr.message,
     });
-    throw AppError(
-      'Failed to send verification email. Please check your email address and try again.',
-      502,
-    );
   }
 
-  logger.info('User registered', { userId: user._id, role });
-  return { userId: user._id, email: user.email, role: user.role };
+  logger.info('User registered', { userId: user._id, role, emailSent });
+  return { userId: user._id, email: user.email, role: user.role, emailSent };
 }
 
 async function verifyEmail({ email, otp }) {
@@ -197,7 +198,14 @@ async function logout(userId, refreshToken) {
 async function forgotPassword(email) {
   const user = await User.findOne({ email });
   if (user && user.isActive && user.isEmailVerified) {
-    await createAndSendOTP(email, 'PASSWORD_RESET');
+    try {
+      await createAndSendOTP(email, 'PASSWORD_RESET');
+    } catch (emailErr) {
+      logger.error('Failed to send password-reset OTP', {
+        email,
+        error: emailErr.message,
+      });
+    }
   }
   logger.info('Forgot-password requested', { email });
 }

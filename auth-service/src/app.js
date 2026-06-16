@@ -63,7 +63,6 @@ app.use((req, res) => {
 });
 
 
-// eslint-disable-next-line no-unused-vars
 app.use((err, req, res, _next) => {
 
   if (err.message && err.message.startsWith('CORS:')) {
@@ -99,11 +98,14 @@ app.use((err, req, res, _next) => {
   }
 
   const statusCode = err.statusCode || err.status || 500;
-  sendError(
-    res,
-    statusCode,
-    process.env.NODE_ENV === 'production' ? 'Internal server error' : err.message
-  );
+
+  const isProduction = process.env.NODE_ENV === 'production';
+  const isUnexpectedError = statusCode === 500;
+  const message = isProduction && isUnexpectedError
+    ? 'Internal server error'
+    : err.message;
+
+  sendError(res, statusCode, message);
 });
 
 module.exports = app;
