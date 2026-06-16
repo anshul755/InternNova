@@ -74,6 +74,8 @@ services:
       SMTP_USER: ${SMTP_USER:-dev@localhost}
       SMTP_PASS: ${SMTP_PASS:-dev-password}
       EMAIL_FROM: ${EMAIL_FROM:-"InternNova <no-reply@internnova.com>"}
+      EMAIL_FROM_NAME: ${EMAIL_FROM_NAME:-InternNova}
+      EMAIL_FROM_ADDR: ${EMAIL_FROM_ADDR:-no-reply@internnova.com}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:5173}
       LOG_LEVEL: ${LOG_LEVEL:-info}
       LOG_DIR: /app/logs
