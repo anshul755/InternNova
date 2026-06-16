@@ -11,6 +11,7 @@ export default function VerifyEmail() {
   const location = useLocation();
 
   const emailFromState = location.state?.email ?? "";
+  const emailNotSent = location.state?.emailNotSent === true;
   const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(""));
   const [email, setEmail] = useState(emailFromState);
   const [loading, setLoading] = useState(false);
@@ -110,8 +111,21 @@ export default function VerifyEmail() {
           <h1 className="text-xl font-semibold text-slate-900">
             Check your inbox
           </h1>
+          {emailNotSent && (
+            <div className="mt-4 rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-left text-sm text-amber-800">
+              <p className="font-semibold">Email delivery is temporarily unavailable.</p>
+              <p className="mt-1 text-xs text-amber-700">
+                Your account has been created, but we could not send the verification
+                code right now. Use the <strong>Resend OTP</strong> button below — it
+                usually works within a few moments.
+              </p>
+            </div>
+          )}
+
           <p className="mt-1.5 text-xs text-slate-500">
-            We sent a 6-digit OTP to{" "}
+            {emailNotSent
+              ? "When email delivery is back, a 6-digit OTP will be sent to "
+              : "We sent a 6-digit OTP to "}
             {emailFromState ? (
               <span className="text-slate-900 font-medium">
                 {emailFromState}

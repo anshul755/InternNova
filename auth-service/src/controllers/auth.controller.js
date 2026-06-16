@@ -34,12 +34,12 @@ async function register(req, res, next) {
   try {
     const { email, password, role } = req.body;
     const result = await authService.register({ email, password, role });
-    sendSuccess(
-      res,
-      201,
-      'Registration successful. Please check your email for the verification OTP.',
-      result
-    );
+
+    const message = result.emailSent === false
+      ? 'Account created, but the verification email could not be sent right now. You can request a new OTP from the verification page.'
+      : 'Registration successful. Please check your email for the verification OTP.';
+
+    sendSuccess(res, 201, message, result);
   } catch (err) {
     next(err);
   }
@@ -60,8 +60,24 @@ async function resendOTP(req, res, next) {
   try {
     const { email, type } = req.body;
     const { createAndSendOTP } = require('../services/otp.service');
-    await createAndSendOTP(email, type);
-    sendSuccess(res, 200, 'A new OTP has been sent to your email.');
+
+    let emailSent = true;
+    try {
+      await createAndSendOTP(email, type);
+    } catch (emailErr) {
+      emailSent = false;
+      logger.warn('Resend OTP email failed', {
+        email,
+        type,
+        error: emailErr.message,
+      });
+    }
+
+    const message = emailSent
+      ? 'A new OTP has been sent to your email.'
+      : 'A new verification code has been generated, but the email could not be sent. Please try again in a moment.';
+
+    sendSuccess(res, 200, message, { emailSent });
   } catch (err) {
     next(err);
   }

@@ -171,6 +171,21 @@ const CompanyRegister = () => {
     setActiveStep((prev) => Math.min(prev + 1, steps.length - 1));
   };
 
+  const onInvalid = useCallback(
+    (errors) => {
+      const errorFields = Object.keys(errors);
+      for (let i = 0; i < stepFields.length; i++) {
+        const fields = stepFields[i];
+        if (fields.length > 0 && fields.some((f) => errorFields.includes(f))) {
+          setActiveStep(i);
+          break;
+        }
+      }
+      setSubmitError("Please fix the highlighted fields before submitting.");
+    },
+    [stepFields],
+  );
+
   const handleBack = () => {
     setSubmitError("");
     if (activeStep === 0) {
@@ -186,9 +201,11 @@ const CompanyRegister = () => {
 
     try {
       let userId = authUserId;
+      let emailSent = true;
       if (!userId) {
         const result = await authRegister(data.email, data.password, "Company");
         userId = result.userId;
+        emailSent = result.emailSent !== false;
         setAuthUserId(userId);
       }
 
@@ -233,7 +250,7 @@ const CompanyRegister = () => {
       }
 
       clearSavedData();
-      navigate("/verify-email", { state: { email: data.email } });
+      navigate("/verify-email", { state: { email: data.email, emailNotSent: !emailSent } });
     } catch (err) {
       setSubmitError(err.message || "Something went wrong. Please try again.");
     } finally {
@@ -348,7 +365,7 @@ const CompanyRegister = () => {
             ) : (
               <button
                 type="button"
-                onClick={handleSubmit(onSubmit)}
+                onClick={handleSubmit(onSubmit, onInvalid)}
                 disabled={submitting}
                 className="btn-primary px-7 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-60"
               >
