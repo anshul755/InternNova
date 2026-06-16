@@ -72,9 +72,9 @@ function UserDropdown({ user, onLogout, light, displayName, avatarUrl }) {
         to: "/company/applications",
       },
       {
-        label: "Edit Profile",
+        label: "Company Profile",
         icon: IoPersonOutline,
-        to: "/company/profile/edit",
+        to: "/company/profile",
       },
     ]
     : [
@@ -86,15 +86,18 @@ function UserDropdown({ user, onLogout, light, displayName, avatarUrl }) {
         to: "/applications",
       },
       { label: "Saved Jobs", icon: IoBookmarkOutline, to: "/saved-jobs" },
-      { label: "Edit Profile", icon: IoPersonOutline, to: "/profile/edit" },
+      { label: "My Profile", icon: IoPersonOutline, to: "/profile" },
     ];
 
   return (
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((value) => !value)}
-        className={`flex items-center gap-2 rounded-full py-1.5 pl-1.5 pr-3 transition-colors ${light ? "hover:bg-white/60" : "hover:bg-white/[0.06]"
-          }`}
+        className={`flex items-center gap-2 rounded-full py-1.5 pl-1.5 pr-3 transition-all duration-300 border border-transparent ${
+          light 
+            ? "hover:bg-[#7cc84a]/5 hover:border-[#7cc84a]/25" 
+            : "hover:bg-[#9fe870]/5 hover:border-[#9fe870]/25"
+        }`}
         aria-expanded={open}
         aria-haspopup="menu"
         aria-label="User menu"
@@ -201,6 +204,9 @@ function UserDropdown({ user, onLogout, light, displayName, avatarUrl }) {
   );
 }
 
+// In-memory cache for user profile data (display name & avatar url) to prevent flickering when unmounting/remounting
+export const profileCache = new Map();
+
 export default function AuthenticatedNavbar() {
   const { user, logout } = useAuth();
   const { resolvedTheme } = useTheme();
@@ -208,10 +214,12 @@ export default function AuthenticatedNavbar() {
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const cached = user?.id ? profileCache.get(user.id) : null;
   const [displayName, setDisplayName] = useState(
-    () => user?.displayName || user?.name || user?.companyName || ""
+    () => cached?.displayName || user?.displayName || user?.name || user?.companyName || ""
   );
-  const [avatarUrl, setAvatarUrl] = useState(null);
+  const [avatarUrl, setAvatarUrl] = useState(() => cached?.avatarUrl || null);
 
   const useLight = resolvedTheme !== "dark";
   const isCompany = user?.role?.toLowerCase() === "company";
@@ -253,8 +261,16 @@ export default function AuthenticatedNavbar() {
         const candidateAvatar = resolveLogoUrl(profile, profile?.data, user);
 
         if (!cancelled) {
-          setDisplayName(nextName || fallbackName);
-          setAvatarUrl(candidateAvatar || null);
+          const nameToSet = nextName || fallbackName;
+          const avatarToSet = candidateAvatar || null;
+          setDisplayName(nameToSet);
+          setAvatarUrl(avatarToSet);
+
+          // Cache the resolved values
+          profileCache.set(user.id, {
+            displayName: nameToSet,
+            avatarUrl: avatarToSet,
+          });
         }
       } catch {
         if (!cancelled) {
@@ -278,6 +294,9 @@ export default function AuthenticatedNavbar() {
   ]);
 
   const handleLogout = async () => {
+    if (user?.id) {
+      profileCache.delete(user.id);
+    }
     await logout();
     navigate("/", { replace: true });
   };
@@ -316,19 +335,19 @@ export default function AuthenticatedNavbar() {
           <Logo light={useLight} />
         </div>
 
-        <div className="hidden md:flex items-center gap-1">
+        <div className="hidden md:flex items-center gap-2.5">
           {navLinks.map(({ label, to }) => (
             <NavLink
               key={to}
               to={to}
               className={({ isActive }) =>
-                `px-2 py-2 text-sm font-medium transition-colors border-b-2 ${useLight
+                `px-4 py-2 text-sm font-medium transition-all duration-300 rounded-full border ${useLight
                   ? isActive
-                    ? "text-slate-900 border-slate-900"
-                    : "text-slate-600 border-transparent hover:text-slate-900 hover:border-slate-300"
+                    ? "text-slate-900 bg-[#7cc84a]/12 border-[#7cc84a]/25 shadow-[0_2px_8px_rgba(124,200,74,0.08)]"
+                    : "text-slate-600 border-transparent hover:text-slate-900 hover:bg-[#7cc84a]/5 hover:border-[#7cc84a]/25"
                   : isActive
-                    ? "text-white border-[#ecfccb] shadow-[0_1px_0_0_rgba(236,252,203,0.7)]"
-                    : "text-slate-300 border-transparent hover:text-white hover:border-white/30"
+                    ? "text-white bg-[#9fe870]/12 border-[#9fe870]/25 shadow-[0_0_14px_rgba(159,232,112,0.18)]"
+                    : "text-slate-300 border-transparent hover:text-white hover:bg-[#9fe870]/5 hover:border-[#9fe870]/25"
                 }`
               }
             >
@@ -373,8 +392,8 @@ export default function AuthenticatedNavbar() {
 
       {mobileOpen && (
         <div
-          className={`md:hidden mx-4 mb-4 rounded-xl p-4 animate-slide-down ${useLight
-              ? "bg-white/50 border border-white/50 shadow-glass backdrop-blur-lg"
+          className={`md:hidden absolute top-full left-4 right-4 mt-2 rounded-xl p-4 shadow-xl animate-slide-down ${useLight
+              ? "bg-white/90 border border-slate-200 shadow-glass backdrop-blur-lg"
               : "glass-panel border-white/[0.06]"
             }`}
           role="navigation"
@@ -387,13 +406,13 @@ export default function AuthenticatedNavbar() {
                 to={to}
                 onClick={() => setMobileOpen(false)}
                 className={({ isActive }) =>
-                  `px-4 py-3 text-sm font-medium transition-colors border-b-2 border-transparent ${useLight
+                  `px-4 py-2.5 text-sm font-medium transition-all duration-300 rounded-xl border ${useLight
                     ? isActive
-                      ? "text-slate-900 border-slate-900"
-                      : "text-slate-600 hover:text-slate-900 hover:border-slate-300"
+                      ? "text-slate-900 bg-[#7cc84a]/12 border-[#7cc84a]/20 shadow-sm"
+                      : "text-slate-600 border-transparent hover:text-slate-900 hover:bg-[#7cc84a]/5 hover:border-[#7cc84a]/25"
                     : isActive
-                      ? "text-white border-[#ecfccb] shadow-[0_1px_0_0_rgba(236,252,203,0.1)]"
-                      : "text-slate-300 hover:text-white hover:border-white/25"
+                      ? "text-white bg-[#9fe870]/12 border-[#9fe870]/20 shadow-[0_0_12px_rgba(159,232,112,0.1)]"
+                      : "text-slate-300 border-transparent hover:text-white hover:bg-[#9fe870]/5 hover:border-[#9fe870]/25"
                   }`
                 }
               >
@@ -402,25 +421,25 @@ export default function AuthenticatedNavbar() {
             ))}
 
             {isTalent && (
-              <div className="border-t border-white/40 mt-1 pt-1">
-                <ResumeGeneratorButton compact />
+              <div className={`mt-1.5 pt-1.5 border-t ${useLight ? "border-slate-200" : "border-white/[0.06]"}`}>
+                <ResumeGeneratorButton compact light={useLight} />
               </div>
             )}
 
             <div
-              className={`mt-3 pt-3 border-t ${useLight ? "border-white/40" : "border-white/[0.06]"}`}
+              className={`mt-1.5 pt-1.5 border-t ${useLight ? "border-slate-200" : "border-white/[0.06]"}`}
             >
               <button
                 onClick={() => {
                   setMobileOpen(false);
                   handleLogout();
                 }}
-                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium w-full transition-colors border-b border-transparent ${useLight
-                    ? "text-slate-600 hover:text-slate-900 hover:border-slate-300"
-                    : "text-slate-300 hover:text-white hover:border-white/25"
+                className={`flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium w-full transition-all duration-300 rounded-xl border border-transparent ${useLight
+                    ? "text-slate-600 hover:text-slate-900 hover:bg-[#7cc84a]/5 hover:border-[#7cc84a]/25"
+                    : "text-slate-300 hover:text-white hover:bg-[#9fe870]/5 hover:border-[#9fe870]/25"
                   }`}
               >
-                <IoLogOutOutline className="w-4 h-4" />
+                <IoLogOutOutline className="w-4.5 h-4.5" />
                 Sign out
               </button>
             </div>

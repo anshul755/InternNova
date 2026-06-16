@@ -16,13 +16,13 @@ const midpoint = Math.ceil(companies.length / 2);
 const companiesRowOne = companies.slice(0, midpoint);
 const companiesRowTwo = companies.slice(midpoint);
 const logoCircleClassName =
-  "logo-circle group relative flex items-center justify-center w-32 h-32 flex-shrink-0 mx-4 rounded-full floating-bubble";
+  "logo-circle group relative flex items-center justify-center w-32 h-32 rounded-full";
 
 const Landing = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="relative min-h-screen text-slate-900 px-[5vw] py-6 flex flex-col font-sans overflow-x-hidden saas-section">
+    <div className="relative min-h-screen text-slate-900 px-[5vw] py-6 flex flex-col font-sans overflow-x-hidden saas-section page-enter">
       <Navbar hideGuestCenterNav />
       <main className="grid grid-cols-1 lg:grid-cols-[1.2fr_1.1fr] gap-12 items-center pt-24">
         <section
@@ -116,153 +116,167 @@ const Landing = () => {
         <div className="relative w-full overflow-hidden py-16 pb-20 space-y-10">
           <div className="flex animate-scroll-left w-max">
             {companiesRowOne.map((company, idx) => (
-              <a
+              <div
                 key={`row1-first-${idx}`}
-                href={company.careersUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={logoCircleClassName}
+                className="floating-bubble flex-shrink-0 mx-4"
                 style={{
                   animationDelay: `${idx * 0.4}s`,
                   animationDuration: `${8 + (idx % 5)}s`,
                 }}
-                title={company.name}
               >
-                <div className="logo-circle__media w-20 h-20 flex items-center justify-center p-2">
-                  <img
-                    src={company.logo}
-                    alt={`${company.name} logo`}
-                    className="logo-circle__img max-w-full max-h-full object-contain"
-                    loading="lazy"
-                    decoding="async"
-                    onError={(e) => {
-                      e.target.style.display = "none";
-                      const fallback = document.createElement("span");
-                      fallback.className = "logo-circle__fallback";
-                      fallback.textContent = company.name
-                        .substring(0, 2)
-                        .toUpperCase();
-                      e.target.parentElement.appendChild(fallback);
-                    }}
-                  />
-                </div>
-                <span className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
-                  {company.name}
-                </span>
-              </a>
+                <a
+                  href={company.careersUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={logoCircleClassName}
+                  title={company.name}
+                >
+                  <div className="logo-circle__media w-20 h-20 flex items-center justify-center p-2">
+                    <img
+                      src={company.logo}
+                      alt={`${company.name} logo`}
+                      className="logo-circle__img max-w-full max-h-full object-contain"
+                      loading="lazy"
+                      decoding="async"
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                        const fallback = document.createElement("span");
+                        fallback.className = "logo-circle__fallback";
+                        fallback.textContent = company.name
+                          .substring(0, 2)
+                          .toUpperCase();
+                        e.target.parentElement.appendChild(fallback);
+                      }}
+                    />
+                  </div>
+                  <span className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
+                    {company.name}
+                  </span>
+                </a>
+              </div>
             ))}
             {companiesRowOne.map((company, idx) => (
-              <a
+              <div
                 key={`row1-second-${idx}`}
-                href={company.careersUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={logoCircleClassName}
+                className="floating-bubble flex-shrink-0 mx-4"
                 style={{
                   animationDelay: `${(idx + companiesRowOne.length) * 0.4}s`,
-                  animationDuration: `${8 + ((idx + companiesRowOne.length) % 5)
-                    }s`,
+                  animationDuration: `${8 + ((idx + companiesRowOne.length) % 5)}s`,
                 }}
-                title={company.name}
               >
-                <div className="logo-circle__media w-20 h-20 flex items-center justify-center p-2">
-                  <img
-                    src={company.logo}
-                    alt={`${company.name} logo`}
-                    className="logo-circle__img max-w-full max-h-full object-contain"
-                    loading="lazy"
-                    decoding="async"
-                    onError={(e) => {
-                      e.target.style.display = "none";
-                      const fallback = document.createElement("span");
-                      fallback.className = "logo-circle__fallback";
-                      fallback.textContent = company.name
-                        .substring(0, 2)
-                        .toUpperCase();
-                      e.target.parentElement.appendChild(fallback);
-                    }}
-                  />
-                </div>
-                <span className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
-                  {company.name}
-                </span>
-              </a>
+                <a
+                  href={company.careersUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={logoCircleClassName}
+                  title={company.name}
+                >
+                  <div className="logo-circle__media w-20 h-20 flex items-center justify-center p-2">
+                    <img
+                      src={company.logo}
+                      alt={`${company.name} logo`}
+                      className="logo-circle__img max-w-full max-h-full object-contain"
+                      loading="lazy"
+                      decoding="async"
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                        const fallback = document.createElement("span");
+                        fallback.className = "logo-circle__fallback";
+                        fallback.textContent = company.name
+                          .substring(0, 2)
+                          .toUpperCase();
+                        e.target.parentElement.appendChild(fallback);
+                      }}
+                    />
+                  </div>
+                  <span className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
+                    {company.name}
+                  </span>
+                </a>
+              </div>
             ))}
           </div>
           {companiesRowTwo.length > 0 && (
             <div className="flex animate-scroll-right w-max">
               {companiesRowTwo.map((company, idx) => (
-                <a
+                <div
                   key={`row2-first-${idx}`}
-                  href={company.careersUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={logoCircleClassName}
+                  className="floating-bubble flex-shrink-0 mx-4"
                   style={{
                     animationDelay: `${idx * 0.4}s`,
                     animationDuration: `${8 + (idx % 5)}s`,
                   }}
-                  title={company.name}
                 >
-                  <div className="logo-circle__media w-20 h-20 flex items-center justify-center p-2">
-                    <img
-                      src={company.logo}
-                      alt={`${company.name} logo`}
-                      className="logo-circle__img max-w-full max-h-full object-contain"
-                      loading="lazy"
-                      decoding="async"
-                      onError={(e) => {
-                        e.target.style.display = "none";
-                        const fallback = document.createElement("span");
-                        fallback.className = "logo-circle__fallback";
-                        fallback.textContent = company.name
-                          .substring(0, 2)
-                          .toUpperCase();
-                        e.target.parentElement.appendChild(fallback);
-                      }}
-                    />
-                  </div>
-                  <span className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
-                    {company.name}
-                  </span>
-                </a>
+                  <a
+                    href={company.careersUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={logoCircleClassName}
+                    title={company.name}
+                  >
+                    <div className="logo-circle__media w-20 h-20 flex items-center justify-center p-2">
+                      <img
+                        src={company.logo}
+                        alt={`${company.name} logo`}
+                        className="logo-circle__img max-w-full max-h-full object-contain"
+                        loading="lazy"
+                        decoding="async"
+                        onError={(e) => {
+                          e.target.style.display = "none";
+                          const fallback = document.createElement("span");
+                          fallback.className = "logo-circle__fallback";
+                          fallback.textContent = company.name
+                            .substring(0, 2)
+                            .toUpperCase();
+                          e.target.parentElement.appendChild(fallback);
+                        }}
+                      />
+                    </div>
+                    <span className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
+                      {company.name}
+                    </span>
+                  </a>
+                </div>
               ))}
               {companiesRowTwo.map((company, idx) => (
-                <a
+                <div
                   key={`row2-second-${idx}`}
-                  href={company.careersUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={logoCircleClassName}
+                  className="floating-bubble flex-shrink-0 mx-4"
                   style={{
                     animationDelay: `${(idx + companiesRowTwo.length) * 0.4}s`,
-                    animationDuration: `${8 + ((idx + companiesRowTwo.length) % 5)
-                      }s`,
+                    animationDuration: `${8 + ((idx + companiesRowTwo.length) % 5)}s`,
                   }}
-                  title={company.name}
                 >
-                  <div className="logo-circle__media w-20 h-20 flex items-center justify-center p-2">
-                    <img
-                      src={company.logo}
-                      alt={`${company.name} logo`}
-                      className="logo-circle__img max-w-full max-h-full object-contain"
-                      loading="lazy"
-                      decoding="async"
-                      onError={(e) => {
-                        e.target.style.display = "none";
-                        const fallback = document.createElement("span");
-                        fallback.className = "logo-circle__fallback";
-                        fallback.textContent = company.name
-                          .substring(0, 2)
-                          .toUpperCase();
-                        e.target.parentElement.appendChild(fallback);
-                      }}
-                    />
-                  </div>
-                  <span className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
-                    {company.name}
-                  </span>
-                </a>
+                  <a
+                    href={company.careersUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={logoCircleClassName}
+                    title={company.name}
+                  >
+                    <div className="logo-circle__media w-20 h-20 flex items-center justify-center p-2">
+                      <img
+                        src={company.logo}
+                        alt={`${company.name} logo`}
+                        className="logo-circle__img max-w-full max-h-full object-contain"
+                        loading="lazy"
+                        decoding="async"
+                        onError={(e) => {
+                          e.target.style.display = "none";
+                          const fallback = document.createElement("span");
+                          fallback.className = "logo-circle__fallback";
+                          fallback.textContent = company.name
+                            .substring(0, 2)
+                            .toUpperCase();
+                          e.target.parentElement.appendChild(fallback);
+                        }}
+                      />
+                    </div>
+                    <span className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
+                      {company.name}
+                    </span>
+                  </a>
+                </div>
               ))}
             </div>
           )}
@@ -274,19 +288,19 @@ const Landing = () => {
       <style>{`
         @keyframes scroll-left {
           0% {
-            transform: translateX(0);
+            transform: translate3d(0, 0, 0);
           }
           100% {
-            transform: translateX(-50%);
+            transform: translate3d(-50%, 0, 0);
           }
         }
 
         @keyframes scroll-right {
           0% {
-            transform: translateX(-50%);
+            transform: translate3d(-50%, 0, 0);
           }
           100% {
-            transform: translateX(0);
+            transform: translate3d(0, 0, 0);
           }
         }
 
@@ -295,13 +309,13 @@ const Landing = () => {
             transform: translate3d(0, 0, 0) rotate(0deg);
           }
           25% {
-            transform: translate3d(8px, -10px, 0) rotate(2deg);
+            transform: translate3d(6px, -8px, 0) rotate(1.5deg);
           }
           50% {
-            transform: translate3d(0, -20px, 0) rotate(0deg);
+            transform: translate3d(0, -16px, 0) rotate(0deg);
           }
           75% {
-            transform: translate3d(-8px, -10px, 0) rotate(-2deg);
+            transform: translate3d(-6px, -8px, 0) rotate(-1.5deg);
           }
           100% {
             transform: translate3d(0, 0, 0) rotate(0deg);
@@ -309,15 +323,21 @@ const Landing = () => {
         }
 
         .animate-scroll-left {
-          animation: scroll-left 55s linear infinite;
+          animation: scroll-left 65s linear infinite;
           will-change: transform;
           transform: translateZ(0);
         }
 
         .animate-scroll-right {
-          animation: scroll-right 55s linear infinite;
+          animation: scroll-right 65s linear infinite;
           will-change: transform;
           transform: translateZ(0);
+        }
+
+        /* Pause horizontal scrolling when hovering over a row */
+        .animate-scroll-left:hover,
+        .animate-scroll-right:hover {
+          animation-play-state: paused;
         }
 
         .floating-bubble {
@@ -326,6 +346,11 @@ const Landing = () => {
           animation-iteration-count: infinite;
           will-change: transform;
           transform: translateZ(0);
+        }
+
+        /* Pause floating animation when hovering over the card logo itself */
+        .floating-bubble:has(.logo-circle:hover) {
+          animation-play-state: paused;
         }
 
         @media (prefers-reduced-motion: reduce) {

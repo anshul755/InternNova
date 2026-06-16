@@ -390,7 +390,7 @@ const JobListings = () => {
           <button
             onClick={() => setPage((p) => Math.max(0, p - 1))}
             disabled={page === 0}
-            className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 rounded-lg text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="btn-secondary px-4 py-2 text-sm disabled:opacity-40"
           >
             Previous
           </button>
@@ -400,7 +400,7 @@ const JobListings = () => {
           <button
             onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
             disabled={page >= totalPages - 1}
-            className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 rounded-lg text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="btn-secondary px-4 py-2 text-sm disabled:opacity-40"
           >
             Next
           </button>

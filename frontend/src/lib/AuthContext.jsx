@@ -47,28 +47,56 @@ export function getPostLoginRoute(role) {
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [accessToken, setAccessToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
 
     const initAuth = async () => {
-      const stored = getStoredToken();
-      if (stored) {
-        const parsed = parseToken(stored);
-        if (parsed) {
-          if (!cancelled) {
-            setAccessToken(stored);
-            setUser(parsed);
-            setStoredToken(stored);
+      const loggedIn = localStorage.getItem("inn_logged_in") === "true";
+      if (loggedIn) {
+        try {
+          const res = await fetch(`${AUTH_BASE}/me`, {
+            method: "GET",
+            credentials: "include",
+          });
+          if (res.ok) {
+            const body = await res.json();
+            if (body?.data?.user && !cancelled) {
+              setUser(normalizeUser(body.data.user));
+              setLoading(false);
+              return;
+            }
+          } else if (res.status === 401) {
+            // Try to refresh once
+            try {
+              const refreshRes = await fetch(`${AUTH_BASE}/refresh`, {
+                method: "POST",
+                credentials: "include",
+              });
+              if (refreshRes.ok) {
+                const meRes = await fetch(`${AUTH_BASE}/me`, {
+                  method: "GET",
+                  credentials: "include",
+                });
+                if (meRes.ok) {
+                  const meBody = await meRes.json();
+                  if (meBody?.data?.user && !cancelled) {
+                    setUser(normalizeUser(meBody.data.user));
+                    setLoading(false);
+                    return;
+                  }
+                }
+              }
+            } catch (refreshErr) {
+              console.error("[AuthContext] initAuth refresh failed:", refreshErr);
+            }
           }
-          if (!cancelled) setLoading(false);
-          return;
+        } catch (err) {
+          console.error("[AuthContext] initAuth failed:", err);
         }
       }
 
-      clearStoredToken();
       if (!cancelled) {
         _clearToken();
         setLoading(false);
@@ -82,15 +110,14 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
-  const _storeToken = (token, userData) => {
-    setStoredToken(token);
-    setAccessToken(token);
-    setUser(parseToken(token) || normalizeUser(userData));
+  const _storeToken = (userData) => {
+    localStorage.setItem("inn_logged_in", "true");
+    setUser(normalizeUser(userData));
   };
 
   const _clearToken = () => {
     clearStoredToken();
-    setAccessToken(null);
+    localStorage.removeItem("inn_logged_in");
     setUser(null);
   };
 
@@ -173,28 +200,22 @@ export function AuthProvider({ children }) {
     const body = await res.json();
     if (!res.ok) throw new Error(body.message || "Login failed.");
 
-    const { accessToken: token, refreshToken: rToken } = body.data;
-    _storeToken(token, body.data.user);
-    if (rToken) {
-      setStoredRefreshToken(rToken);
-    }
+    _storeToken(body.data.user);
     return body.data.user;
   }, []);
 
   /** Logs out of the current session */
   const logout = useCallback(async () => {
-    const token = getStoredToken();
-    if (token) {
-      try {
-        await fetch(`${AUTH_BASE}/logout`, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-          credentials: "include",
-        });
-      } catch {}
-    }
+    try {
+      await fetch(`${AUTH_BASE}/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch {}
     _clearToken();
   }, []);
+
+  const accessToken = null;
 
   return (
     <AuthContext.Provider

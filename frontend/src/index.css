@@ -750,9 +750,9 @@ html[data-theme="dark"] .logo-circle__img {
 }
 
 .btn-primary:hover {
-  transform: translateY(-1px) scale(1.01);
+  transform: translateY(-2px) scale(1.02);
   box-shadow: 0 18px 34px rgba(124, 200, 74, 0.26);
-  filter: brightness(1.02);
+  filter: brightness(1.06);
 }
 
 .btn-secondary {
@@ -777,8 +777,33 @@ html[data-theme="dark"] .btn-secondary {
 }
 
 .btn-secondary:hover {
-  transform: translateY(-1px) scale(1.01);
+  transform: translateY(-2px) scale(1.02);
   box-shadow: 0 14px 28px rgba(15, 23, 42, 0.14);
+  filter: brightness(1.06);
+}
+
+/* Global micro-interactions for all interactive buttons and elements styled as buttons */
+button:not(:disabled),
+.btn-primary:not(:disabled),
+.btn-secondary:not(:disabled),
+.custom-alert-btn:not(:disabled) {
+  cursor: pointer;
+}
+
+/* Base button selector hover transitions if not overridden by specific classes */
+button:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.02);
+  filter: brightness(1.06);
+}
+
+/* Shared active/clicked states across the entire application */
+button:active:not(:disabled),
+.btn-primary:active:not(:disabled),
+.btn-secondary:active:not(:disabled),
+.custom-alert-btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.96) !important;
+  filter: brightness(0.95) !important;
+  transition-duration: 80ms !important;
 }
 
 .input-glass {
@@ -1508,7 +1533,8 @@ html[data-theme="dark"] .border-slate-200 {
 .custom-alert-btn--primary:hover {
   background: linear-gradient(135deg, var(--alert-gradient-hover-start), var(--alert-gradient-hover-end));
   box-shadow: 0 6px 24px rgba(var(--alert-color), 0.4), 0 0 0 1px rgba(var(--alert-color), 0.2) inset;
-  transform: translateY(-1px);
+  transform: translateY(-2px) scale(1.02);
+  filter: brightness(1.06);
 }
 
 .custom-alert-btn--cancel {
@@ -1521,6 +1547,8 @@ html[data-theme="dark"] .border-slate-200 {
   background: rgba(255, 255, 255, 0.08);
   color: rgba(248, 250, 252, 0.9);
   border-color: rgba(255, 255, 255, 0.14);
+  transform: translateY(-2px) scale(1.02);
+  filter: brightness(1.06);
 }
 
 @keyframes alert-overlay-in {
@@ -1685,4 +1713,10 @@ html[data-theme="dark"] .form-error-banner {
 
 html[data-theme="dark"] .form-error-banner__icon {
   color: #fca5a5;
+}
+
+/* ── Optimize scaled-down images (avatars, logos) to prevent blurriness ── */
+img {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: auto;
 }

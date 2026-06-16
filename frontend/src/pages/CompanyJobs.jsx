@@ -468,10 +468,6 @@ export default function CompanyJobs() {
               <h2 className="text-lg font-semibold text-slate-900">
                 Company Snapshot
               </h2>
-              <span className="inline-flex items-center gap-1 text-xs text-slate-500">
-                <IoChevronForwardOutline className="w-4 h-4" />
-                Live data
-              </span>
             </div>
             {company ? (
               <div className="space-y-3 text-sm">
