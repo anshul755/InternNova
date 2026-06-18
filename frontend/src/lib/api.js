@@ -25,6 +25,11 @@ async function refreshAccessToken() {
       console.error("[api] Refresh endpoint returned", res.status, errText);
       throw new Error("refresh failed");
     }
+    const body = await res.json();
+    if (!body?.success) {
+      console.error("[api] Refresh endpoint returned success=false", body);
+      throw new Error("refresh failed");
+    }
     console.log("[api] Token refresh successful");
     return true;
   } catch (e) {
@@ -87,17 +92,25 @@ async function request(path, options = {}) {
   if (!res.ok) {
     const text = await res.text();
     let message;
+    let errors = null;
+    let code = null;
     try {
       const json = JSON.parse(text);
       if (json.errors && Array.isArray(json.errors)) {
         message = json.errors.map(e => e.defaultMessage || e.message).join(', ');
+        errors = json.errors;
       } else {
         message = json.message || json.error;
+        code = json.code || json.errorCode;
       }
     } catch {
       message = text;
     }
-    throw new Error(message || `Request failed with status ${res.status}`);
+    const error = new Error(message || `Request failed with status ${res.status}`);
+    error.status = res.status;
+    error.code = code;
+    error.errors = errors;
+    throw error;
   }
 
   return res;

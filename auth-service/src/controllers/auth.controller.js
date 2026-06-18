@@ -122,30 +122,44 @@ async function refresh(req, res, next) {
   try {
     const incomingToken = req.cookies?.refreshToken || req.body?.refreshToken;
     if (!incomingToken) {
-      return sendError(res, 401, 'No refresh token. Please log in.');
+      return res.status(200).json({
+        success: false,
+        code: 'NO_REFRESH_TOKEN',
+        message: 'No refresh token. Please log in.',
+      });
     }
 
-    const { accessToken, refreshToken: newRefreshToken } = await authService.refreshTokens(
-      incomingToken
-    );
+    try {
+      const { accessToken, refreshToken: newRefreshToken } = await authService.refreshTokens(
+        incomingToken
+      );
 
-    res.cookie('accessToken', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'Strict' : 'Lax',
-      maxAge: 15 * 60 * 1000, // 15 mins
-      path: '/',
-    });
+      res.cookie('accessToken', accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'Strict' : 'Lax',
+        maxAge: 15 * 60 * 1000, // 15 mins
+        path: '/',
+      });
 
-    res.cookie('refreshToken', newRefreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'Strict' : 'Lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      path: '/',
-    });
+      res.cookie('refreshToken', newRefreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'Strict' : 'Lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        path: '/',
+      });
 
-    sendSuccess(res, 200, 'Token refreshed.', { accessToken });
+      sendSuccess(res, 200, 'Token refreshed.', { accessToken });
+    } catch (refreshErr) {
+      res.clearCookie('accessToken', { path: '/' });
+      res.clearCookie('refreshToken', { path: '/' });
+      return res.status(200).json({
+        success: false,
+        code: 'REFRESH_FAILED',
+        message: refreshErr.message || 'Token refresh failed.',
+      });
+    }
   } catch (err) {
     next(err);
   }
@@ -206,7 +220,11 @@ async function resetPassword(req, res, next) {
 async function getCurrentUser(req, res, next) {
   try {
     if (!req.user) {
-      return sendError(res, 401, 'User not authenticated.');
+      return res.status(200).json({
+        success: false,
+        code: req.authError || 'UNAUTHENTICATED',
+        message: 'User not authenticated.',
+      });
     }
     sendSuccess(res, 200, 'Current user retrieved successfully.', {
       user: { id: req.user.sub, email: req.user.email, role: req.user.role },
