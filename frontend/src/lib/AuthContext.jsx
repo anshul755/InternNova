@@ -62,34 +62,37 @@ export function AuthProvider({ children }) {
           });
           if (res.ok) {
             const body = await res.json();
-            if (body?.data?.user && !cancelled) {
+            if (body?.success && body?.data?.user && !cancelled) {
               setUser(normalizeUser(body.data.user));
               setLoading(false);
               return;
-            }
-          } else if (res.status === 401) {
-            // Try to refresh once
-            try {
-              const refreshRes = await fetch(`${AUTH_BASE}/refresh`, {
-                method: "POST",
-                credentials: "include",
-              });
-              if (refreshRes.ok) {
-                const meRes = await fetch(`${AUTH_BASE}/me`, {
-                  method: "GET",
+            } else if (!body?.success && !cancelled) {
+              // Try to refresh once
+              try {
+                const refreshRes = await fetch(`${AUTH_BASE}/refresh`, {
+                  method: "POST",
                   credentials: "include",
                 });
-                if (meRes.ok) {
-                  const meBody = await meRes.json();
-                  if (meBody?.data?.user && !cancelled) {
-                    setUser(normalizeUser(meBody.data.user));
-                    setLoading(false);
-                    return;
+                if (refreshRes.ok) {
+                  const refreshBody = await refreshRes.json();
+                  if (refreshBody?.success) {
+                    const meRes = await fetch(`${AUTH_BASE}/me`, {
+                      method: "GET",
+                      credentials: "include",
+                    });
+                    if (meRes.ok) {
+                      const meBody = await meRes.json();
+                      if (meBody?.success && meBody?.data?.user && !cancelled) {
+                        setUser(normalizeUser(meBody.data.user));
+                        setLoading(false);
+                        return;
+                      }
+                    }
                   }
                 }
+              } catch (refreshErr) {
+                console.error("[AuthContext] initAuth refresh failed:", refreshErr);
               }
-            } catch (refreshErr) {
-              console.error("[AuthContext] initAuth refresh failed:", refreshErr);
             }
           }
         } catch (err) {

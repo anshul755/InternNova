@@ -6,6 +6,8 @@ import { ApplicationDetailSkeleton } from "../components/Skeleton.jsx";
 import GlassSelect from "../components/GlassSelect.jsx";
 import StatusBadge from "../components/StatusBadge.jsx";
 import { useAlert } from "../lib/AlertContext.jsx";
+import { errorHandler } from "../lib/errorHandler.js";
+import Seo from "../components/Seo.jsx";
 
 export default function ApplicationDetail() {
   const { id } = useParams();
@@ -55,8 +57,9 @@ export default function ApplicationDetail() {
         status: newStatus,
         recruiterNotes: notes || prev.recruiterNotes,
       }));
+      errorHandler.success(`Status updated to ${newStatus.replace("_", " ")} successfully!`);
     } catch (err) {
-      await showAlert(err.message || "Failed to update application status");
+      errorHandler.handle(err, { fallbackMessage: "Failed to update application status" });
     } finally {
       setUpdating("");
     }
@@ -71,6 +74,7 @@ export default function ApplicationDetail() {
   if (error || !application) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
+      <Seo title="InternNova | Application Details" description="View detailed application status, feedback, and next steps." path="/applications" />
         <div className="text-center">
           <p className="text-rose-500 mb-4">
             {error || "Application not found"}
@@ -248,8 +252,9 @@ export default function ApplicationDetail() {
                 try {
                   await api.put(`/applications/v1/${id}/withdraw`, {});
                   setApplication((prev) => ({ ...prev, status: "WITHDRAWN" }));
+                  errorHandler.success("Application withdrawn successfully!");
                 } catch (err) {
-                  await showAlert(err.message || "Failed to withdraw");
+                  errorHandler.handle(err, { fallbackMessage: "Failed to withdraw" });
                 } finally {
                   setWithdrawing(false);
                 }

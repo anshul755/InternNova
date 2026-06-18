@@ -5,6 +5,7 @@ import { api } from "../lib/api";
 import { resolveLogoUrl } from "../lib/media.js";
 import { CompanyDashboardSkeleton } from "../components/Skeleton.jsx";
 import ErrorState from "../components/ErrorState.jsx";
+import Seo from "../components/Seo.jsx";
 import StatusBadge from "../components/StatusBadge.jsx";
 import { useAlert } from "../lib/AlertContext.jsx";
 import {
@@ -169,6 +170,7 @@ const CompanyDashboard = () => {
   if (loading) {
     return (
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Seo title="InternNova | Dashboard" description="Manage your company's internship postings, applicants, and dashboard statistics." path="/dashboard/company" />
         <CompanyDashboardSkeleton />
       </div>
     );
@@ -177,6 +179,7 @@ const CompanyDashboard = () => {
   if (error) {
     return (
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Seo title="InternNova | Dashboard" description="Manage your company's internship postings, applicants, and dashboard statistics." path="/dashboard/company" />
         <ErrorState message={error} onRetry={fetchDashboardData} />
       </div>
     );
@@ -184,8 +187,9 @@ const CompanyDashboard = () => {
 
   return (
     <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
+      <Seo title="InternNova | Dashboard" description="Manage your company's internship postings, applicants, and dashboard statistics." path="/dashboard/company" />
       <section className="dashboard-hero mb-8">
-        <div className="relative grid gap-8 lg:grid-cols-[1.35fr_0.65fr]">
+        <div className="relative grid grid-cols-1 gap-8 md:grid-cols-[1.2fr_0.8fr] lg:grid-cols-[1.35fr_0.65fr]">
           <div className="flex flex-col justify-center">
             <p className="text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
               Welcome to InternNova
@@ -199,19 +203,19 @@ const CompanyDashboard = () => {
               Track live roles, keep applications moving, and jump straight into
               the next hiring action.
             </p>
-            <div className="panel-cta mt-8 flex flex-wrap gap-4">
-              <Link to="/jobs/create" className="btn-primary">
+            <div className="panel-cta mt-8 flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+              <Link to="/jobs/create" className="btn-primary justify-center sm:justify-start">
                 <IoAddOutline className="h-5 w-5" />
                 Post new job
               </Link>
-              <Link to="/company/applications" className="btn-secondary">
+              <Link to="/company/applications" className="btn-secondary justify-center sm:justify-start">
                 <IoDocumentTextOutline className="h-5 w-5" />
                 Review applications
               </Link>
             </div>
           </div>
 
-          <div className="dashboard-profile-card flex flex-col justify-between">
+          <div className="dashboard-profile-card flex flex-col justify-between min-w-0 w-full overflow-hidden">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wider opacity-60">
@@ -234,16 +238,16 @@ const CompanyDashboard = () => {
                 )}
               </div>
             </div>
-            <div className="mt-6 grid grid-cols-2 gap-4">
-              <div className="glass-card p-4">
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="glass-card p-3 sm:p-4 min-w-0">
                 <p className="text-xs font-medium opacity-60">Industry</p>
-                <p className="mt-1 font-semibold">
+                <p className="mt-1 font-semibold truncate" title={company?.companyType || "Add details"}>
                   {company?.companyType || "Add details"}
                 </p>
               </div>
-              <div className="glass-card p-4">
+              <div className="glass-card p-3 sm:p-4 min-w-0">
                 <p className="text-xs font-medium opacity-60">Team size</p>
-                <p className="mt-1 font-semibold">
+                <p className="mt-1 font-semibold truncate" title={company?.companySize ? `${company.companySize} employees` : "Add size"}>
                   {company?.companySize
                     ? `${company.companySize} employees`
                     : "Add size"}
@@ -261,44 +265,46 @@ const CompanyDashboard = () => {
         </div>
       </section>
 
-      <section className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-5">
+      <section className="mb-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         {[
           ["Total jobs", stats.totalJobs, IoBriefcaseOutline],
           ["Active", stats.activeJobs, IoCheckmarkCircleOutline],
           ["Drafts", stats.draftJobs, IoCreateOutline],
           ["Applications", stats.totalApplications, IoDocumentTextOutline],
           ["Views", stats.totalViews, IoEyeOutline],
-        ].map(([label, value, Icon]) => (
+        ].map(([label, value, Icon], index) => (
           <div
             key={label}
-            className="glass-card p-5 transition-transform hover:-translate-y-1"
+            className={`glass-card p-3 sm:p-5 transition-transform hover:-translate-y-1 ${
+              index === 4 ? "col-span-2 sm:col-span-1" : ""
+            }`}
           >
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-sm font-medium opacity-70">{label}</p>
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                <Icon className="h-5 w-5" />
+            <div className="flex items-center justify-between gap-2.5">
+              <p className="text-xs sm:text-sm font-medium opacity-70 truncate">{label}</p>
+              <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shrink-0">
+                <Icon className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
               </div>
             </div>
-            <p className="mt-4 text-3xl font-bold">{value}</p>
+            <p className="mt-3 sm:mt-4 text-2xl sm:text-3xl font-bold">{value}</p>
           </div>
         ))}
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_24rem]">
-        <div className="glass-panel flex h-[42rem] flex-col p-6">
-          <div className="flex flex-col gap-4 border-b border-black/5 dark:border-white/5 pb-5 lg:flex-row lg:items-center lg:justify-between">
+      <section className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_28rem]">
+        <div className="glass-panel flex h-auto lg:h-[42rem] flex-col p-4 sm:p-6 min-w-0 w-full overflow-hidden">
+          <div className="flex flex-col gap-4 border-b border-black/5 dark:border-white/5 pb-5 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
                 Job board
               </p>
               <h2 className="mt-1 text-2xl font-bold">Your posted roles</h2>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-x-2 gap-y-2.5">
               {JOB_FILTERS.map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setJobFilter(tab)}
-                  className={`rounded-full px-4 py-2 text-xs font-semibold transition-all ${
+                  className={`rounded-full px-4 py-2 text-xs font-semibold transition-all cursor-pointer ${
                     jobFilter === tab
                       ? "bg-emerald-500 text-white shadow-md"
                       : "bg-black/5 dark:bg-white/5 opacity-70 hover:opacity-100"
@@ -315,15 +321,15 @@ const CompanyDashboard = () => {
               filteredJobs.map((job) => (
                 <article
                   key={job.id}
-                  className="glass-card p-5 hover:border-emerald-500/30 transition-colors"
+                  className="glass-card p-4 sm:p-5 hover:border-emerald-500/30 transition-colors"
                 >
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
                         <h3 className="text-lg font-bold truncate">
                           {job.title}
                         </h3>
-                        <StatusBadge status={job.status} className="ml-3" />
+                        <StatusBadge status={job.status} className="shrink-0" />
                       </div>
                       <p className="mt-2 flex items-center gap-2 text-sm opacity-70">
                         <IoLocationOutline className="h-4 w-4" />
@@ -456,8 +462,8 @@ const CompanyDashboard = () => {
           </div>
         </div>
 
-        <aside className="flex flex-col h-[42rem]">
-          <div className="glass-panel flex flex-col p-6 flex-1 min-h-0">
+        <aside className="flex flex-col md:grid md:grid-cols-2 lg:flex lg:flex-col gap-6 md:gap-4 lg:gap-0 lg:h-[42rem]">
+          <div className="glass-panel flex flex-col p-4 sm:p-6 h-auto lg:h-full lg:flex-1 lg:min-h-0 min-w-0 w-full overflow-hidden">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
@@ -472,7 +478,7 @@ const CompanyDashboard = () => {
                 View all
               </Link>
             </div>
-            <div className="mt-6 flex-1 space-y-3 overflow-y-auto pr-2 card-scroll-region">
+            <div className="mt-6 max-h-[25rem] lg:max-h-none overflow-y-auto pr-2 card-scroll-region lg:flex-1 space-y-3">
               {recentApplications.length > 0 ? (
                 recentApplications.map((app) => (
                   <Link
@@ -481,15 +487,15 @@ const CompanyDashboard = () => {
                     className="block glass-card p-4 hover:border-emerald-500/40 transition-colors"
                   >
                     <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <h3 className="font-bold">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-bold truncate">
                           {app.studentName || "Applicant"}
                         </h3>
-                        <p className="mt-1 text-sm opacity-70">
+                        <p className="mt-1 text-sm opacity-70 truncate">
                           {app.jobTitle}
                         </p>
                       </div>
-                      <StatusBadge status={app.status} className="text-[0.68rem]" />
+                      <StatusBadge status={app.status} className="text-[0.68rem] shrink-0" />
                     </div>
                     {app.appliedAt && (
                       <p className="mt-3 text-xs opacity-50">
@@ -507,7 +513,7 @@ const CompanyDashboard = () => {
             </div>
           </div>
 
-          <div className="dashboard-hero p-6 text-center lg:text-left mt-6">
+          <div className="dashboard-hero p-4 sm:p-6 text-center lg:text-left mt-6 md:mt-0 lg:mt-6 min-w-0 w-full overflow-hidden">
             <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 mb-4">
               <IoFlashOutline className="h-6 w-6" />
             </div>
@@ -516,11 +522,11 @@ const CompanyDashboard = () => {
               Keep active roles fresh and archive closed roles so applicants see
               the cleanest version of your company.
             </p>
-            <div className="panel-cta mt-6 flex gap-3">
-              <Link to="/jobs/create" className="btn-primary flex-1">
+            <div className="panel-cta mt-6 flex flex-col sm:flex-row gap-3 w-full">
+              <Link to="/jobs/create" className="btn-primary flex-1 justify-center">
                 Post job
               </Link>
-              <Link to="/company/applications" className="btn-secondary flex-1">
+              <Link to="/company/applications" className="btn-secondary flex-1 justify-center">
                 Review
               </Link>
             </div>

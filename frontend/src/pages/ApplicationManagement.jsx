@@ -6,7 +6,9 @@ import { ApplicationManagementSkeleton } from "../components/Skeleton.jsx";
 import ErrorState from "../components/ErrorState.jsx";
 import StatusBadge from "../components/StatusBadge.jsx";
 import { useAlert } from "../lib/AlertContext.jsx";
+import { errorHandler } from "../lib/errorHandler.js";
 import { IoSearchOutline, IoCloseCircle, IoChevronDown } from "react-icons/io5";
+import Seo from "../components/Seo.jsx";
 
 const ApplicationManagement = () => {
   const { user } = useAuth();
@@ -33,6 +35,7 @@ const ApplicationManagement = () => {
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
+      <Seo title="InternNova | My Applications" description="Track and manage all your submitted job applications." path="/applications" />
 
   useEffect(() => {
     if (user?.role !== "Talent") {
@@ -70,8 +73,9 @@ const ApplicationManagement = () => {
       setApplications((prev) =>
         prev.map((a) => (a.id === appId ? { ...a, status: "WITHDRAWN" } : a)),
       );
+      errorHandler.success("Application withdrawn successfully!");
     } catch (err) {
-      await showAlert(err.message || "Failed to withdraw application");
+      errorHandler.handle(err, { fallbackMessage: "Failed to withdraw application" });
     } finally {
       setWithdrawingId(null);
     }
@@ -207,6 +211,7 @@ const ApplicationManagement = () => {
 
   return (
     <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
+      <Seo title="InternNova | My Applications" description="Track and manage all your submitted job applications." path="/applications" />
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <h1 className="text-2xl font-bold text-slate-900">
           My Applications

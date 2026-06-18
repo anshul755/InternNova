@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
 import { ProfileEditSkeleton } from "../components/Skeleton.jsx";
-import FormErrorBanner from "../components/FormErrorBanner.jsx";
+import { errorHandler } from "../lib/errorHandler.js";
 import { resolveLogoUrl } from "../lib/media.js";
 import { profileCache } from "../components/AuthenticatedNavbar.jsx";
 import {
@@ -13,7 +13,9 @@ import {
   IoCalendarOutline,
   IoPencilOutline,
   IoInformationCircleOutline,
+  IoMailOutline,
 } from "react-icons/io5";
+import Seo from "../components/Seo.jsx";
 
 const EMPTY_FORM = {
   companyName: "",
@@ -34,8 +36,6 @@ export default function CompanyProfile() {
   const [logoFile, setLogoFile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [imgError, setImgError] = useState(false);
 
   const companyLogoUrl = resolveLogoUrl(profile, profile?.data, user);
@@ -61,7 +61,7 @@ export default function CompanyProfile() {
     } catch (err) {
       const isNotFound = String(err?.message || "").includes("404");
       if (!isNotFound) {
-        setError(err.message || "Failed to load company profile");
+        errorHandler.handle(err, { fallbackMessage: "Failed to load company profile" });
       }
     } finally {
       setLoading(false);
@@ -82,8 +82,6 @@ export default function CompanyProfile() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-    setError("");
-    setSuccess("");
 
     try {
       const hasNewUrl = form.logoUrl && form.logoUrl.trim() !== "";
@@ -124,7 +122,7 @@ export default function CompanyProfile() {
         updatedProfile = await postRes.json();
       }
 
-      setSuccess("Profile updated successfully.");
+      errorHandler.success("Profile updated successfully.");
       setProfile(updatedProfile);
 
       // Update navbar cache map instantly
@@ -138,10 +136,9 @@ export default function CompanyProfile() {
 
       setTimeout(() => {
         setIsEditing(false);
-        setSuccess("");
       }, 600);
     } catch (err) {
-      setError(err.message || "Failed to update profile");
+      errorHandler.handle(err, { fallbackMessage: "Failed to update profile" });
     } finally {
       setSubmitting(false);
     }
@@ -151,13 +148,19 @@ export default function CompanyProfile() {
     "w-full px-3 py-2.5 bg-white/60 dark:bg-white/[0.03] border border-white/60 dark:border-white/[0.08] rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300 dark:focus:ring-emerald-500/20 dark:focus:border-emerald-500/40 transition-all text-sm";
 
   if (loading) {
-    return <ProfileEditSkeleton />;
+    return (
+      <>
+        <Seo title="InternNova | Profile" description="Update your company profile, branding, and team information." path="/company/profile" />
+        <ProfileEditSkeleton />
+      </>
+    );
   }
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
+      <Seo title="InternNova | Profile" description="Update your company profile, branding, and team information." path="/company/profile" />
       {/* ── HEADER ── */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
             {isEditing ? "Edit Company Profile" : "Company Profile"}
@@ -168,20 +171,18 @@ export default function CompanyProfile() {
               : "This is how applicants see your company information on job postings."}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
           <Link
             to="/dashboard/company"
-            className="text-sm font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
+            className="btn-secondary w-full sm:w-auto justify-center px-4 py-2 text-sm font-medium shrink-0 whitespace-nowrap text-center"
           >
             ← Back to Dashboard
           </Link>
           <button
             onClick={() => {
               setIsEditing(!isEditing);
-              setError("");
-              setSuccess("");
             }}
-            className={`flex items-center gap-1.5 px-4.5 py-2 text-sm font-semibold rounded-full border transition-all duration-300 ${
+            className={`flex items-center justify-center gap-1.5 px-4.5 py-2 text-sm font-semibold rounded-full border transition-all duration-300 w-full sm:w-auto ${
               isEditing
                 ? "btn-secondary"
                 : "btn-primary hover:scale-[1.02] active:scale-[0.98]"
@@ -204,12 +205,7 @@ export default function CompanyProfile() {
            EDIT MODE
            ───────────────────────────────────────────────────────────────── */
         <form onSubmit={handleSubmit} className="glass-card p-6 space-y-6" noValidate>
-          <FormErrorBanner message={error} onDismiss={() => setError("")} />
-          {success && (
-            <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-sm text-emerald-600 dark:text-emerald-400">
-              {success}
-            </div>
-          )}
+
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -322,11 +318,11 @@ export default function CompanyProfile() {
             />
           </div>
 
-          <div className="flex items-center gap-3 pt-4 border-t border-white/40 dark:border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row justify-center gap-3 pt-4 border-t border-white/40 dark:border-white/[0.06] w-full">
             <button
               type="submit"
               disabled={submitting}
-              className="btn-primary px-6 py-2.5 text-sm font-semibold disabled:opacity-60 hover:scale-[1.02] active:scale-[0.98]"
+              className="btn-primary w-full sm:w-auto justify-center px-6 py-2.5 text-sm font-semibold disabled:opacity-60 hover:scale-[1.02] active:scale-[0.98] text-center"
             >
               {submitting ? "Saving..." : "Save Profile"}
             </button>
@@ -334,10 +330,8 @@ export default function CompanyProfile() {
               type="button"
               onClick={() => {
                 setIsEditing(false);
-                setError("");
-                setSuccess("");
               }}
-              className="btn-secondary px-5 py-2.5 text-sm font-semibold"
+              className="btn-secondary w-full sm:w-auto justify-center px-5 py-2.5 text-sm font-semibold text-center"
             >
               Cancel
             </button>
@@ -405,6 +399,13 @@ export default function CompanyProfile() {
                     Founded: <strong>{profile?.foundedYear || "N/A"}</strong>
                   </span>
                 </div>
+
+                <div className="flex items-center gap-3 text-sm text-slate-650 dark:text-slate-300">
+                  <IoMailOutline className="w-5 h-5 text-slate-400 shrink-0" />
+                  <span>
+                    Email: <strong>{user?.email || "N/A"}</strong>
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -425,7 +426,7 @@ export default function CompanyProfile() {
                 </p>
               ) : (
                 <div className="py-8 text-center bg-black/5 dark:bg-white/5 rounded-2xl border border-dashed border-black/10 dark:border-white/10">
-                  <p className="text-xs text-slate-450 italic">No description added yet.</p>
+                  <p className="text-xs text-slate-500 italic">No description added yet.</p>
                   <button
                     onClick={() => setIsEditing(true)}
                     className="btn-primary mt-3 text-xs !px-4 !py-2 hover:scale-[1.02] active:scale-[0.98]"

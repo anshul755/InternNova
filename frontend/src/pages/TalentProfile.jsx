@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
 import { ProfileEditSkeleton } from "../components/Skeleton.jsx";
-import FormErrorBanner from "../components/FormErrorBanner.jsx";
+import { errorHandler } from "../lib/errorHandler.js";
 import CrudSection from "../components/talent/CrudSection.jsx";
 import { resolveLogoUrl } from "../lib/media.js";
 import { profileCache } from "../components/AuthenticatedNavbar.jsx";
@@ -24,6 +24,7 @@ import {
   IoEyeOutline,
   IoSparklesOutline,
 } from "react-icons/io5";
+import Seo from "../components/Seo.jsx";
 
 const EMPTY_FORM = {
   name: "",
@@ -183,12 +184,13 @@ export default function TalentProfile() {
 
       // Fetch fresh data from backend
       await fetchProfile();
+      errorHandler.success("Profile updated successfully.");
 
       setTimeout(() => {
         setIsEditing(false);
-        setSuccess("");
       }, 600);
     } catch (err) {
+      errorHandler.handle(err, { fallbackMessage: "Failed to update profile" });
       setError(err.message || "Failed to update profile");
     } finally {
       setSubmitting(false);
@@ -199,15 +201,21 @@ export default function TalentProfile() {
     "w-full px-3 py-2.5 bg-white/60 dark:bg-white/[0.03] border border-white/60 dark:border-white/[0.08] rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300 dark:focus:ring-emerald-500/20 dark:focus:border-emerald-500/40 transition-all text-sm";
 
   if (loading) {
-    return <ProfileEditSkeleton />;
+    return (
+      <>
+        <Seo title="InternNova | Profile" description="Manage your talent profile, skills, education, and experience." path="/profile" />
+        <ProfileEditSkeleton />
+      </>
+    );
   }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
+      <Seo title="InternNova | Profile" description="Manage your talent profile, skills, education, and experience." path="/profile" />
       {/* ── HEADER NAVIGATION ── */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-55">
             {isEditing ? "Edit Talent Profile" : "My Profile"}
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -216,10 +224,10 @@ export default function TalentProfile() {
               : "This is how companies see your profile when you apply for roles."}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
           <Link
             to="/dashboard/talent"
-            className="text-sm font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
+            className="btn-secondary w-full sm:w-auto justify-center px-4 py-2.5 text-sm font-medium shrink-0 whitespace-nowrap text-center"
           >
             ← Back to Dashboard
           </Link>
@@ -229,7 +237,7 @@ export default function TalentProfile() {
               setError("");
               setSuccess("");
             }}
-            className={`flex items-center gap-1.5 px-4.5 py-2 text-sm font-semibold rounded-full border transition-all duration-300 ${
+            className={`flex items-center justify-center gap-1.5 px-4.5 py-2.5 text-sm font-semibold rounded-full border transition-all duration-300 w-full sm:w-auto ${
               isEditing
                 ? "btn-secondary"
                 : "btn-primary hover:scale-[1.02] active:scale-[0.98]"
@@ -252,12 +260,6 @@ export default function TalentProfile() {
            EDIT MODE (FORM VIEW)
            ───────────────────────────────────────────────────────────────── */
         <form onSubmit={handleSubmit} className="glass-card p-6 space-y-6" noValidate>
-          <FormErrorBanner message={error} onDismiss={() => setError("")} />
-          {success && (
-            <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-sm text-emerald-600 dark:text-emerald-400">
-              {success}
-            </div>
-          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -533,11 +535,11 @@ export default function TalentProfile() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 pt-4 border-t border-white/40 dark:border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row justify-center gap-3 pt-4 border-t border-white/40 dark:border-white/[0.06] w-full">
             <button
               type="submit"
               disabled={submitting}
-              className="btn-primary px-6 py-2.5 text-sm font-semibold disabled:opacity-60 hover:scale-[1.02] active:scale-[0.98]"
+              className="btn-primary w-full sm:w-auto justify-center px-6 py-2.5 text-sm font-semibold disabled:opacity-60 hover:scale-[1.02] active:scale-[0.98] text-center"
             >
               {submitting ? "Updating..." : "Save Changes"}
             </button>
@@ -548,7 +550,7 @@ export default function TalentProfile() {
                 setError("");
                 setSuccess("");
               }}
-              className="btn-secondary px-5 py-2.5 text-sm font-semibold"
+              className="btn-secondary w-full sm:w-auto justify-center px-5 py-2.5 text-sm font-semibold text-center"
             >
               Cancel
             </button>
@@ -656,7 +658,7 @@ export default function TalentProfile() {
             {/* Preferences & Skills Card */}
             <div className="glass-panel p-6 space-y-5">
               <div>
-                <h3 className="text-xs font-semibold text-slate-450 dark:text-slate-400 uppercase tracking-widest mb-2.5">
+                <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2.5">
                   Skills
                 </h3>
                 <div className="flex flex-wrap gap-1.5">
@@ -676,7 +678,7 @@ export default function TalentProfile() {
               </div>
 
               <div>
-                <h3 className="text-xs font-semibold text-slate-450 dark:text-slate-400 uppercase tracking-widest mb-2.5">
+                <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2.5">
                   Preferred Locations
                 </h3>
                 <div className="flex flex-wrap gap-1.5">
@@ -696,7 +698,7 @@ export default function TalentProfile() {
               </div>
 
               <div>
-                <h3 className="text-xs font-semibold text-slate-450 dark:text-slate-400 uppercase tracking-widest mb-2.5">
+                <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2.5">
                   Preferred Industries
                 </h3>
                 <div className="flex flex-wrap gap-1.5">
@@ -718,7 +720,7 @@ export default function TalentProfile() {
 
             {/* Certifications Card */}
             <div className="glass-panel p-6">
-              <h3 className="text-xs font-semibold text-slate-450 dark:text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+              <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
                 <IoRibbonOutline className="text-emerald-600 dark:text-emerald-400 w-4.5 h-4.5" />
                 Certifications
               </h3>
@@ -729,7 +731,7 @@ export default function TalentProfile() {
                       <span className="font-semibold text-slate-800 dark:text-slate-200 text-sm">
                         {cert.name}
                       </span>
-                      <span className="text-xs text-slate-500 dark:text-slate-450 mt-0.5">
+                      <span className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                         {cert.issuer} {cert.issueDate ? `• Issued ${new Date(cert.issueDate).toLocaleDateString()}` : ""}
                       </span>
                       {cert.credentialUrl && (
@@ -747,7 +749,7 @@ export default function TalentProfile() {
 
             {/* Achievements Card */}
             <div className="glass-panel p-6">
-              <h3 className="text-xs font-semibold text-slate-450 dark:text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+              <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
                 <IoTrophyOutline className="text-emerald-600 dark:text-emerald-400 w-4.5 h-4.5" />
                 Achievements
               </h3>
@@ -759,7 +761,7 @@ export default function TalentProfile() {
                         {ach.title} {ach.year ? `(${ach.year})` : ""}
                       </span>
                       {ach.description && (
-                        <span className="text-xs text-slate-500 dark:text-slate-450 mt-1 leading-relaxed">
+                        <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
                           {ach.description}
                         </span>
                       )}
@@ -809,7 +811,7 @@ export default function TalentProfile() {
                         </span>
                       </div>
                       {exp.location && (
-                        <p className="text-xs text-slate-500 dark:text-slate-450 mt-0.5">{exp.location}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{exp.location}</p>
                       )}
                       {exp.bulletPoints?.length > 0 && (
                         <ul className="list-disc list-inside text-xs text-slate-600 dark:text-slate-350 mt-2 space-y-1">
@@ -877,20 +879,20 @@ export default function TalentProfile() {
 
             {/* Resume Showcase Card */}
             <div className="glass-panel p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-2.5">
-                  <IoOpenOutline className="text-emerald-650 dark:text-emerald-400 w-5 h-5" />
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 text-center md:text-left items-center">
+                <div className="flex flex-col sm:flex-row items-center gap-2.5">
+                  <IoOpenOutline className="text-emerald-650 dark:text-emerald-400 w-5 h-5 shrink-0" />
                   <div>
                     <h4 className="font-semibold text-slate-900 dark:text-slate-100 text-sm">Resume Document</h4>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">View or download your uploaded PDF resume</p>
                   </div>
                 </div>
                 {form.resumeUrl ? (
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2.5 w-full sm:w-auto justify-center">
                     <a
                       href={form.resumeUrl}
                       download
-                      className="btn-primary !px-4.5 !py-2 !text-xs font-semibold hover:scale-[1.02] active:scale-[0.98]"
+                      className="btn-primary w-full sm:w-auto justify-center !px-4.5 !py-2.5 !text-xs font-semibold hover:scale-[1.02] active:scale-[0.98] text-center"
                     >
                       <IoDownloadOutline className="w-3.5 h-3.5" /> Download
                     </a>
@@ -898,7 +900,7 @@ export default function TalentProfile() {
                       href={form.resumeUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="btn-secondary !px-4.5 !py-2 !text-xs font-semibold hover:scale-[1.02] active:scale-[0.98]"
+                      className="btn-secondary w-full sm:w-auto justify-center !px-4.5 !py-2.5 !text-xs font-semibold hover:scale-[1.02] active:scale-[0.98] text-center"
                     >
                       <IoEyeOutline className="w-3.5 h-3.5" /> Open Resume
                     </a>
@@ -906,7 +908,7 @@ export default function TalentProfile() {
                 ) : (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="btn-primary !px-4.5 !py-2 !text-xs font-semibold hover:scale-[1.02] active:scale-[0.98]"
+                    className="btn-primary w-full sm:w-auto justify-center !px-4.5 !py-2.5 !text-xs font-semibold hover:scale-[1.02] active:scale-[0.98] text-center"
                   >
                     Upload Resume
                   </button>

@@ -1,12 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
-  IoBriefcaseOutline,
-  IoBookmarkOutline,
   IoChevronDown,
   IoClose,
-  IoDocumentTextOutline,
-  IoGridOutline,
   IoLogOutOutline,
   IoMenu,
   IoPersonOutline,
@@ -64,13 +60,6 @@ function UserDropdown({ user, onLogout, light, displayName, avatarUrl }) {
 
   const menuItems = isCompany
     ? [
-      { label: "Dashboard", icon: IoGridOutline, to: "/dashboard/company" },
-      { label: "Post Job", icon: IoBriefcaseOutline, to: "/jobs/create" },
-      {
-        label: "Applications",
-        icon: IoDocumentTextOutline,
-        to: "/company/applications",
-      },
       {
         label: "Company Profile",
         icon: IoPersonOutline,
@@ -78,14 +67,6 @@ function UserDropdown({ user, onLogout, light, displayName, avatarUrl }) {
       },
     ]
     : [
-      { label: "Dashboard", icon: IoGridOutline, to: "/dashboard/talent" },
-      { label: "Browse Jobs", icon: IoBriefcaseOutline, to: "/jobs" },
-      {
-        label: "My Applications",
-        icon: IoDocumentTextOutline,
-        to: "/applications",
-      },
-      { label: "Saved Jobs", icon: IoBookmarkOutline, to: "/saved-jobs" },
       { label: "My Profile", icon: IoPersonOutline, to: "/profile" },
     ];
 
@@ -93,7 +74,7 @@ function UserDropdown({ user, onLogout, light, displayName, avatarUrl }) {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((value) => !value)}
-        className={`flex items-center gap-2 rounded-full py-1.5 pl-1.5 pr-3 transition-all duration-300 border border-transparent ${
+        className={`flex items-center justify-between sm:min-w-[200px] gap-2 rounded-full py-1.5 pl-1.5 pr-3 transition-all duration-300 border border-transparent ${
           light 
             ? "hover:bg-[#7cc84a]/5 hover:border-[#7cc84a]/25" 
             : "hover:bg-[#9fe870]/5 hover:border-[#9fe870]/25"
@@ -103,32 +84,34 @@ function UserDropdown({ user, onLogout, light, displayName, avatarUrl }) {
         aria-label="User menu"
         id="user-menu-button"
       >
-        {avatarUrl && !imgError ? (
-          <img
-            src={avatarUrl}
-            alt={displayName || "User avatar"}
-            onError={() => setImgError(true)}
-            className="h-8 w-8 rounded-full object-cover"
-          />
-        ) : (
-          <span className="h-8 w-8 rounded-full bg-gradient-to-br from-[#c7f284] to-[#8bcf7a] flex items-center justify-center text-xs font-semibold text-slate-900">
-            {initial}
+        <div className="flex items-center gap-2 min-w-0">
+          {avatarUrl && !imgError ? (
+            <img
+              src={avatarUrl}
+              alt={displayName || "User avatar"}
+              onError={() => setImgError(true)}
+              className="h-8 w-8 rounded-full object-cover flex-shrink-0"
+            />
+          ) : (
+            <span className="h-8 w-8 rounded-full bg-gradient-to-br from-[#c7f284] to-[#8bcf7a] flex items-center justify-center text-xs font-semibold text-slate-900 flex-shrink-0">
+              {initial}
+            </span>
+          )}
+          <span
+            className={`hidden sm:block text-sm max-w-[140px] truncate ${light ? "text-slate-700" : "text-slate-300"
+              }`}
+          >
+            {displayName || user?.displayName || user?.name || user?.companyName || "User"}
           </span>
-        )}
-        <span
-          className={`hidden sm:block text-sm max-w-[180px] truncate ${light ? "text-slate-700" : "text-slate-300"
-            }`}
-        >
-          {displayName || user?.displayName || user?.name || user?.companyName || "User"}
-        </span>
+        </div>
         <IoChevronDown
-          className={`w-3.5 h-3.5 transition-transform duration-200 ${light ? "text-slate-400" : "text-slate-400"
+          className={`w-3.5 h-3.5 transition-transform duration-200 flex-shrink-0 ${light ? "text-slate-400" : "text-slate-400"
             } ${open ? "rotate-180" : ""}`}
         />
       </button>
 
       <div
-        className={`navbar-user-menu absolute right-0 top-full mt-2 w-56 glass-panel border border-white/60 py-2 overflow-hidden z-50 origin-top-right transition-all duration-200 ease-out will-change-transform ${open
+        className={`navbar-user-menu absolute right-0 top-full mt-1 w-56 sm:w-auto sm:-left-2 sm:-right-2 glass-panel border border-white/60 py-2 overflow-hidden z-50 origin-top-right transition-all duration-200 ease-out will-change-transform ${open
             ? "pointer-events-auto visible opacity-100 translate-y-0 scale-100"
             : "pointer-events-none invisible opacity-0 -translate-y-2 scale-95"
           }`}
@@ -153,9 +136,6 @@ function UserDropdown({ user, onLogout, light, displayName, avatarUrl }) {
               <p className="text-xs text-slate-600 truncate">{displayName}</p>
               <p className="text-xs font-medium text-slate-900 mt-0.5">
                 {isCompany ? "Company" : "Talent"}
-              </p>
-              <p className="text-[0.7rem] text-slate-500 truncate mt-0.5">
-                {user?.email}
               </p>
             </div>
           </div>
@@ -335,7 +315,7 @@ export default function AuthenticatedNavbar() {
           <Logo light={useLight} />
         </div>
 
-        <div className="hidden md:flex items-center gap-2.5">
+        <div className="hidden lg:flex items-center gap-2.5">
           {navLinks.map(({ label, to }) => (
             <NavLink
               key={to}
@@ -358,7 +338,9 @@ export default function AuthenticatedNavbar() {
         </div>
 
         <div className="flex items-center gap-3">
-          <ThemeToggle className="hidden sm:inline-flex" />
+          <span className="hidden lg:inline-flex">
+            <ThemeToggle />
+          </span>
           <UserDropdown
             onLogout={handleLogout}
             user={user}
@@ -373,10 +355,7 @@ export default function AuthenticatedNavbar() {
             avatarUrl={avatarUrl}
           />
           <button
-            className={`md:hidden p-2 rounded-lg transition-colors ${useLight
-                ? "hover:bg-white/60 text-slate-700"
-                : "hover:bg-white/[0.06] text-slate-300"
-              }`}
+            className={`lg:hidden p-2 rounded-lg transition-colors ${useLight ? "hover:bg-white/60 text-slate-700" : "hover:bg-white/[0.06] text-slate-300"}`}
             onClick={() => setMobileOpen((value) => !value)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
@@ -392,7 +371,7 @@ export default function AuthenticatedNavbar() {
 
       {mobileOpen && (
         <div
-          className={`md:hidden absolute top-full left-4 right-4 mt-2 rounded-xl p-4 shadow-xl animate-slide-down ${useLight
+          className={`lg:hidden absolute top-full left-4 right-4 mt-2 rounded-xl p-4 shadow-xl animate-slide-down ${useLight
               ? "bg-white/90 border border-slate-200 shadow-glass backdrop-blur-lg"
               : "glass-panel border-white/[0.06]"
             }`}
@@ -425,6 +404,13 @@ export default function AuthenticatedNavbar() {
                 <ResumeGeneratorButton compact light={useLight} />
               </div>
             )}
+
+            <div className={`mt-1.5 pt-1.5 border-t ${useLight ? "border-slate-200" : "border-white/[0.06]"} flex items-center justify-between px-4 py-1.5 mb-1.5`}>
+              <span className={`text-sm font-semibold ${useLight ? "text-slate-600" : "text-slate-300"}`}>
+                Theme Mode
+              </span>
+              <ThemeToggle />
+            </div>
 
             <div
               className={`mt-1.5 pt-1.5 border-t ${useLight ? "border-slate-200" : "border-white/[0.06]"}`}

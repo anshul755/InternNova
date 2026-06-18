@@ -3,9 +3,10 @@ import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
 import { Link, useNavigate } from "react-router-dom";
 import GlassSelect from "../components/GlassSelect.jsx";
-import FormErrorBanner from "../components/FormErrorBanner.jsx";
+import { errorHandler } from "../lib/errorHandler.js";
 import CurrencyToggle from "../components/CurrencyToggle.jsx";
 import { useCurrency } from "../lib/CurrencyContext.jsx";
+import Seo from "../components/Seo.jsx";
 
 const JOB_TYPES = [
   "INTERNSHIP",
@@ -116,6 +117,7 @@ const PostJob = () => {
     e.preventDefault();
     const validationError = validate();
     if (validationError) {
+      errorHandler.warning(validationError, { title: "Validation Warning" });
       setError(validationError);
       return;
     }
@@ -150,8 +152,10 @@ const PostJob = () => {
       };
 
       await api.post("/jobs/v1", payload);
+      errorHandler.success("Job posted successfully!");
       navigate("/dashboard/company");
     } catch (err) {
+      errorHandler.handle(err, { fallbackMessage: "Failed to post job. Please try again." });
       setError(err.message || "Failed to post job. Please try again.");
     } finally {
       setSubmitting(false);
@@ -160,25 +164,21 @@ const PostJob = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
-      <div className="flex items-center justify-between mb-8">
+      <Seo title="InternNova | Post Job" description="Create and publish a new job posting to attract top early-career talent." path="/jobs/create" />
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Post a New Job</h1>
-          <p className="text-slate-500 mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Post a New Job</h1>
+          <p className="text-slate-500 mt-1 text-sm sm:text-base">
             Fill in the details to attract the best candidates
           </p>
         </div>
         <Link
           to="/dashboard/company"
-          className="btn-secondary px-4 py-2 text-sm font-medium"
+          className="btn-secondary px-5 py-2.5 text-sm font-medium self-start sm:self-auto shrink-0 whitespace-nowrap"
         >
           ← Back
         </Link>
       </div>
-
-      <FormErrorBanner
-        message={error}
-        onDismiss={() => setError("")}
-      />
 
       <form onSubmit={handleSubmit} className="space-y-8" noValidate>
         <div className="glass-card p-6 space-y-5">
@@ -459,17 +459,17 @@ const PostJob = () => {
             />
           </div>
         </div>
-        <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row justify-center gap-3 w-full">
           <button
             type="submit"
             disabled={submitting}
-            className="btn-primary px-8 py-3 font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
+            className="btn-primary w-full sm:w-auto justify-center px-8 py-3 font-semibold disabled:opacity-60 disabled:cursor-not-allowed text-center"
           >
             {submitting ? "Posting..." : "Post Job"}
           </button>
           <Link
             to="/dashboard/company"
-            className="btn-secondary px-8 py-3 font-medium text-center"
+            className="btn-secondary w-full sm:w-auto justify-center px-8 py-3 font-medium text-center"
           >
             Cancel
           </Link>

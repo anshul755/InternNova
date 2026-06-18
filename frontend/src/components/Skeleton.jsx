@@ -778,46 +778,103 @@ export const ApplicationManagementSkeleton = memo(function ApplicationManagement
       role="status"
       aria-busy="true"
       aria-label="Loading applications"
-      sx={{ ...safeContainerSx, maxWidth: 960, mx: "auto", display: "grid", gap: 3, px: { xs: 2, sm: 3, lg: 4 }, py: 4 }}
+      sx={{ ...safeContainerSx, display: "grid", gap: 3 }}
     >
-      <PremiumSkeleton width={200} height={30} />
+      {/* Search and Status Filter Bar Placeholder */}
+      <Card
+        className="glass-card"
+        elevation={0}
+        sx={{ ...cardSafeSx, p: 2, mb: 1 }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            gap: 1.5,
+            alignItems: "stretch",
+          }}
+        >
+          <PremiumSkeleton
+            sx={{ flex: 1, height: 40, borderRadius: "12px" }}
+          />
+          <PremiumSkeleton
+            sx={{ width: { xs: "100%", sm: 160 }, height: 40, borderRadius: "12px" }}
+          />
+        </Box>
+      </Card>
 
+      {/* Stats Grid Placeholder (3 columns) */}
       <Box
         sx={{
           display: "grid",
           gap: 2,
           gridTemplateColumns: {
-            xs: "repeat(2, 1fr)",
-            sm: "repeat(4, 1fr)",
+            xs: "1fr",
+            sm: "repeat(3, 1fr)",
           },
+          mb: 2,
         }}
       >
-        {Array.from({ length: 4 }).map((_, i) => (
-          <Card key={i} className="glass-card" elevation={0} sx={{ ...cardSafeSx, p: 2.5, textAlign: "center" }}>
-            <PremiumSkeleton width="50%" height={28} sx={{ mx: "auto" }} />
-            <PremiumSkeleton width="40%" height={12} sx={{ mt: 1, mx: "auto" }} />
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Card
+            key={i}
+            className="glass-card"
+            elevation={0}
+            sx={{ ...cardSafeSx, p: 2.5, textAlign: "center" }}
+          >
+            <PremiumSkeleton width="40%" height={28} sx={{ mx: "auto" }} />
+            <PremiumSkeleton width="60%" height={12} sx={{ mt: 1, mx: "auto" }} />
           </Card>
         ))}
       </Box>
 
+      {/* Applications List Placeholder */}
       <Stack spacing={2}>
         {Array.from({ length: 4 }).map((_, i) => (
-          <Card key={i} className="glass-card" elevation={0} sx={{ ...cardSafeSx, p: 3 }}>
-            <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, justifyContent: "space-between", gap: 2 }}>
+          <Card
+            key={i}
+            className="glass-card"
+            elevation={0}
+            sx={{ ...cardSafeSx, p: 3 }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
+                justifyContent: "space-between",
+                alignItems: { sm: "flex-start" },
+                gap: 2,
+              }}
+            >
               <Box sx={{ flex: 1 }}>
-                <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
-                  <PremiumSkeleton width="40%" height={20} />
-                  <PremiumSkeleton width={72} height={20} sx={{ borderRadius: 99 }} />
+                <Stack direction="row" spacing={1} sx={{ alignItems: "center", mb: 1, flexWrap: "wrap" }}>
+                  <PremiumSkeleton width="35%" height={24} />
+                  <PremiumSkeleton width={80} height={20} sx={{ borderRadius: "6px" }} />
                 </Stack>
-                <PremiumSkeleton width="25%" height={14} sx={{ mt: 0.5 }} />
-                <PremiumSkeleton width="18%" height={12} sx={{ mt: 1 }} />
-                <PremiumSkeleton width="85%" height={14} sx={{ mt: 1.5 }} />
+                <PremiumSkeleton width="20%" height={16} sx={{ mb: 1 }} />
+                <PremiumSkeleton width="15%" height={14} sx={{ mb: 2 }} />
+                
+                {/* Motivation statement text block */}
+                <Stack spacing={1} sx={{ mt: 1.5 }}>
+                  <PremiumSkeleton width="92%" height={14} />
+                  <PremiumSkeleton width="78%" height={14} />
+                </Stack>
               </Box>
-              <Stack direction="row" spacing={1} sx={{ flexShrink: 0 }}>
-                <PremiumSkeleton width={100} height={36} sx={{ borderRadius: 99 }} />
-                <PremiumSkeleton width={80} height={36} sx={{ borderRadius: 99 }} />
-                <PremiumSkeleton width={80} height={36} sx={{ borderRadius: 99 }} />
-              </Stack>
+
+              {/* Action Buttons Group */}
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 1,
+                  flexWrap: "wrap",
+                  flexShrink: 0,
+                  alignItems: "center",
+                }}
+              >
+                <PremiumSkeleton width={100} height={38} sx={{ borderRadius: 99 }} />
+                <PremiumSkeleton width={90} height={38} sx={{ borderRadius: 99 }} />
+                <PremiumSkeleton width={90} height={38} sx={{ borderRadius: 99 }} />
+              </Box>
             </Box>
           </Card>
         ))}
@@ -888,9 +945,9 @@ export const SavedJobsSkeleton = memo(function SavedJobsSkeleton() {
       role="status"
       aria-busy="true"
       aria-label="Loading saved jobs"
-      sx={{ ...safeContainerSx, maxWidth: 960, mx: "auto", display: "grid", gap: 3, px: { xs: 2, sm: 3, lg: 4 }, py: 4 }}
+      sx={{ ...safeContainerSx, maxWidth: 1280, mx: "auto", display: "grid", gap: 3, px: { xs: 2, sm: 3, lg: 4 }, py: 4 }}
     >
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 2 }}>
         <Box>
           <PremiumSkeleton width={160} height={28} />
           <PremiumSkeleton width={300} height={16} sx={{ mt: 1 }} />
@@ -901,28 +958,51 @@ export const SavedJobsSkeleton = memo(function SavedJobsSkeleton() {
       <Stack spacing={2}>
         {Array.from({ length: 4 }).map((_, i) => (
           <Card key={i} className="glass-card" elevation={0} sx={{ ...cardSafeSx, p: 3 }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", gap: 2, flexDirection: { xs: "column", sm: "row" } }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                gap: 2.5,
+              }}
+            >
               <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
-                  <PremiumSkeleton width="40%" height={22} />
-                  <PremiumSkeleton width={60} height={20} sx={{ borderRadius: 99 }} />
-                  <PremiumSkeleton width={72} height={20} sx={{ borderRadius: 99 }} />
+                {/* Title & Badge */}
+                <Stack direction="row" spacing={1} sx={{ alignItems: "center", mb: 1, flexWrap: "wrap", gap: 1 }}>
+                  <PremiumSkeleton width="45%" height={26} />
+                  <PremiumSkeleton width={60} height={22} sx={{ borderRadius: "8px" }} />
+                  <PremiumSkeleton width={75} height={22} sx={{ borderRadius: "8px" }} />
                 </Stack>
-                <Stack direction="row" spacing={1.5} sx={{ mb: 1.5 }}>
-                  <PremiumSkeleton width="18%" height={14} />
-                  <PremiumSkeleton width="14%" height={14} />
-                  <PremiumSkeleton width="16%" height={14} />
+                
+                {/* Details row */}
+                <Stack direction="row" spacing={1.5} sx={{ alignItems: "center", mb: 1.5, flexWrap: "wrap", gap: 1 }}>
+                  <PremiumSkeleton width="15%" height={16} />
+                  <PremiumSkeleton width="10%" height={16} />
+                  <PremiumSkeleton width="20%" height={16} />
                 </Stack>
-                <Stack direction="row" spacing={1}>
-                  {Array.from({ length: 3 }).map((_, j) => (
-                    <PremiumSkeleton key={j} width={60} height={22} sx={{ borderRadius: 99 }} />
+
+                {/* Skills tags */}
+                <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", gap: 1, mb: 1 }}>
+                  {Array.from({ length: 4 }).map((_, j) => (
+                    <PremiumSkeleton key={j} width={70 + (j % 2) * 15} height={22} sx={{ borderRadius: "8px" }} />
                   ))}
                 </Stack>
               </Box>
-              <Stack spacing={1} sx={{ width: { xs: "100%", sm: 130 }, flexShrink: 0 }}>
-                <PremiumSkeleton width="100%" height={36} sx={{ borderRadius: 99 }} />
-                <PremiumSkeleton width="100%" height={36} sx={{ borderRadius: 99 }} />
-              </Stack>
+
+              {/* Action Buttons Group */}
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: { xs: "row", sm: "column" },
+                  gap: 1,
+                  width: { xs: "100%", sm: 140 },
+                  flexShrink: 0,
+                }}
+              >
+                <PremiumSkeleton sx={{ flex: 1, height: 38, borderRadius: 99 }} />
+                <PremiumSkeleton sx={{ flex: 1, height: 38, borderRadius: 99 }} />
+              </Box>
             </Box>
           </Card>
         ))}
@@ -1078,69 +1158,133 @@ export const JobEditSkeleton = memo(function JobEditSkeleton() {
 });
 
 /* ─── CompanyApplicationsSkeleton ──────────────────────────────────────── */
-export const CompanyApplicationsSkeleton = memo(function CompanyApplicationsSkeleton() {
+export const CompanyApplicationsSkeleton = memo(function CompanyApplicationsSkeleton({ appsOnly = false }) {
   return (
     <Box
       role="status"
       aria-busy="true"
       aria-label="Loading applications"
-      sx={{ ...safeContainerSx, maxWidth: 1152, mx: "auto", display: "grid", gap: 3, px: { xs: 2, sm: 3, lg: 4 }, py: 4 }}
+      sx={{ ...safeContainerSx, display: "grid", gap: 3 }}
     >
-      <PremiumSkeleton width={220} height={30} />
-
-      <Card className="glass-card" elevation={0} sx={{ ...cardSafeSx, p: 2.5 }}>
-        <PremiumSkeleton width="10%" height={12} sx={{ mb: 1 }} />
-        <PremiumSkeleton width={360} height={38} sx={{ borderRadius: 2 }} />
-      </Card>
-
-      <Card className="glass-card" elevation={0} sx={{ ...cardSafeSx, p: 2.5 }}>
-        <PremiumSkeleton width="30%" height={22} />
-        <PremiumSkeleton width="24%" height={14} sx={{ mt: 0.75 }} />
-      </Card>
-
-      <Card className="glass-card" elevation={0} sx={{ ...cardSafeSx, p: 2.5 }}>
-        <Box
-          sx={{
-            display: "grid",
-            gap: 2,
-            gridTemplateColumns: {
-              xs: "1fr",
-              md: "repeat(2, 1fr)",
-              xl: "1.2fr repeat(3, 1fr)",
-            },
-            gridTemplateRows: {
-              xl: "repeat(2, minmax(260px, 1fr))",
-            },
-          }}
+      {/* 1. Job Selection & Selected Job Details Card Skeleton */}
+      {!appsOnly && (
+        <Card
+          className="glass-card"
+          elevation={0}
+          sx={{ ...cardSafeSx, p: 2.5, mb: 1 }}
         >
-          {Array.from({ length: 7 }).map((_, i) => (
-            <Card
-              key={i}
-              className="glass-card"
-              elevation={0}
+          {/* Dropdown label & input */}
+          <PremiumSkeleton width="80px" height={12} sx={{ mb: 1 }} />
+          <PremiumSkeleton width={360} height={38} sx={{ borderRadius: "12px" }} />
+          
+          {/* Divider & Sub-info details */}
+          <Box
+            sx={{
+              mt: 2.5,
+              pt: 2,
+              borderTop: "1px solid var(--app-border)",
+              display: "flex",
+              gap: 1.5,
+              alignItems: "center",
+            }}
+          >
+            <PremiumSkeleton width={180} height={18} />
+            <PremiumSkeleton width={6} height={6} sx={{ borderRadius: 99 }} />
+            <PremiumSkeleton width={80} height={14} />
+            <PremiumSkeleton width={6} height={6} sx={{ borderRadius: 99 }} />
+            <PremiumSkeleton width={90} height={14} />
+          </Box>
+        </Card>
+      )}
+
+      {/* 2. Pipeline Kanban Board Skeleton */}
+      <Box
+        sx={{
+          display: "grid",
+          gap: 3,
+          gridTemplateColumns: {
+            xs: "1fr",
+            xl: "repeat(4, 1fr)",
+          },
+        }}
+      >
+        {["Applied", "Under Review", "Shortlisted", "Rejected"].map((stage, i) => (
+          <Box
+            key={stage}
+            sx={{
+              display: "flex",
+              minHeight: 390,
+              flexDirection: "column",
+              borderRadius: "16px",
+              border: "1px solid var(--app-border)",
+              background: "var(--app-glass-strong)",
+              overflow: "hidden",
+            }}
+          >
+            {/* Stage Column Header */}
+            <Box
               sx={{
-                ...cardSafeSx,
-                minHeight: i === 0 ? 320 : 240,
-                ...(i === 0 && { gridRow: { xl: "1 / span 2" } }),
+                p: 1.5,
+                borderBottom: "1px solid var(--app-border)",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                background: "rgba(255,255,255,0.02)",
               }}
             >
-              <Box sx={{ p: 1.5, borderBottom: "1px solid var(--app-border)", display: "flex", justifyContent: "space-between" }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <PremiumSkeleton width={10} height={10} sx={{ borderRadius: 99 }} />
                 <PremiumSkeleton width={80} height={16} />
-                <PremiumSkeleton width={24} height={20} sx={{ borderRadius: 99 }} />
               </Box>
-              <Box sx={{ p: 1.5 }}>
-                {Array.from({ length: i === 0 ? 3 : 2 }).map((_, j) => (
-                  <Card key={j} elevation={0} sx={{ ...cardSafeSx, p: 2, mb: 1.5 }}>
-                    <PremiumSkeleton width="60%" height={16} />
-                    <PremiumSkeleton width="40%" height={12} sx={{ mt: 0.75 }} />
-                    <PremiumSkeleton width="100%" height={30} sx={{ mt: 1.5, borderRadius: 2 }} />
-                  </Card>
-                ))}
-              </Box>
-            </Card>
-          ))}
-        </Box>
-      </Card>
+              <PremiumSkeleton width={24} height={20} sx={{ borderRadius: 99 }} />
+            </Box>
+
+            {/* Candidate Cards list inside stage column */}
+            <Box sx={{ p: 1.5, display: "flex", flexDirection: "column", gap: 1.5 }}>
+              {Array.from({ length: i === 0 ? 2 : i === 1 ? 1 : 0 }).map((_, j) => (
+                <Card
+                  key={j}
+                  className="glass-card"
+                  elevation={0}
+                  sx={{
+                    ...cardSafeSx,
+                    p: 2,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 1,
+                  }}
+                >
+                  <PremiumSkeleton width="65%" height={18} />
+                  <PremiumSkeleton width="40%" height={12} sx={{ mt: 0.5 }} />
+                  
+                  {/* Dropdown status update select */}
+                  <PremiumSkeleton width="100%" height={38} sx={{ mt: 1, borderRadius: "12px" }} />
+                  
+                  {/* Drag and drop help text */}
+                  <PremiumSkeleton width="85%" height={10} sx={{ mt: 0.5 }} />
+                </Card>
+              ))}
+              
+              {/* If no candidates, render a dashed placeholder representation */}
+              {(i === 2 || i === 3) && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    height: 96,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: "12px",
+                    border: "1px dashed var(--app-border)",
+                    p: 2,
+                  }}
+                >
+                  <PremiumSkeleton width="50%" height={12} />
+                </Box>
+              )}
+            </Box>
+          </Box>
+        ))}
+      </Box>
     </Box>
   );
 });

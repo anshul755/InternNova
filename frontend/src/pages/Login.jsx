@@ -8,8 +8,10 @@ import {
   IoShieldCheckmark,
   IoSparkles,
   IoStar,
+  IoAlertCircleOutline,
 } from "react-icons/io5";
-import FormErrorBanner from "../components/FormErrorBanner.jsx";
+import { errorHandler } from "../lib/errorHandler.js";
+import Seo from "../components/Seo.jsx";
 
 const Login = () => {
   const { login, resendOTP, user, loading } = useAuth();
@@ -46,8 +48,10 @@ const Login = () => {
     setResendMessage("");
     try {
       await resendOTP(formValues.email, "EMAIL_VERIFICATION");
+      errorHandler.success("Verification OTP sent. Please check your inbox.");
       setResendMessage("Verification OTP sent. Please check your inbox.");
     } catch (err) {
+      errorHandler.handle(err, { fallbackMessage: "Failed to resend OTP. Please try again." });
       setResendMessage(err.message || "Failed to resend OTP. Please try again.");
     } finally {
       setResendingOtp(false);
@@ -60,7 +64,9 @@ const Login = () => {
     const { email, password } = formValues;
 
     if (!validateEmail(email) || password.trim().length < 6) {
-      setError("Please enter a valid email and password with at least 6 characters.");
+      const errorMsg = "Please enter a valid email and password with at least 6 characters.";
+      errorHandler.warning(errorMsg, { title: "Invalid Input" });
+      setError(errorMsg);
       setErrorType("general");
       return;
     }
@@ -71,8 +77,10 @@ const Login = () => {
     setResendMessage("");
     try {
       const loggedInUser = await login(email, password);
+      errorHandler.success("Logged in successfully!", { title: "Welcome" });
       navigate(getPostLoginRoute(loggedInUser?.role), { replace: true });
     } catch (err) {
+      errorHandler.handle(err, { fallbackMessage: "Login failed." });
       const msg = err.message || "Login failed.";
       const lowerMsg = msg.toLowerCase();
 
@@ -91,6 +99,7 @@ const Login = () => {
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-slate-50/80 px-4 py-8 text-slate-900 sm:px-6 lg:px-8 font-sans saas-section auth-flow dark:bg-transparent">
+      <Seo title="InternNova | Login" description="Sign in to your InternNova account to manage your profile or post internships." path="/login" />
       <div className="mx-auto w-full max-w-[1600px]">
         <div className="mb-6 flex flex-col gap-3 sm:mb-8 md:flex-row md:items-end md:justify-between">
           <div>
@@ -246,41 +255,46 @@ const Login = () => {
                     </div>
                   </div>
 
-                  <FormErrorBanner
-                    message={error}
-                    id="login-error"
-                    onDismiss={() => { setError(""); setErrorType(""); }}
-                    persistent={errorType === "unverified"}
-                  >
-                    {errorType === "unverified" && (
-                      <button
-                        type="button"
-                        onClick={handleResendVerification}
-                        disabled={resendingOtp}
-                        className="mt-3 w-full inline-flex items-center justify-center gap-2 font-semibold text-lime-500 hover:text-lime-400 disabled:opacity-50 text-xs"
-                      >
-                        {resendingOtp ? (
-                          <>
-                            <span className="h-3 w-3 rounded-full border-2 border-lime-500 border-t-transparent animate-spin" />
-                            Sending...
-                          </>
-                        ) : (
-                          "Resend verification email"
-                        )}
-                      </button>
-                    )}
-                    {errorType === "locked" && (
-                      <p className="mt-2 text-xs text-rose-300/80">
-                        Too many failed attempts. Wait a few minutes or reset
-                        your password.
-                      </p>
-                    )}
-                  </FormErrorBanner>
+                  {errorType === "unverified" && (
+                    <div className="flex items-start gap-3 p-4 rounded-2xl border border-amber-250 bg-amber-50/60 text-xs text-amber-900 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-200">
+                      <IoAlertCircleOutline className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="font-semibold text-amber-950 dark:text-amber-100">Your email is not verified yet.</p>
+                        <p className="mt-1 leading-relaxed opacity-90">Please verify your email address to log in.</p>
+                        <button
+                          type="button"
+                          onClick={handleResendVerification}
+                          disabled={resendingOtp}
+                          className="mt-2 inline-flex items-center gap-1.5 font-bold text-emerald-700 hover:text-emerald-800 hover:underline dark:text-lime-400 dark:hover:text-lime-300 disabled:opacity-50 disabled:no-underline cursor-pointer"
+                        >
+                          {resendingOtp ? (
+                            <>
+                              <span className="h-3 w-3 rounded-full border-2 border-current border-t-transparent animate-spin" />
+                              Sending...
+                            </>
+                          ) : (
+                            "Resend verification email →"
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {errorType === "locked" && (
+                    <div className="flex items-start gap-3 p-4 rounded-2xl border border-rose-200 bg-rose-50/60 text-xs text-rose-800 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-300">
+                      <IoAlertCircleOutline className="h-5 w-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="font-semibold text-rose-950 dark:text-rose-100">Account Temporarily Locked</p>
+                        <p className="mt-1 leading-relaxed opacity-90">Too many failed attempts. Please wait a few minutes or reset your password.</p>
+                      </div>
+                    </div>
+                  )}
 
                   {resendMessage && (
-                    <p className="rounded-2xl border border-lime-500/20 bg-lime-500/10 px-4 py-3 text-sm text-lime-400">
-                      {resendMessage}
-                    </p>
+                    <div className="flex items-start gap-3 p-4 rounded-2xl border border-emerald-200 bg-emerald-50/60 text-xs text-emerald-850 dark:border-lime-500/20 dark:bg-lime-500/10 dark:text-lime-400">
+                      <IoCheckmarkCircle className="h-5 w-5 text-emerald-600 dark:text-lime-400 shrink-0 mt-0.5" />
+                      <p className="flex-1 leading-relaxed">{resendMessage}</p>
+                    </div>
                   )}
 
                   <button

@@ -4,9 +4,10 @@ import { api } from "../lib/api";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { JobEditSkeleton } from "../components/Skeleton.jsx";
 import GlassSelect from "../components/GlassSelect.jsx";
-import FormErrorBanner from "../components/FormErrorBanner.jsx";
+import { errorHandler } from "../lib/errorHandler.js";
 import CurrencyToggle from "../components/CurrencyToggle.jsx";
 import { useCurrency } from "../lib/CurrencyContext.jsx";
+import Seo from "../components/Seo.jsx";
 
 const JOB_TYPES = [
   "INTERNSHIP",
@@ -72,6 +73,7 @@ const JobEdit = () => {
           status: data.status || "ACTIVE",
         });
       } catch (err) {
+        errorHandler.handle(err, { fallbackMessage: "Failed to load job details" });
         setError(err.message || "Failed to load job details");
       } finally {
         setLoading(false);
@@ -135,6 +137,7 @@ const JobEdit = () => {
     e.preventDefault();
     const validationError = validate();
     if (validationError) {
+      errorHandler.warning(validationError, { title: "Validation Warning" });
       setError(validationError);
       return;
     }
@@ -163,8 +166,10 @@ const JobEdit = () => {
       };
 
       await api.put(`/jobs/v1/${id}`, payload);
+      errorHandler.success("Job updated successfully!");
       navigate("/dashboard/company");
     } catch (err) {
+      errorHandler.handle(err, { fallbackMessage: "Failed to update job. Please try again." });
       setError(err.message || "Failed to update job. Please try again.");
     } finally {
       setSubmitting(false);
@@ -177,6 +182,7 @@ const JobEdit = () => {
 
   return (
     <div className="page-enter">
+      <Seo title="InternNova | Edit Job" description="Update your job posting details." path="/jobs/edit" />
       <div className="border-b border-white/40">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <h1 className="text-lg font-semibold">Edit Job Posting</h1>
@@ -191,10 +197,6 @@ const JobEdit = () => {
 
       <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
         <form onSubmit={handleSubmit} className="space-y-6 glass-card p-6" noValidate>
-          <FormErrorBanner
-            message={error}
-            onDismiss={() => setError("")}
-          />
 
           <div className="space-y-4">
             <h2 className="text-base font-medium text-slate-900 border-b border-slate-100 pb-2">
@@ -462,11 +464,11 @@ const JobEdit = () => {
             </div>
           </div>
 
-          <div className="flex justify-end pt-4 border-t border-white/40">
+          <div className="flex justify-center pt-4 border-t border-white/40 w-full">
             <button
               type="submit"
               disabled={submitting}
-              className="btn-primary px-6 py-2 text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+              className="btn-primary w-full sm:w-auto justify-center px-6 py-2 text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {submitting ? "Updating..." : "Update Job"}
             </button>

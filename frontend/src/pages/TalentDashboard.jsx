@@ -20,6 +20,7 @@ import {
   IoTimeOutline,
   IoTrendingUpOutline,
 } from "react-icons/io5";
+import Seo from "../components/Seo.jsx";
 
 const TalentDashboard = () => {
   const { user } = useAuth();
@@ -97,6 +98,7 @@ const TalentDashboard = () => {
   if (loading) {
     return (
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Seo title="InternNova | Dashboard" description="Your personalized talent workspace to track applications and manage resumes." path="/dashboard/talent" />
         <TalentDashboardSkeleton />
       </div>
     );
@@ -105,6 +107,7 @@ const TalentDashboard = () => {
   if (error) {
     return (
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Seo title="InternNova | Dashboard" description="Your personalized talent workspace to track applications and manage resumes." path="/dashboard/talent" />
         <ErrorState message={error} onRetry={fetchDashboardData} />
       </div>
     );
@@ -112,6 +115,7 @@ const TalentDashboard = () => {
 
   return (
     <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
+      <Seo title="InternNova | Dashboard" description="Your personalized talent workspace to track applications and manage resumes." path="/dashboard/talent" />
       <section className="dashboard-hero mb-8">
         <div className="relative grid gap-8 lg:grid-cols-[1.35fr_0.65fr]">
           <div className="flex flex-col justify-center">
@@ -145,7 +149,7 @@ const TalentDashboard = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wider opacity-60">
-                  Profile signal
+                  Profile
                 </p>
                 <h2 className="mt-1 text-xl font-bold">
                   {profile ? "Ready to apply" : "Profile needed"}
@@ -196,7 +200,7 @@ const TalentDashboard = () => {
         </div>
       </section>
 
-      <section className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-3">
+      <section className="mb-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
           [
             "Applied",
@@ -237,7 +241,7 @@ const TalentDashboard = () => {
         ))}
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+      <section className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
         <div className="space-y-6">
           <div className="glass-panel flex h-[34rem] flex-col p-6">
             <div className="flex items-center justify-between gap-4 border-b border-black/5 dark:border-white/5 pb-5">
