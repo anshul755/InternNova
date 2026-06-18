@@ -24,6 +24,8 @@ router.post('/login',          loginLimiter,   validateLogin,         controller
 router.post('/refresh',        generalLimiter,                        controller.refresh);
 router.post('/logout',         authenticate,                          controller.logout);
 router.get('/me',              authenticateSoft,                      controller.getCurrentUser);
+router.post('/request-delete-profile', authenticate,                  controller.requestDeleteProfile);
+router.post('/delete-profile',         authenticate,                  controller.deleteProfile);
 
 
 router.post('/forgot-password',    otpLimiter,     validateForgotPassword,    controller.forgotPassword);

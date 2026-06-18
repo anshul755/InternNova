@@ -98,18 +98,27 @@ async function verifyOTP(email, plainOTP, type) {
 
 async function sendOTPEmail(email, otp, type) {
   const isReset = type === 'PASSWORD_RESET';
-  const frontendUrl = process.env.FRONTEND_URL || 'https://internnova.in';
+  const isDelete = type === 'PROFILE_DELETION';
+  const frontendUrl = process.env.FRONTEND_URL || 'https://intern-nova.in';
   const logoUrl =
     process.env.EMAIL_LOGO_URL ||
-    'https://dl.dropboxusercontent.com/scl/fi/qxxe6x0rw0zujzpjtwv60/ChatGPT-Image-Jun-9-2026-11_35_53-AM.png?rlkey=jygs1j16tglr29qm6vym5qxhv&dl=1';
+    `${frontendUrl}/internNova-light.png`;
 
   const heading = isReset
     ? 'Reset Your Password'
-    : 'Verify Your Email';
+    : isDelete
+      ? 'Delete Your Profile'
+      : 'Verify Your Email';
   const introLine = isReset
     ? 'We received a request to reset the password for your InternNova account.'
-    : 'Welcome to InternNova! Please verify your email address to activate your account.';
-  const actionLabel = isReset ? 'Password Reset Code' : 'Email Verification Code';
+    : isDelete
+      ? 'We received a request to delete your InternNova profile. This action is permanent and will delete all your related data.'
+      : 'Welcome to InternNova! Please verify your email address to activate your account.';
+  const actionLabel = isReset
+    ? 'Password Reset Code'
+    : isDelete
+      ? 'Profile Deletion Code'
+      : 'Email Verification Code';
 
   const primaryGreen = '#7cc84a';
   const greenDark = '#4a8a2e';
@@ -221,11 +230,15 @@ async function sendOTPEmail(email, otp, type) {
 
   const text = isReset
     ? `INTERNNOVA — PASSWORD RESET CODE\n\nYour reset code is: ${otp}\n\nThis code expires in 10 minutes.\nIf you did not request this, ignore this email — your account remains secure.\n\n— InternNova`
-    : `INTERNNOVA — EMAIL VERIFICATION CODE\n\nYour verification code is: ${otp}\n\nThis code expires in 10 minutes.\nIf you did not request this, ignore this email — your account remains secure.\n\n— InternNova`;
+    : isDelete
+      ? `INTERNNOVA — PROFILE DELETION CODE\n\nYour profile deletion code is: ${otp}\n\nThis code expires in 10 minutes.\nIf you did not request this, ignore this email — your account remains secure.\n\n— InternNova`
+      : `INTERNNOVA — EMAIL VERIFICATION CODE\n\nYour verification code is: ${otp}\n\nThis code expires in 10 minutes.\nIf you did not request this, ignore this email — your account remains secure.\n\n— InternNova`;
 
   const subject = isReset
     ? 'InternNova — Password Reset Code'
-    : 'InternNova — Verify Your Email';
+    : isDelete
+      ? 'InternNova — Profile Deletion Code'
+      : 'InternNova — Verify Your Email';
 
   await sendMail({ to: email, subject, html, text });
 }

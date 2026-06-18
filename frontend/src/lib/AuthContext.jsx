@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { getStoredToken, setStoredToken, setStoredRefreshToken, clearStoredToken } from "./authStorage.js";
 import { AUTH_API_BASE } from "./serviceConfig.js";
+import { api } from "./api.js";
 
 const AUTH_BASE = AUTH_API_BASE;
 
@@ -218,6 +219,19 @@ export function AuthProvider({ children }) {
     _clearToken();
   }, []);
 
+  const requestDeleteProfile = useCallback(async () => {
+    const res = await api.post("/auth/v1/request-delete-profile");
+    const body = await res.json();
+    return body;
+  }, []);
+
+  const verifyDeleteProfile = useCallback(async (otp) => {
+    const res = await api.post("/auth/v1/delete-profile", { otp });
+    const body = await res.json();
+    _clearToken();
+    return body;
+  }, []);
+
   const accessToken = null;
 
   return (
@@ -234,6 +248,8 @@ export function AuthProvider({ children }) {
         resetPassword,
         login,
         logout,
+        requestDeleteProfile,
+        verifyDeleteProfile,
       }}
     >
       {children}

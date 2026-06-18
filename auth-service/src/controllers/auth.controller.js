@@ -234,6 +234,54 @@ async function getCurrentUser(req, res, next) {
   }
 }
 
+async function requestDeleteProfile(req, res, next) {
+  try {
+    const { email } = req.user;
+    const { createAndSendOTP } = require('../services/otp.service');
+    
+    let emailSent = true;
+    try {
+      await createAndSendOTP(email, 'PROFILE_DELETION');
+    } catch (emailErr) {
+      emailSent = false;
+      logger.warn('Request delete profile OTP email failed', {
+        email,
+        error: emailErr.message,
+      });
+    }
+
+    const message = emailSent
+      ? 'A verification code has been sent to your email.'
+      : 'A verification code has been generated, but the email could not be sent. Please try again.';
+
+    sendSuccess(res, 200, message, { emailSent });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function deleteProfile(req, res, next) {
+  try {
+    const { sub: userId, email } = req.user;
+    const { otp } = req.body;
+    if (!otp) {
+      return res.status(400).json({ success: false, message: 'OTP code is required.' });
+    }
+
+    const { verifyOTP } = require('../services/otp.service');
+    await verifyOTP(email, otp, 'PROFILE_DELETION');
+
+    await authService.deleteProfile(userId);
+
+    res.clearCookie('accessToken', { path: '/' });
+    res.clearCookie('refreshToken', { path: '/' });
+
+    sendSuccess(res, 200, 'Profile and all associated data deleted successfully.');
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   register,
   verifyEmail,
@@ -245,4 +293,6 @@ module.exports = {
   verifyResetOTP,
   resetPassword,
   getCurrentUser,
+  requestDeleteProfile,
+  deleteProfile,
 };
