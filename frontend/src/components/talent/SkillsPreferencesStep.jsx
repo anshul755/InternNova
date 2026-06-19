@@ -1,6 +1,7 @@
 import React from "react";
 import { useFormContext } from "react-hook-form";
 import FieldError from "../FieldError.jsx";
+import { IoCheckmark } from "react-icons/io5";
 
 const SKILL_OPTIONS = [];
 const LOCATION_OPTIONS = [];
@@ -196,7 +197,7 @@ const LocationMultiSelect = () => {
             return (
               <li
                 key={city}
-                className={`px-4 py-2.5 cursor-pointer hover:bg-white/5 transition-colors ${
+                className={`px-4 py-2.5 cursor-pointer hover:bg-white/5 transition-colors flex items-center gap-2.5 ${
                   isSelected ? "bg-emerald-500/10 text-emerald-300" : ""
                 }`}
                 onMouseDown={(e) => {
@@ -204,6 +205,11 @@ const LocationMultiSelect = () => {
                   toggleCity(city);
                 }}
               >
+                {isSelected ? (
+                  <IoCheckmark className="h-4 w-4 text-emerald-400 shrink-0" />
+                ) : (
+                  <span className="w-4 h-4 shrink-0" />
+                )}
                 <span>{city}</span>
               </li>
             );

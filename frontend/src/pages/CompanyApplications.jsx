@@ -8,6 +8,7 @@ import SearchableSelect from "../components/SearchableSelect.jsx";
 import StatusBadge from "../components/StatusBadge.jsx";
 import { useAlert } from "../lib/AlertContext.jsx";
 import FormErrorBanner from "../components/FormErrorBanner.jsx";
+import Seo from "../components/Seo.jsx";
 
 const PIPELINE_STAGES = [
   "APPLIED",
@@ -18,19 +19,19 @@ const PIPELINE_STAGES = [
 
 const STAGE_STYLES = {
   APPLIED: {
-    header: "bg-sky-50 text-sky-900 border-sky-100",
+    header: "bg-sky-50/90 text-sky-900 border-sky-100 dark:bg-sky-500/10 dark:text-sky-400 dark:border-sky-500/20",
     dot: "bg-sky-500",
   },
   UNDER_REVIEW: {
-    header: "bg-amber-50 text-amber-900 border-amber-100",
+    header: "bg-amber-50/90 text-amber-900 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20",
     dot: "bg-amber-500",
   },
   SHORTLISTED: {
-    header: "bg-emerald-50 text-emerald-900 border-emerald-100",
+    header: "bg-emerald-50/90 text-emerald-900 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20",
     dot: "bg-emerald-500",
   },
   REJECTED: {
-    header: "bg-rose-50 text-rose-900 border-rose-100",
+    header: "bg-rose-50/90 text-rose-900 border-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20",
     dot: "bg-rose-500",
   },
 };
@@ -83,8 +84,9 @@ export default function CompanyApplications() {
         list.some((job) => String(job.id) === String(routeJobId))
       ) {
         setSelectedJobId(String(routeJobId));
+      } else if (list.length > 0 && !selectedJobId) {
+        setSelectedJobId(String(list[0].id));
       }
-      // Otherwise: no default selection — user picks via searchable dropdown.
     } catch (err) {
       setError(err.message || "Failed to load jobs");
     } finally {
@@ -202,7 +204,7 @@ export default function CompanyApplications() {
     } else {
       applicationsContent = (
         <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-[0_24px_60px_rgba(15,23,42,0.10)] sm:p-5 dark:border-white/10 dark:bg-white/[0.04]">
-          <div className="grid gap-4 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
             {PIPELINE_STAGES.map((stage) => {
               const appsInStage = applications.filter(
                 (a) => a.status === stage,
@@ -240,7 +242,7 @@ export default function CompanyApplications() {
                           {stage.replace("_", " ")}
                         </span>
                       </div>
-                      <span className="rounded-full border border-white/70 bg-white px-2.5 py-0.5 text-xs font-semibold text-slate-700">
+                      <span className="rounded-full border border-white/70 bg-white px-2.5 py-0.5 text-xs font-semibold text-slate-700 dark:bg-white/10 dark:border-white/10 dark:text-slate-300">
                         {appsInStage.length}
                       </span>
                     </div>
@@ -270,7 +272,7 @@ export default function CompanyApplications() {
                             to={`/applications/${app.id}`}
                             className="block"
                           >
-                            <h3 className="font-semibold text-sm text-slate-900 hover:text-slate-950 truncate pr-6">
+                            <h3 className="font-semibold text-sm text-slate-900 dark:text-white hover:text-slate-950 dark:hover:text-emerald-400 truncate pr-6 transition-colors">
                               {app.studentName || `Candidate #${app.studentId}`}
                             </h3>
                             <p className="text-xs text-slate-400 mt-1">
@@ -285,7 +287,7 @@ export default function CompanyApplications() {
                               href={app.resumeUrl}
                               target="_blank"
                               rel="noreferrer"
-                              className="inline-block mt-2 text-xs text-slate-700 hover:text-slate-900 font-medium"
+                              className="inline-block mt-2 text-xs text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white font-medium underline underline-offset-2"
                             >
                               Resume
                             </a>
@@ -306,17 +308,17 @@ export default function CompanyApplications() {
                               label: s.replace("_", " "),
                             }))}
                           />
-                          <p className="mt-2 text-[0.7rem] text-slate-500">
+                          <p className="mt-2 text-[0.7rem] text-slate-500 dark:text-slate-400">
                             Drag this card to another column to change status.
                           </p>
                           {app.status === "APPLIED" && app.evaluationAttemptedAt == null && (
-                            <p className="mt-1 text-[0.7rem] text-amber-600 flex items-center gap-1">
+                            <p className="mt-1 text-[0.7rem] text-amber-600 dark:text-amber-400 flex items-center gap-1">
                               <span className="inline-block w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
                               AI evaluation pending…
                             </p>
                           )}
                           {app.evaluationError && (
-                            <p className="mt-1 rounded-lg border border-rose-100 bg-rose-50 px-2 py-1 text-[0.7rem] text-rose-600" title={app.evaluationError}>
+                            <p className="mt-1 rounded-lg border border-rose-100 bg-rose-50 dark:border-rose-500/20 dark:bg-rose-500/10 px-2 py-1 text-[0.7rem] text-rose-600 dark:text-rose-400" title={app.evaluationError}>
                               AI evaluation needs manual review
                             </p>
                           )}
@@ -401,8 +403,9 @@ export default function CompanyApplications() {
 
   return (
     <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
+      <Seo title="InternNova | Applications" description="View and manage candidate applications for your posted jobs." path="/company/applications" />
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
           Manage Applications
         </h1>
         <div className="flex items-center gap-3">

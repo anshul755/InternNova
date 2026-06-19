@@ -8,6 +8,7 @@ export default function SearchableSelect({
   onChange,
   options,           // [{ value, label, sublabel? }]
   placeholder = "Search...",
+  searchPlaceholder,
   emptyMessage = "No results found.",
   className = "",
   disabled = false,
@@ -147,7 +148,7 @@ export default function SearchableSelect({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={`Search ${label?.toLowerCase() || "jobs"}...`}
+          placeholder={searchPlaceholder || `Search ${label?.toLowerCase() || "jobs"}...`}
           className="w-full bg-transparent text-sm text-slate-700 dark:text-slate-300 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none"
         />
       </div>

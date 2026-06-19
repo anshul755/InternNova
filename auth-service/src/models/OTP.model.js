@@ -18,7 +18,7 @@ const OTPSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ['EMAIL_VERIFICATION', 'PASSWORD_RESET'],
+      enum: ['EMAIL_VERIFICATION', 'PASSWORD_RESET', 'PROFILE_DELETION'],
       required: true,
     },
     attempts: {

@@ -1,4 +1,5 @@
 import LegalDocumentPage from "../components/LegalDocumentPage.jsx";
+import Seo from "../components/Seo.jsx";
 
 const sections = [
   {
@@ -134,12 +135,15 @@ const sections = [
 
 export default function TermsOfService() {
   return (
-    <LegalDocumentPage
-      title="Terms of Service | InternNova"
-      description="Read InternNova's Terms of Service governing internship applications, employer dashboards, resume matching tools, account use, and platform responsibilities."
-      path="/terms-of-service"
-      effectiveDate="June 13, 2026"
-      sections={sections}
-    />
+    <>
+      <Seo title="InternNova | Terms of Service" description="Review InternNova terms of service and usage policies." path="/terms-of-service" />
+      <LegalDocumentPage
+        title="Terms of Service | InternNova"
+        description="Read InternNova's Terms of Service governing internship applications, employer dashboards, resume matching tools, account use, and platform responsibilities."
+        path="/terms-of-service"
+        effectiveDate="June 13, 2026"
+        sections={sections}
+      />
+    </>
   );
 }

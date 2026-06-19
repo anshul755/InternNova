@@ -22,17 +22,20 @@ const JobEdit = lazy(() => import("./pages/JobEdit.jsx"));
 const ApplicationManagement = lazy(() => import("./pages/ApplicationManagement.jsx"));
 const ApplicationDetail = lazy(() => import("./pages/ApplicationDetail.jsx"));
 const SavedJobs = lazy(() => import("./pages/SavedJobs.jsx"));
-const TalentProfileEdit = lazy(() => import("./pages/TalentProfileEdit.jsx"));
-const CompanyProfileEdit = lazy(() => import("./pages/CompanyProfileEdit.jsx"));
+const TalentProfile = lazy(() => import("./pages/TalentProfile.jsx"));
+const CompanyProfile = lazy(() => import("./pages/CompanyProfile.jsx"));
 const VerifyEmail = lazy(() => import("./pages/VerifyEmail.jsx"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword.jsx"));
 const LegalPrivacyPage = lazy(() => import("./pages/LegalPrivacyPage.jsx"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService.jsx"));
+const ResumeGenerator = lazy(() => import("./pages/ResumeGenerator.jsx"));
+import ToastContainer from "./components/ToastContainer.jsx";
 
 function App() {
   return (
     <>
       <ScrollToTop />
+      <ToastContainer />
       <Routes>
         <Route element={<AppLayout />}>
           <Route path="/" element={<Landing />} />
@@ -136,18 +139,26 @@ function App() {
           />
 
           <Route
-            path="/profile/edit"
+            path="/profile"
             element={
               <RoleProtectedRoute role="Talent">
-                <TalentProfileEdit />
+                <TalentProfile />
               </RoleProtectedRoute>
             }
           />
           <Route
-            path="/company/profile/edit"
+            path="/resume-generator"
+            element={
+              <RoleProtectedRoute role="Talent">
+                <ResumeGenerator />
+              </RoleProtectedRoute>
+            }
+          />
+          <Route
+            path="/company/profile"
             element={
               <RoleProtectedRoute role="Company">
-                <CompanyProfileEdit />
+                <CompanyProfile />
               </RoleProtectedRoute>
             }
           />

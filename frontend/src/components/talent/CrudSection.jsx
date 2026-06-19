@@ -10,7 +10,7 @@ import {
   IoCheckmark,
 } from "react-icons/io5";
 import { useAlert } from "../../lib/AlertContext.jsx";
-import FormErrorBanner from "../FormErrorBanner.jsx";
+import { errorHandler } from "../../lib/errorHandler.js";
 
 const EMPTY_ITEM = (fields) => {
   const obj = {};
@@ -38,7 +38,6 @@ export default function CrudSection({
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({});
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
   const { showConfirm } = useAlert();
 
   const getItemId = (item, index) => {
@@ -53,21 +52,18 @@ export default function CrudSection({
     setFormData(EMPTY_ITEM(fields));
     setEditingId(null);
     setAdding(true);
-    setError("");
   };
 
   const startEdit = (item, index) => {
     setFormData({ ...item });
     setEditingId(getItemId(item, index));
     setAdding(false);
-    setError("");
   };
 
   const cancelForm = () => {
     setAdding(false);
     setEditingId(null);
     setFormData({});
-    setError("");
   };
 
   const updateField = (name, value) => {
@@ -86,34 +82,35 @@ export default function CrudSection({
 
   const handleSave = async () => {
     setSubmitting(true);
-    setError("");
     try {
       if (adding) {
         const res = await api.post(apiPath, formData);
         const created = await res.json();
         onItemsChange([...items, created]);
+        errorHandler.success(`${title.slice(0, -1)} added successfully.`);
       } else {
         await api.put(`${apiPath}/${editingId}`, formData);
         onItemsChange(
           items.map((it, idx) => (getItemId(it, idx) === editingId ? { ...it, ...formData } : it)),
         );
+        errorHandler.success(`${title.slice(0, -1)} updated successfully.`);
       }
       cancelForm();
     } catch (e) {
-      setError(e?.message || "Save failed");
+      errorHandler.handle(e, { fallbackMessage: "Save failed" });
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDelete = async (id) => {
-    setError("");
     try {
       await api.delete(`${apiPath}/${id}`);
       onItemsChange(items.filter((it, idx) => getItemId(it, idx) !== id));
       if (editingId === id) cancelForm();
+      errorHandler.success(`${title.slice(0, -1)} deleted successfully.`);
     } catch (e) {
-      setError(e?.message || "Delete failed");
+      errorHandler.handle(e, { fallbackMessage: "Delete failed" });
     }
   };
 
@@ -237,11 +234,6 @@ export default function CrudSection({
 
       {expanded && (
         <div className="mt-3 space-y-3">
-          <FormErrorBanner
-            message={error}
-            onDismiss={() => setError("")}
-          />
-
           {items.map((item, index) => {
             const currentId = getItemId(item, index);
             const isEditing = editingId === currentId;

@@ -7,6 +7,7 @@ import ErrorState from "../components/ErrorState.jsx";
 import GlassSelect from "../components/GlassSelect.jsx";
 import { filterOpenJobs } from "../lib/jobs.js";
 import { useCurrency } from "../lib/CurrencyContext.jsx";
+import Seo from "../components/Seo.jsx";
 
 const JOB_TYPES = [
   "INTERNSHIP",
@@ -90,7 +91,7 @@ const JobListings = () => {
         const openJobs = filterOpenJobs(data.content || []);
         setJobs(openJobs);
         setTotalPages(data.totalPages || 0);
-        setTotalElements(openJobs.length);
+        setTotalElements(data.totalElements || 0);
       }
     } catch (err) {
       setError(err.message || "Failed to load jobs");
@@ -181,6 +182,7 @@ const JobListings = () => {
 
   return (
     <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
+      <Seo title="InternNova | Browse Jobs" description="Discover internship and early-career opportunities matched to your skills." path="/jobs" />
       <div className="glass-card p-6 mb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <div className="lg:col-span-2">
@@ -198,7 +200,7 @@ const JobListings = () => {
               className="input-glass text-sm"
             />
           </div>
-          <div>
+          <div className="md:col-span-3 lg:col-span-3">
             <label className="block text-xs font-medium text-slate-500 mb-1">
               Location
             </label>
@@ -213,7 +215,7 @@ const JobListings = () => {
               className="input-glass text-sm"
             />
           </div>
-          <div>
+          <div className="md:col-span-3 lg:col-span-3">
             <label
               id="job-type-filter-label"
               className="block text-xs font-medium text-slate-500 mb-1"
@@ -236,7 +238,7 @@ const JobListings = () => {
               }))}
             />
           </div>
-          <div>
+          <div className="md:col-span-3 lg:col-span-2">
             <label
               id="work-style-filter-label"
               className="block text-xs font-medium text-slate-500 mb-1"
@@ -355,17 +357,17 @@ const JobListings = () => {
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-2 flex-shrink-0 lg:w-40">
+                 <div className="flex flex-col sm:flex-row lg:flex-col gap-2 flex-shrink-0 lg:w-40 w-full sm:w-auto justify-end">
                   <Link
                     to={`/jobs/${job.id}`}
-                    className="btn-primary px-4 py-2 text-sm text-center"
+                    className="btn-primary px-4 py-2 text-sm text-center flex-1 sm:flex-initial lg:flex-none lg:w-full"
                   >
                     View Details
                   </Link>
                   {!isCompany && user && (
                     <Link
                       to={`/jobs/${job.id}`}
-                      className="btn-secondary px-4 py-2 text-sm text-center"
+                      className="btn-secondary px-4 py-2 text-sm text-center flex-1 sm:flex-initial lg:flex-none lg:w-full"
                     >
                       Apply Now
                     </Link>
@@ -373,7 +375,7 @@ const JobListings = () => {
                   {!user && (
                     <Link
                       to="/login"
-                      className="btn-secondary px-4 py-2 text-sm text-center"
+                      className="btn-secondary px-4 py-2 text-sm text-center flex-1 sm:flex-initial lg:flex-none lg:w-full"
                     >
                       Sign In to Apply
                     </Link>
@@ -390,7 +392,7 @@ const JobListings = () => {
           <button
             onClick={() => setPage((p) => Math.max(0, p - 1))}
             disabled={page === 0}
-            className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 rounded-lg text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="btn-secondary px-4 py-2 text-sm disabled:opacity-40"
           >
             Previous
           </button>
@@ -400,7 +402,7 @@ const JobListings = () => {
           <button
             onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
             disabled={page >= totalPages - 1}
-            className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 rounded-lg text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="btn-secondary px-4 py-2 text-sm disabled:opacity-40"
           >
             Next
           </button>

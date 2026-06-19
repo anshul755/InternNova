@@ -19,6 +19,29 @@ function authenticate(req, res, next) {
   }
 }
 
+function authenticateSoft(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    req.user = null;
+    req.authError = 'MISSING_TOKEN';
+    return next();
+  }
+
+  const token = authHeader.slice(7);
+  try {
+    req.user = verifyAccessToken(token);
+    next();
+  } catch (err) {
+    req.user = null;
+    if (err.name === 'TokenExpiredError') {
+      req.authError = 'TOKEN_EXPIRED';
+    } else {
+      req.authError = 'INVALID_TOKEN';
+    }
+    next();
+  }
+}
+
 function authorize(...roles) {
   return (req, res, next) => {
     if (!req.user || !roles.includes(req.user.role)) {
@@ -28,4 +51,4 @@ function authorize(...roles) {
   };
 }
 
-module.exports = { authenticate, authorize };
+module.exports = { authenticate, authenticateSoft, authorize };

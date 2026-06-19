@@ -1,4 +1,5 @@
 import LegalDocumentPage from "../components/LegalDocumentPage.jsx";
+import Seo from "../components/Seo.jsx";
 
 const sections = [
   {
@@ -126,12 +127,15 @@ const sections = [
 
 export default function LegalPrivacyPage() {
   return (
-    <LegalDocumentPage
-      title="Privacy Policy | InternNova"
-      description="Read how InternNova collects, uses, shares, protects, and retains data across internship applications, employer workflows, talent profiles, and resume matching features."
-      path="/privacy-policy"
-      effectiveDate="June 13, 2026"
-      sections={sections}
-    />
+    <>
+      <Seo title="InternNova | Privacy Policy" description="Read our privacy policy and understand how we protect your data." path="/privacy-policy" />
+      <LegalDocumentPage
+        title="Privacy Policy | InternNova"
+        description="Read how InternNova collects, uses, shares, protects, and retains data across internship applications, employer workflows, talent profiles, and resume matching features."
+        path="/privacy-policy"
+        effectiveDate="June 13, 2026"
+        sections={sections}
+      />
+    </>
   );
 }

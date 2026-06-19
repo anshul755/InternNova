@@ -14,12 +14,10 @@ let refreshPromise = null;
 
 async function refreshAccessToken() {
   try {
-    const storedRefresh = getStoredRefreshToken();
-    console.log("[api] Attempting token refresh — storedRefresh:", storedRefresh ? "present" : "missing");
+    console.log("[api] Attempting token refresh via cookie");
     const res = await fetch(`${AUTH_BASE}/refresh`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: storedRefresh ? JSON.stringify({ refreshToken: storedRefresh }) : undefined,
       credentials: "include",
     });
     if (!res.ok) {
@@ -28,12 +26,12 @@ async function refreshAccessToken() {
       throw new Error("refresh failed");
     }
     const body = await res.json();
-    console.log("[api] Refresh response:", body);
-    const newToken = body?.data?.accessToken;
-    if (!newToken) throw new Error("no access token in refresh response");
-    setStoredToken(newToken);
-    console.log("[api] New access token stored, length:", newToken.length);
-    return newToken;
+    if (!body?.success) {
+      console.error("[api] Refresh endpoint returned success=false", body);
+      throw new Error("refresh failed");
+    }
+    console.log("[api] Token refresh successful");
+    return true;
   } catch (e) {
     console.error("[api] Refresh failed:", e.message);
     clearStoredToken();
@@ -54,29 +52,33 @@ async function getRefreshedToken() {
 // ── Request ──────────────────────────────────────────────────────────────────
 
 async function request(path, options = {}) {
-  const token = getToken();
   const headers = { ...options.headers };
-
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
 
   if (!(options.body instanceof FormData) && !headers["Content-Type"]) {
     headers["Content-Type"] = "application/json";
   }
 
-  let res = await fetch(`${JAVA_BASE}${path}`, { ...options, headers });
+  let res = await fetch(`${JAVA_BASE}${path}`, {
+    credentials: "include",
+    ...options,
+    headers,
+  });
 
-  // If 401 and we had a token, try refreshing it once
-  if (res.status === 401 && token) {
+  const isLoggedIn = localStorage.getItem("inn_logged_in") === "true";
+
+  // If 401 and we are logged in, try refreshing it once
+  if (res.status === 401 && isLoggedIn) {
     console.log("[api] Got 401 on", path, "— attempting refresh");
     try {
-      const newToken = await getRefreshedToken();
-      headers["Authorization"] = `Bearer ${newToken}`;
-      console.log("[api] Retrying", path, "with refreshed token");
-      res = await fetch(`${JAVA_BASE}${path}`, { ...options, headers });
+      await getRefreshedToken();
+      console.log("[api] Retrying", path, "with refreshed cookies");
+      res = await fetch(`${JAVA_BASE}${path}`, {
+        credentials: "include",
+        ...options,
+        headers,
+      });
       if (res.status === 401) {
-        console.error("[api] Retry also got 401 — token may be invalid or secret mismatch");
+        console.error("[api] Retry also got 401");
         const retryText = await res.text();
         console.error("[api] 401 response body:", retryText);
       }
@@ -90,17 +92,25 @@ async function request(path, options = {}) {
   if (!res.ok) {
     const text = await res.text();
     let message;
+    let errors = null;
+    let code = null;
     try {
       const json = JSON.parse(text);
       if (json.errors && Array.isArray(json.errors)) {
         message = json.errors.map(e => e.defaultMessage || e.message).join(', ');
+        errors = json.errors;
       } else {
         message = json.message || json.error;
+        code = json.code || json.errorCode;
       }
     } catch {
       message = text;
     }
-    throw new Error(message || `Request failed with status ${res.status}`);
+    const error = new Error(message || `Request failed with status ${res.status}`);
+    error.status = res.status;
+    error.code = code;
+    error.errors = errors;
+    throw error;
   }
 
   return res;

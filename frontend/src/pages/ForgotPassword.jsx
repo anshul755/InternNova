@@ -2,7 +2,8 @@ import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { IoEyeOutline, IoEyeOffOutline, IoShieldCheckmark, IoSparkles } from "react-icons/io5";
-import FormErrorBanner from "../components/FormErrorBanner.jsx";
+import { errorHandler } from "../lib/errorHandler.js";
+import Seo from "../components/Seo.jsx";
 
 const passwordRule = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 
@@ -18,8 +19,6 @@ export default function ForgotPassword() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState("");
-  const [error, setError] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -31,21 +30,19 @@ export default function ForgotPassword() {
 
   const handleSendOtp = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
 
     if (!/.+@.+\..+/.test(email)) {
-      setError("Enter a valid email address.");
+      errorHandler.warning("Enter a valid email address.");
       return;
     }
 
     setLoading(true);
     try {
       const message = await forgotPassword(email);
-      setSuccess(message);
+      errorHandler.success(message || "OTP sent successfully.");
       setStep(2);
     } catch (err) {
-      setError(err.message || "Could not start password reset.");
+      errorHandler.handle(err, { fallbackMessage: "Could not start password reset." });
     } finally {
       setLoading(false);
     }
@@ -53,11 +50,9 @@ export default function ForgotPassword() {
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
 
     if (!/^\d{6}$/.test(otp)) {
-      setError("OTP must be exactly 6 digits.");
+      errorHandler.warning("OTP must be exactly 6 digits.");
       return;
     }
 
@@ -65,10 +60,10 @@ export default function ForgotPassword() {
     try {
       const data = await verifyResetOTP(email, otp);
       setResetSessionId(data.resetSessionId);
-      setSuccess("OTP verified. Set your new password.");
+      errorHandler.success("OTP verified. Set your new password.");
       setStep(3);
     } catch (err) {
-      setError(err.message || "OTP verification failed.");
+      errorHandler.handle(err, { fallbackMessage: "OTP verification failed." });
     } finally {
       setLoading(false);
     }
@@ -76,40 +71,36 @@ export default function ForgotPassword() {
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
 
     if (!passwordRule.test(newPassword)) {
-      setError(passwordHint);
+      errorHandler.warning(passwordHint);
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError("Passwords do not match.");
+      errorHandler.warning("Passwords do not match.");
       return;
     }
 
     setLoading(true);
     try {
       const message = await resetPassword(email, resetSessionId, newPassword);
-      setSuccess(message);
+      errorHandler.success(message || "Password reset successfully.");
       setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
-      setError(err.message || "Could not reset password.");
+      errorHandler.handle(err, { fallbackMessage: "Could not reset password." });
     } finally {
       setLoading(false);
     }
   };
 
   const handleResend = async () => {
-    setError("");
-    setSuccess("");
     setLoading(true);
     try {
       await resendOTP(email, "PASSWORD_RESET");
-      setSuccess("A new password reset OTP has been sent.");
+      errorHandler.success("A new password reset OTP has been sent.");
     } catch (err) {
-      setError(err.message || "Could not resend OTP.");
+      errorHandler.handle(err, { fallbackMessage: "Could not resend OTP." });
     } finally {
       setLoading(false);
     }
@@ -117,6 +108,7 @@ export default function ForgotPassword() {
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-slate-50/80 px-4 py-8 text-slate-900 sm:px-6 lg:px-8 font-sans saas-section auth-flow dark:bg-transparent">
+      <Seo title="InternNova | Reset Password" description="Reset your password to regain access to your InternNova account." path="/forgot-password" />
       <div className="mx-auto w-full max-w-[1600px]">
         <div className="mb-6 flex flex-col gap-3 sm:mb-8 md:flex-row md:items-end md:justify-between">
           <div>
@@ -194,20 +186,6 @@ export default function ForgotPassword() {
                 <div className="mb-8 flex h-1.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-white/10">
                   <div className={`h-full bg-[#7cc84a] transition-all duration-500 ${step === 1 ? 'w-1/3' : step === 2 ? 'w-2/3' : 'w-full'}`} />
                 </div>
-
-                <FormErrorBanner
-                  message={error}
-                  onDismiss={() => setError("")}
-                />
-
-                {success && (
-                  <div
-                    role="alert"
-                    className="mb-6 rounded-2xl border border-emerald-400/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300"
-                  >
-                    <p>{success}</p>
-                  </div>
-                )}
 
                 {step === 1 && (
                   <form onSubmit={handleSendOtp} className="space-y-6" noValidate>

@@ -1,6 +1,7 @@
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const { v4: uuidv4 } = require('uuid');
 
@@ -11,6 +12,7 @@ const authRoutes = require('./routes/auth.routes');
 const app = express();
 
 app.use(helmet());
+app.use(cookieParser());
 
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
   .split(',')
