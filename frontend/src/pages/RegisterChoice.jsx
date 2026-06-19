@@ -6,10 +6,12 @@ import {
   IoSparkles,
   IoCheckmarkCircleOutline,
 } from "react-icons/io5";
+import Seo from "../components/Seo.jsx";
 
 export default function RegisterChoice() {
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-slate-50/80 px-4 py-8 text-slate-900 sm:px-6 lg:px-8 font-sans saas-section auth-flow dark:bg-transparent">
+      <Seo title="InternNova | Signup" description="Create your InternNova account as talent or company." path="/register" />
       <div className="mx-auto w-full max-w-[1600px]">
         {/* Header Section */}
         <div className="mb-6 flex flex-col gap-3 sm:mb-8 md:flex-row md:items-end md:justify-between">
@@ -75,7 +77,7 @@ export default function RegisterChoice() {
                   </div>
 
                   {/* Continue Button styled as btn-primary */}
-                  <span className="btn-primary mt-8 w-full justify-center py-3 text-sm !text-black transition-all duration-300 group-hover:scale-[1.02] group-hover:-translate-y-0.5 group-hover:brightness-106">
+                  <span className="btn-primary mt-8 w-full justify-center py-3 text-sm !text-black transition-all duration-300 group-hover:scale-[1.04] group-hover:brightness-106">
                     Continue as Talent
                     <IoArrowForward className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                   </span>
@@ -102,7 +104,7 @@ export default function RegisterChoice() {
                   </div>
 
                   {/* Continue Button styled as btn-secondary */}
-                  <span className="btn-secondary mt-8 w-full justify-center py-3 text-sm transition-all duration-300 group-hover:scale-[1.02] group-hover:-translate-y-0.5 group-hover:brightness-106">
+                  <span className="btn-secondary mt-8 w-full justify-center py-3 text-sm transition-all duration-300 group-hover:scale-[1.04] group-hover:brightness-106">
                     Continue as Company
                     <IoArrowForward className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                   </span>

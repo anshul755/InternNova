@@ -6,13 +6,14 @@ import { z } from "zod";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { CORE_API_BASE } from "../lib/serviceConfig.js";
 import RegistrationShell from "../components/register/RegistrationShell.jsx";
-import FormErrorBanner from "../components/FormErrorBanner.jsx";
+import { errorHandler } from "../lib/errorHandler.js";
 import CompanyAccountStep from "../components/company/CompanyAccountStep.jsx";
 import CompanyProfileStep from "../components/company/CompanyProfileStep.jsx";
 import CompanyDescriptionStep from "../components/company/CompanyDescriptionStep.jsx";
 import CompanyBrandingStep from "../components/company/CompanyBrandingStep.jsx";
 import CompanySummaryStep from "../components/company/CompanySummaryStep.jsx";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
+import Seo from "../components/Seo.jsx";
 
 const STORAGE_KEY = "inn_company_registration";
 const currentYear = new Date().getFullYear();
@@ -50,6 +51,7 @@ const baseSchema = z.object({
     .optional()
     .or(z.literal("")),
   logoFile: z.any().optional(),
+  acceptTerms: z.boolean().refine((val) => val === true, "You must accept the Terms of Service and Privacy Policy"),
 });
 
 const schema = baseSchema
@@ -128,6 +130,7 @@ const defaultValues = {
   websiteUrl: "",
   logoUrl: "",
   logoFile: null,
+  acceptTerms: false,
 };
 
 function loadSavedData() {
@@ -199,6 +202,7 @@ const CompanyRegister = () => {
           break;
         }
       }
+      errorHandler.warning("Please fix the highlighted fields before submitting.");
       setSubmitError("Please fix the highlighted fields before submitting.");
     },
     [stepFields],
@@ -268,8 +272,10 @@ const CompanyRegister = () => {
       }
 
       clearSavedData();
+      errorHandler.success("Company profile registered successfully!");
       navigate("/verify-email", { state: { email: data.email, emailNotSent: !emailSent } });
     } catch (err) {
+      errorHandler.handle(err, { fallbackMessage: "Something went wrong. Please try again." });
       setSubmitError(err.message || "Something went wrong. Please try again.");
     } finally {
       setSubmitting(false);
@@ -324,6 +330,7 @@ const CompanyRegister = () => {
       descriptions={stepDescriptions}
       loginText="Already registered?"
     >
+      <Seo title="InternNova | Company Registration" description="Register your company and start posting internship opportunities." path="/register/company" />
       <FormProvider {...methods}>
         <form onSubmit={(event) => event.preventDefault()} noValidate>
           <div className="px-5 py-6 sm:px-8 sm:py-8 lg:px-10">
@@ -343,20 +350,11 @@ const CompanyRegister = () => {
               {renderStepContent()}
             </div>
 
-            <div className="mt-6">
-              <FormErrorBanner
-                message={submitError ? `Something went wrong — ${submitError}` : ""}
-                onDismiss={() => setSubmitError("")}
-                persistent
-              >
-                {authUserId && submitError && (
-                  <p className="mt-1 text-xs opacity-70">
-                    Your account was created. You can retry without losing
-                    progress.
-                  </p>
-                )}
-              </FormErrorBanner>
-            </div>
+            {authUserId && submitError && (
+              <div className="mt-4 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300">
+                Your account was created successfully. You can retry setting up your profile without losing progress.
+              </div>
+            )}
           </div>
 
           <div className="flex items-center justify-between gap-3 border-t border-white/10 bg-white/[0.02] px-5 py-4 sm:px-8 lg:px-10">
@@ -384,7 +382,7 @@ const CompanyRegister = () => {
               <button
                 type="button"
                 onClick={handleSubmit(onSubmit, onInvalid)}
-                disabled={submitting}
+                disabled={submitting || !formValues.acceptTerms}
                 className="btn-primary px-7 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {submitting ? (

@@ -1,7 +1,8 @@
 import { useState, useRef } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
-import FormErrorBanner from "../components/FormErrorBanner.jsx";
+import { errorHandler } from "../lib/errorHandler.js";
+import Seo from "../components/Seo.jsx";
 
 const OTP_LENGTH = 6;
 
@@ -17,7 +18,6 @@ export default function VerifyEmail() {
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const inputRefs = useRef([]);
 
@@ -62,10 +62,12 @@ export default function VerifyEmail() {
     e.preventDefault();
     const code = otp.join("");
     if (code.length !== OTP_LENGTH) {
+      errorHandler.warning("Please enter all 6 digits.", { title: "Verification Warning" });
       setError("Please enter all 6 digits.");
       return;
     }
     if (!email) {
+      errorHandler.warning("Email is required.", { title: "Verification Warning" });
       setError("Email is required.");
       return;
     }
@@ -74,9 +76,10 @@ export default function VerifyEmail() {
     setError("");
     try {
       await verifyEmail(email, code);
-      setSuccess("Email verified! Redirecting to login…");
+      errorHandler.success("Email verified! Redirecting to login…");
       setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
+      errorHandler.handle(err, { fallbackMessage: "Verification failed." });
       setError(err.message || "Verification failed.");
     } finally {
       setLoading(false);
@@ -85,6 +88,7 @@ export default function VerifyEmail() {
 
   const handleResend = async () => {
     if (!email) {
+      errorHandler.warning("Please enter your email first.", { title: "Verification Warning" });
       setError("Please enter your email first.");
       return;
     }
@@ -92,9 +96,9 @@ export default function VerifyEmail() {
     setError("");
     try {
       await resendOTP(email, "EMAIL_VERIFICATION");
-      setSuccess("A new OTP has been sent to your inbox.");
-      setTimeout(() => setSuccess(""), 4000);
+      errorHandler.success("A new OTP has been sent to your inbox.");
     } catch (err) {
+      errorHandler.handle(err, { fallbackMessage: "Could not resend OTP." });
       setError(err.message || "Could not resend OTP.");
     } finally {
       setResending(false);
@@ -103,6 +107,7 @@ export default function VerifyEmail() {
 
   return (
     <div className="min-h-screen text-slate-900 flex items-center justify-center px-4 font-sans saas-section auth-flow">
+      <Seo title="InternNova | Verify Email" description="Verify your email address to activate your InternNova account." path="/verify-email" />
       <div className="w-full max-w-md rounded-3xl glass-panel border border-white/60 p-8 shadow-2xl">
         <div className="mb-6 text-center">
           <div className="inline-flex mb-3 h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/15 border border-emerald-400 text-emerald-700 text-xl">
@@ -179,17 +184,6 @@ export default function VerifyEmail() {
               ))}
             </div>
           </div>
-
-          <FormErrorBanner
-            message={error}
-            onDismiss={() => setError("")}
-          />
-
-          {success && (
-            <p className="text-xs text-emerald-700 bg-emerald-100 border border-emerald-200 rounded-md px-3 py-2">
-              {success}
-            </p>
-          )}
 
           <button
             type="submit"

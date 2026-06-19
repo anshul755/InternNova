@@ -3,7 +3,7 @@ import { useAuth } from "../lib/AuthContext";
 import { useCurrency } from "../lib/CurrencyContext.jsx";
 import CurrencyToggle from "./CurrencyToggle.jsx";
 import FieldError from "./FieldError.jsx";
-import FormErrorBanner from "./FormErrorBanner.jsx";
+import { errorHandler } from "../lib/errorHandler.js";
 
 const JobApplicationForm = ({ job, onSubmit, onCancel }) => {
   const { user } = useAuth();
@@ -99,11 +99,7 @@ const JobApplicationForm = ({ job, onSubmit, onCancel }) => {
     e.preventDefault();
 
     if (!user?.id || !user?.email || !job?.id) {
-      setErrors((prev) => ({
-        ...prev,
-        submit:
-          "Unable to submit application right now. Please refresh and try again.",
-      }));
+      errorHandler.error("Unable to submit application right now. Please refresh and try again.", { title: "Submission Error" });
       return;
     }
 
@@ -129,11 +125,7 @@ const JobApplicationForm = ({ job, onSubmit, onCancel }) => {
       await onSubmit(applicationData);
     } catch (error) {
       console.error("Failed to submit application:", error);
-      setErrors((prev) => ({
-        ...prev,
-        submit:
-          error?.message || "Failed to submit application. Please try again.",
-      }));
+      errorHandler.handle(error, { fallbackMessage: "Failed to submit application. Please try again." });
     } finally {
       setSubmitting(false);
     }
@@ -166,12 +158,6 @@ const JobApplicationForm = ({ job, onSubmit, onCancel }) => {
             </p>
           </div>
         </div>
-
-        <FormErrorBanner
-          message={errors.submit}
-          onDismiss={() => setErrors((prev) => ({ ...prev, submit: "" }))}
-        />
-
         <form onSubmit={handleSubmit} className="space-y-6" noValidate>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="md:col-span-2">

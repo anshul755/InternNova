@@ -77,7 +77,9 @@ export default function Navbar({ hideGuestCenterNav = false }) {
         <div className="hidden md:flex items-center gap-1" />
 
         <div className="flex items-center gap-3">
-          <ThemeToggle className="hidden sm:inline-flex" />
+          <span className="hidden lg:inline-flex">
+            <ThemeToggle />
+          </span>
           <Link
             to="/login"
             className={`hidden sm:inline-flex items-center justify-center px-5 py-2 text-sm font-semibold rounded-full transition-all duration-300 border ${
@@ -108,7 +110,7 @@ export default function Navbar({ hideGuestCenterNav = false }) {
           </Link>
 
           <button
-            className={`md:hidden p-2 rounded-lg transition-colors ${useLight
+            className={`lg:hidden p-2 rounded-lg transition-colors ${useLight
               ? "hover:bg-white/60 text-slate-700"
               : "hover:bg-white/[0.06] text-slate-300"
               }`}
@@ -127,7 +129,7 @@ export default function Navbar({ hideGuestCenterNav = false }) {
 
       {mobileOpen && (
         <div
-          className={`md:hidden absolute top-full left-4 right-4 mt-2 rounded-xl p-4 shadow-xl animate-slide-down ${useLight
+          className={`lg:hidden absolute top-full left-4 right-4 mt-2 rounded-xl p-4 shadow-xl animate-slide-down ${useLight
             ? "bg-white/90 border border-slate-200 shadow-glass backdrop-blur-lg"
             : "glass-panel border-white/[0.06]"
             }`}
@@ -149,7 +151,13 @@ export default function Navbar({ hideGuestCenterNav = false }) {
               </a>
             ))}
 
-            <div className="flex flex-col gap-2.5 mt-4 pt-4 border-t border-white/[0.06]">
+            <div className={`flex flex-col gap-2.5 mt-4 pt-4 border-t ${useLight ? "border-slate-200" : "border-white/[0.06]"}`}>
+              <div className="flex items-center justify-between px-4 py-1.5 mb-1.5">
+                <span className={`text-sm font-semibold ${useLight ? "text-slate-600" : "text-slate-300"}`}>
+                  Theme Mode
+                </span>
+                <ThemeToggle />
+              </div>
               <Link
                 to="/login"
                 className={`w-full justify-center py-2.5 text-sm font-semibold text-center rounded-full transition-all duration-300 border ${

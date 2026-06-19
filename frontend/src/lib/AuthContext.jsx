@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { getStoredToken, setStoredToken, setStoredRefreshToken, clearStoredToken } from "./authStorage.js";
 import { AUTH_API_BASE } from "./serviceConfig.js";
+import { api } from "./api.js";
 
 const AUTH_BASE = AUTH_API_BASE;
 
@@ -62,34 +63,37 @@ export function AuthProvider({ children }) {
           });
           if (res.ok) {
             const body = await res.json();
-            if (body?.data?.user && !cancelled) {
+            if (body?.success && body?.data?.user && !cancelled) {
               setUser(normalizeUser(body.data.user));
               setLoading(false);
               return;
-            }
-          } else if (res.status === 401) {
-            // Try to refresh once
-            try {
-              const refreshRes = await fetch(`${AUTH_BASE}/refresh`, {
-                method: "POST",
-                credentials: "include",
-              });
-              if (refreshRes.ok) {
-                const meRes = await fetch(`${AUTH_BASE}/me`, {
-                  method: "GET",
+            } else if (!body?.success && !cancelled) {
+              // Try to refresh once
+              try {
+                const refreshRes = await fetch(`${AUTH_BASE}/refresh`, {
+                  method: "POST",
                   credentials: "include",
                 });
-                if (meRes.ok) {
-                  const meBody = await meRes.json();
-                  if (meBody?.data?.user && !cancelled) {
-                    setUser(normalizeUser(meBody.data.user));
-                    setLoading(false);
-                    return;
+                if (refreshRes.ok) {
+                  const refreshBody = await refreshRes.json();
+                  if (refreshBody?.success) {
+                    const meRes = await fetch(`${AUTH_BASE}/me`, {
+                      method: "GET",
+                      credentials: "include",
+                    });
+                    if (meRes.ok) {
+                      const meBody = await meRes.json();
+                      if (meBody?.success && meBody?.data?.user && !cancelled) {
+                        setUser(normalizeUser(meBody.data.user));
+                        setLoading(false);
+                        return;
+                      }
+                    }
                   }
                 }
+              } catch (refreshErr) {
+                console.error("[AuthContext] initAuth refresh failed:", refreshErr);
               }
-            } catch (refreshErr) {
-              console.error("[AuthContext] initAuth refresh failed:", refreshErr);
             }
           }
         } catch (err) {
@@ -215,6 +219,19 @@ export function AuthProvider({ children }) {
     _clearToken();
   }, []);
 
+  const requestDeleteProfile = useCallback(async () => {
+    const res = await api.post("/auth/v1/request-delete-profile");
+    const body = await res.json();
+    return body;
+  }, []);
+
+  const verifyDeleteProfile = useCallback(async (otp) => {
+    const res = await api.post("/auth/v1/delete-profile", { otp });
+    const body = await res.json();
+    _clearToken();
+    return body;
+  }, []);
+
   const accessToken = null;
 
   return (
@@ -231,6 +248,8 @@ export function AuthProvider({ children }) {
         resetPassword,
         login,
         logout,
+        requestDeleteProfile,
+        verifyDeleteProfile,
       }}
     >
       {children}

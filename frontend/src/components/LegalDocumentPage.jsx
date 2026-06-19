@@ -14,7 +14,31 @@ export default function LegalDocumentPage({
       <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8 text-slate-900 font-sans">
         <div className="max-w-6xl mx-auto">
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
-            <article className="glass-panel border border-white/60 p-6 sm:p-8 lg:p-10">
+            {/* Table of contents (Aside) - comes first in source order, so it's at the top on mobile */}
+            <aside className="lg:sticky lg:top-24 h-fit lg:order-last">
+              <div className="glass-panel border border-white/60 p-5">
+                <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
+                  On This Page
+                </h2>
+                <nav className="mt-4" aria-label={`${title} table of contents`}>
+                  <ol className="space-y-2">
+                    {sections.map((section, index) => (
+                      <li key={section.id}>
+                        <a
+                          href={`#${section.id}`}
+                          className="block rounded-xl px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-white/50 transition-colors"
+                        >
+                          {index + 1}. {section.title}
+                        </a>
+                      </li>
+                    ))}
+                  </ol>
+                </nav>
+              </div>
+            </aside>
+
+            {/* Main content (Article) - comes second in source order, but ordered first on desktop */}
+            <article className="glass-panel border border-white/60 p-6 sm:p-8 lg:p-10 lg:order-first">
               <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
                 Legal
               </p>
@@ -81,28 +105,6 @@ export default function LegalDocumentPage({
                 </Link>
               </div>
             </article>
-
-            <aside className="lg:sticky lg:top-24 h-fit">
-              <div className="glass-panel border border-white/60 p-5">
-                <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
-                  On This Page
-                </h2>
-                <nav className="mt-4" aria-label={`${title} table of contents`}>
-                  <ol className="space-y-2">
-                    {sections.map((section, index) => (
-                      <li key={section.id}>
-                        <a
-                          href={`#${section.id}`}
-                          className="block rounded-xl px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-white/50 transition-colors"
-                        >
-                          {index + 1}. {section.title}
-                        </a>
-                      </li>
-                    ))}
-                  </ol>
-                </nav>
-              </div>
-            </aside>
           </div>
         </div>
       </div>

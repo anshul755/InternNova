@@ -1,12 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
-  IoBriefcaseOutline,
-  IoBookmarkOutline,
   IoChevronDown,
   IoClose,
-  IoDocumentTextOutline,
-  IoGridOutline,
   IoLogOutOutline,
   IoMenu,
   IoPersonOutline,
@@ -64,13 +60,6 @@ function UserDropdown({ user, onLogout, light, displayName, avatarUrl }) {
 
   const menuItems = isCompany
     ? [
-      { label: "Dashboard", icon: IoGridOutline, to: "/dashboard/company" },
-      { label: "Post Job", icon: IoBriefcaseOutline, to: "/jobs/create" },
-      {
-        label: "Applications",
-        icon: IoDocumentTextOutline,
-        to: "/company/applications",
-      },
       {
         label: "Company Profile",
         icon: IoPersonOutline,
@@ -78,14 +67,6 @@ function UserDropdown({ user, onLogout, light, displayName, avatarUrl }) {
       },
     ]
     : [
-      { label: "Dashboard", icon: IoGridOutline, to: "/dashboard/talent" },
-      { label: "Browse Jobs", icon: IoBriefcaseOutline, to: "/jobs" },
-      {
-        label: "My Applications",
-        icon: IoDocumentTextOutline,
-        to: "/applications",
-      },
-      { label: "Saved Jobs", icon: IoBookmarkOutline, to: "/saved-jobs" },
       { label: "My Profile", icon: IoPersonOutline, to: "/profile" },
     ];
 
@@ -93,7 +74,7 @@ function UserDropdown({ user, onLogout, light, displayName, avatarUrl }) {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((value) => !value)}
-        className={`flex items-center gap-2 rounded-full py-1.5 pl-1.5 pr-3 transition-all duration-300 border border-transparent ${
+        className={`flex items-center justify-between sm:min-w-[200px] gap-2 rounded-full py-1.5 pl-1.5 pr-3 transition-all duration-300 border border-transparent ${
           light 
             ? "hover:bg-[#7cc84a]/5 hover:border-[#7cc84a]/25" 
             : "hover:bg-[#9fe870]/5 hover:border-[#9fe870]/25"
@@ -103,32 +84,34 @@ function UserDropdown({ user, onLogout, light, displayName, avatarUrl }) {
         aria-label="User menu"
         id="user-menu-button"
       >
-        {avatarUrl && !imgError ? (
-          <img
-            src={avatarUrl}
-            alt={displayName || "User avatar"}
-            onError={() => setImgError(true)}
-            className="h-8 w-8 rounded-full object-cover"
-          />
-        ) : (
-          <span className="h-8 w-8 rounded-full bg-gradient-to-br from-[#c7f284] to-[#8bcf7a] flex items-center justify-center text-xs font-semibold text-slate-900">
-            {initial}
+        <div className="flex items-center gap-2 min-w-0">
+          {avatarUrl && !imgError ? (
+            <img
+              src={avatarUrl}
+              alt={displayName || "User avatar"}
+              onError={() => setImgError(true)}
+              className="h-8 w-8 rounded-full object-cover flex-shrink-0"
+            />
+          ) : (
+            <span className="h-8 w-8 rounded-full bg-gradient-to-br from-[#c7f284] to-[#8bcf7a] flex items-center justify-center text-xs font-semibold text-slate-900 flex-shrink-0">
+              {initial}
+            </span>
+          )}
+          <span
+            className={`hidden sm:block text-sm max-w-[140px] truncate ${light ? "text-slate-700" : "text-slate-300"
+              }`}
+          >
+            {displayName || user?.displayName || user?.name || user?.companyName || "User"}
           </span>
-        )}
-        <span
-          className={`hidden sm:block text-sm max-w-[180px] truncate ${light ? "text-slate-700" : "text-slate-300"
-            }`}
-        >
-          {displayName || user?.displayName || user?.name || user?.companyName || "User"}
-        </span>
+        </div>
         <IoChevronDown
-          className={`w-3.5 h-3.5 transition-transform duration-200 ${light ? "text-slate-400" : "text-slate-400"
+          className={`w-3.5 h-3.5 transition-transform duration-200 flex-shrink-0 ${light ? "text-slate-400" : "text-slate-400"
             } ${open ? "rotate-180" : ""}`}
         />
       </button>
 
       <div
-        className={`navbar-user-menu absolute right-0 top-full mt-2 w-56 glass-panel border border-white/60 py-2 overflow-hidden z-50 origin-top-right transition-all duration-200 ease-out will-change-transform ${open
+        className={`navbar-user-menu absolute right-0 top-full mt-1 w-56 sm:w-auto sm:-left-2 sm:-right-2 glass-panel border border-white/60 py-2 overflow-hidden z-50 origin-top-right transition-all duration-200 ease-out will-change-transform ${open
             ? "pointer-events-auto visible opacity-100 translate-y-0 scale-100"
             : "pointer-events-none invisible opacity-0 -translate-y-2 scale-95"
           }`}
@@ -153,9 +136,6 @@ function UserDropdown({ user, onLogout, light, displayName, avatarUrl }) {
               <p className="text-xs text-slate-600 truncate">{displayName}</p>
               <p className="text-xs font-medium text-slate-900 mt-0.5">
                 {isCompany ? "Company" : "Talent"}
-              </p>
-              <p className="text-[0.7rem] text-slate-500 truncate mt-0.5">
-                {user?.email}
               </p>
             </div>
           </div>
@@ -220,6 +200,12 @@ export default function AuthenticatedNavbar() {
     () => cached?.displayName || user?.displayName || user?.name || user?.companyName || ""
   );
   const [avatarUrl, setAvatarUrl] = useState(() => cached?.avatarUrl || null);
+  const [mobileImgError, setMobileImgError] = useState(false);
+  const initial = user?.email?.[0]?.toUpperCase() ?? "?";
+
+  useEffect(() => {
+    setMobileImgError(false);
+  }, [avatarUrl]);
 
   const useLight = resolvedTheme !== "dark";
   const isCompany = user?.role?.toLowerCase() === "company";
@@ -335,7 +321,7 @@ export default function AuthenticatedNavbar() {
           <Logo light={useLight} />
         </div>
 
-        <div className="hidden md:flex items-center gap-2.5">
+        <div className="hidden lg:flex items-center gap-2.5">
           {navLinks.map(({ label, to }) => (
             <NavLink
               key={to}
@@ -358,41 +344,58 @@ export default function AuthenticatedNavbar() {
         </div>
 
         <div className="flex items-center gap-3">
-          <ThemeToggle className="hidden sm:inline-flex" />
-          <UserDropdown
-            onLogout={handleLogout}
-            user={user}
-            light={useLight}
-            displayName={
-              displayName ||
-              user?.displayName ||
-              user?.name ||
-              user?.companyName ||
-              "User"
-            }
-            avatarUrl={avatarUrl}
-          />
+          <span className="hidden lg:inline-flex">
+            <ThemeToggle />
+          </span>
+          <div className="hidden lg:block">
+            <UserDropdown
+              onLogout={handleLogout}
+              user={user}
+              light={useLight}
+              displayName={
+                displayName ||
+                user?.displayName ||
+                user?.name ||
+                user?.companyName ||
+                "User"
+              }
+              avatarUrl={avatarUrl}
+            />
+          </div>
           <button
-            className={`md:hidden p-2 rounded-lg transition-colors ${useLight
-                ? "hover:bg-white/60 text-slate-700"
-                : "hover:bg-white/[0.06] text-slate-300"
-              }`}
+            className={`lg:hidden flex items-center gap-1.5 rounded-full py-1 pl-1 pr-2.5 transition-all duration-300 border border-transparent ${
+              useLight 
+                ? "hover:bg-[#7cc84a]/5 hover:border-[#7cc84a]/25 text-slate-700" 
+                : "hover:bg-[#9fe870]/5 hover:border-[#9fe870]/25 text-slate-300"
+            }`}
             onClick={() => setMobileOpen((value) => !value)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
           >
-            {mobileOpen ? (
-              <IoClose className="w-5 h-5" />
+            {avatarUrl && !mobileImgError ? (
+              <img
+                src={avatarUrl}
+                alt={displayName || "User avatar"}
+                onError={() => setMobileImgError(true)}
+                className="h-8 w-8 rounded-full object-cover flex-shrink-0"
+              />
             ) : (
-              <IoMenu className="w-5 h-5" />
+              <span className="h-8 w-8 rounded-full bg-gradient-to-br from-[#c7f284] to-[#8bcf7a] flex items-center justify-center text-xs font-semibold text-slate-900 flex-shrink-0">
+                {initial}
+              </span>
             )}
+            <IoChevronDown
+              className={`w-3.5 h-3.5 transition-transform duration-200 flex-shrink-0 ${
+                mobileOpen ? "rotate-180" : ""
+              }`}
+            />
           </button>
         </div>
       </nav>
 
       {mobileOpen && (
         <div
-          className={`md:hidden absolute top-full left-4 right-4 mt-2 rounded-xl p-4 shadow-xl animate-slide-down ${useLight
+          className={`lg:hidden absolute top-full left-4 right-4 mt-2 rounded-xl p-4 shadow-xl animate-slide-down ${useLight
               ? "bg-white/90 border border-slate-200 shadow-glass backdrop-blur-lg"
               : "glass-panel border-white/[0.06]"
             }`}
@@ -400,6 +403,50 @@ export default function AuthenticatedNavbar() {
           aria-label="Mobile navigation"
         >
           <div className="flex flex-col gap-1">
+            {/* User Profile Summary (Mobile View) */}
+            <div className={`flex items-center gap-3 px-3 py-2.5 mb-2 rounded-xl ${useLight ? "bg-slate-100/60 border border-slate-200/50" : "bg-white/[0.03] border border-white/[0.04]"}`}>
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={displayName || "User avatar"}
+                  className="h-10 w-10 rounded-full object-cover border border-white/10"
+                />
+              ) : (
+                <span className="h-10 w-10 rounded-full bg-gradient-to-br from-[#c7f284] to-[#8bcf7a] flex items-center justify-center text-sm font-semibold text-slate-900">
+                  {user?.email?.[0]?.toUpperCase() ?? "?"}
+                </span>
+              )}
+              <div className="min-w-0 flex-1">
+                <p className={`text-sm font-semibold truncate ${useLight ? "text-slate-800" : "text-slate-200"}`}>
+                  {displayName || "User"}
+                </p>
+                <p className={`text-xs ${useLight ? "text-slate-500" : "text-slate-400"} truncate`}>
+                  {user?.email}
+                </p>
+              </div>
+            </div>
+
+            {/* Profile Navigation Link (Mobile View) */}
+            <NavLink
+              to={isCompany ? "/company/profile" : "/profile"}
+              onClick={() => setMobileOpen(false)}
+              className={({ isActive }) =>
+                `px-4 py-2.5 text-sm font-medium transition-all duration-300 rounded-xl border mb-2 ${useLight
+                  ? isActive
+                    ? "text-slate-900 bg-[#7cc84a]/12 border-[#7cc84a]/20 shadow-sm"
+                    : "text-slate-600 border-transparent hover:text-slate-900 hover:bg-[#7cc84a]/5 hover:border-[#7cc84a]/25"
+                  : isActive
+                    ? "text-white bg-[#9fe870]/12 border-[#9fe870]/20 shadow-[0_0_12px_rgba(159,232,112,0.1)]"
+                    : "text-slate-300 border-transparent hover:text-white hover:bg-[#9fe870]/5 hover:border-[#9fe870]/25"
+                }`
+              }
+            >
+              <span className="flex items-center gap-2">
+                <IoPersonOutline className="w-4 h-4" />
+                {isCompany ? "Company Profile" : "My Profile"}
+              </span>
+            </NavLink>
+
             {navLinks.map(({ label, to }) => (
               <NavLink
                 key={to}
@@ -425,6 +472,13 @@ export default function AuthenticatedNavbar() {
                 <ResumeGeneratorButton compact light={useLight} />
               </div>
             )}
+
+            <div className={`mt-1.5 pt-1.5 border-t ${useLight ? "border-slate-200" : "border-white/[0.06]"} flex items-center justify-between px-4 py-1.5 mb-1.5`}>
+              <span className={`text-sm font-semibold ${useLight ? "text-slate-600" : "text-slate-300"}`}>
+                Theme Mode
+              </span>
+              <ThemeToggle />
+            </div>
 
             <div
               className={`mt-1.5 pt-1.5 border-t ${useLight ? "border-slate-200" : "border-white/[0.06]"}`}

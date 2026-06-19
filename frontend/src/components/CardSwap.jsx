@@ -95,10 +95,16 @@ const CardSwap = ({
       });
       tlRef.current = tl;
 
+      // Premium Drop: Swing left/down, fade out, rotate and scale down
       tl.to(elFront, {
-        y: '+=500',
+        y: '+=380',
+        x: '-=120',
+        rotationZ: -8,
+        scale: 0.92,
+        opacity: 0,
         duration: config.durDrop,
-        ease: config.ease
+        ease: 'power2.inOut',
+        force3D: true
       });
 
       tl.addLabel('promote', `-=${config.durDrop * config.promoteOverlap}`);
@@ -113,9 +119,10 @@ const CardSwap = ({
             y: slot.y,
             z: slot.z,
             duration: config.durMove,
-            ease: config.ease
+            ease: 'power3.out',
+            force3D: true
           },
-          `promote+=${i * 0.1}`
+          `promote+=${i * 0.08}`
         );
       });
 
@@ -128,14 +135,21 @@ const CardSwap = ({
         undefined,
         'return'
       );
+      
+      // Premium Return: Slide back, fade in, scale up, straighten skew and rotation
       tl.to(
         elFront,
         {
           x: backSlot.x,
           y: backSlot.y,
           z: backSlot.z,
+          rotationZ: 0,
+          scale: 1,
+          skewY: skewAmount,
+          opacity: 1,
           duration: config.durReturn,
-          ease: config.ease
+          ease: 'power3.out',
+          force3D: true
         },
         'return'
       );

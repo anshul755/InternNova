@@ -100,7 +100,7 @@ const LinksUploadsStep = () => {
             htmlFor="resumeFile"
             className="block text-xs font-semibold text-slate-300 uppercase tracking-wider"
           >
-            Resume file<span className="text-rose-400"> *</span>
+            Resume file
           </label>
           <input
             id="resumeFile"

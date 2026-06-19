@@ -4,9 +4,9 @@ import { api } from "../lib/api";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { JobEditSkeleton } from "../components/Skeleton.jsx";
 import GlassSelect from "../components/GlassSelect.jsx";
-import FormErrorBanner from "../components/FormErrorBanner.jsx";
 import CurrencyToggle from "../components/CurrencyToggle.jsx";
 import { useCurrency } from "../lib/CurrencyContext.jsx";
+import Seo from "../components/Seo.jsx";
 
 const EditJob = () => {
   const { user } = useAuth();
@@ -141,6 +141,7 @@ const EditJob = () => {
 
   return (
     <div className="page-enter">
+      <Seo title="InternNova | Edit Job" description="Update your job posting details." path="/jobs/edit" />
       <div className="border-b border-white/40">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <h1 className="text-xl font-bold">Edit Job Posting</h1>
@@ -367,11 +368,11 @@ const EditJob = () => {
             </div>
           </div>
 
-          <div className="flex justify-end pt-4 border-t border-white/40">
+          <div className="flex justify-center pt-4 border-t border-white/40 w-full">
             <button
               type="submit"
               disabled={submitting}
-              className="btn-primary px-6 py-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-primary w-full sm:w-auto justify-center px-6 py-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {submitting ? "Updating Job..." : "Update Job"}
             </button>

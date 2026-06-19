@@ -8,6 +8,8 @@ import ErrorState from "../components/ErrorState.jsx";
 import JobApplicationForm from "../components/JobApplicationForm";
 import { useAlert } from "../lib/AlertContext.jsx";
 import { useCurrency } from "../lib/CurrencyContext.jsx";
+import { errorHandler } from "../lib/errorHandler.js";
+import Seo from "../components/Seo.jsx";
 
 function formatSalary(min, max, currency) {
   if (!min && !max) return "Not specified";
@@ -94,8 +96,9 @@ const JobDetails = () => {
       setHasApplied(true);
       setApplySuccess(true);
       setShowApplicationForm(false);
+      errorHandler.success("Application submitted successfully!");
     } catch (err) {
-      await showAlert(err.message || "Failed to submit application. Please try again.");
+      errorHandler.handle(err, { fallbackMessage: "Failed to submit application. Please try again." });
     }
   };
 
@@ -106,12 +109,14 @@ const JobDetails = () => {
       if (isSaved) {
         await api.delete(`/talent/v1/${user.id}/saved-jobs/${id}`);
         setIsSaved(false);
+        errorHandler.success("Job removed from saved list!");
       } else {
         await api.post(`/talent/v1/${user.id}/saved-jobs/${id}`);
         setIsSaved(true);
+        errorHandler.success("Job saved successfully!");
       }
     } catch (err) {
-      await showAlert(err.message || "Failed to update saved jobs list.");
+      errorHandler.handle(err, { fallbackMessage: "Failed to update saved jobs list." });
     } finally {
       setSaveLoading(false);
     }
@@ -124,9 +129,10 @@ const JobDetails = () => {
   if (error || !job) {
     return (
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <Seo title="InternNova | Job Details" description="View full job details, requirements, and apply directly." path="/jobs" />
         <ErrorState
           message={error || "Job not found"}
-          onRetry={fetchJobDetails}
+          onRetry={fetchJob}
         />
         <div className="flex justify-center mt-4">
           <Link

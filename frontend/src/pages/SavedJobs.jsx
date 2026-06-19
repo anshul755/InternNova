@@ -5,7 +5,9 @@ import { api } from "../lib/api";
 import { SavedJobsSkeleton } from "../components/Skeleton.jsx";
 import ErrorState from "../components/ErrorState.jsx";
 import { useAlert } from "../lib/AlertContext.jsx";
+import { errorHandler } from "../lib/errorHandler.js";
 import { useCurrency } from "../lib/CurrencyContext.jsx";
+import Seo from "../components/Seo.jsx";
 
 const formatSalary = (min, max, currency) => {
   if (!min && !max) return "";
@@ -51,8 +53,9 @@ const SavedJobs = () => {
     try {
       await api.delete(`/talent/v1/${user.id}/saved-jobs/${jobId}`);
       setJobs((currentJobs) => currentJobs.filter((job) => job.id !== jobId));
+      errorHandler.success("Job removed from saved list!");
     } catch (err) {
-      await showAlert(err.message || "Failed to remove saved job.");
+      errorHandler.handle(err, { fallbackMessage: "Failed to remove saved job." });
     } finally {
       setRemovingId(null);
     }
@@ -64,16 +67,17 @@ const SavedJobs = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
-      <div className="flex justify-between items-center mb-6">
+      <Seo title="InternNova | Saved Jobs" description="Access your bookmarked job listings and apply when ready." path="/saved-jobs" />
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Saved Jobs</h1>
-          <p className="text-slate-500 mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Saved Jobs</h1>
+          <p className="text-slate-500 mt-1 text-sm sm:text-base">
             Review and apply to jobs you've bookmarked for later.
           </p>
         </div>
         <Link
           to="/jobs"
-          className="btn-secondary px-4 py-2 text-sm font-medium"
+          className="btn-secondary px-5 py-2.5 text-sm font-medium self-start sm:self-auto shrink-0 whitespace-nowrap text-center w-full sm:w-auto justify-center"
         >
           Browse More Jobs
         </Link>

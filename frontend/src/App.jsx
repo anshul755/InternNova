@@ -28,11 +28,14 @@ const VerifyEmail = lazy(() => import("./pages/VerifyEmail.jsx"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword.jsx"));
 const LegalPrivacyPage = lazy(() => import("./pages/LegalPrivacyPage.jsx"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService.jsx"));
+const ResumeGenerator = lazy(() => import("./pages/ResumeGenerator.jsx"));
+import ToastContainer from "./components/ToastContainer.jsx";
 
 function App() {
   return (
     <>
       <ScrollToTop />
+      <ToastContainer />
       <Routes>
         <Route element={<AppLayout />}>
           <Route path="/" element={<Landing />} />
@@ -140,6 +143,14 @@ function App() {
             element={
               <RoleProtectedRoute role="Talent">
                 <TalentProfile />
+              </RoleProtectedRoute>
+            }
+          />
+          <Route
+            path="/resume-generator"
+            element={
+              <RoleProtectedRoute role="Talent">
+                <ResumeGenerator />
               </RoleProtectedRoute>
             }
           />

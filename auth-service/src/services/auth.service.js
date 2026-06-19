@@ -234,6 +234,65 @@ async function resetPassword({ email, resetSessionId, newPassword }) {
   logger.info('Password reset successfully', { userId: user._id });
 }
 
+async function deleteProfile(userId) {
+  const mongoose = require('mongoose');
+  const user = await User.findById(userId);
+  if (!user) {
+    throw AppError('User not found.', 404);
+  }
+
+  const role = user.role;
+  const email = user.email;
+  const db = mongoose.connection.db;
+
+  const idQuery = (id) => {
+    const idStr = id.toString();
+    const arr = [{ _id: idStr }];
+    if (mongoose.Types.ObjectId.isValid(idStr)) {
+      arr.push({ _id: new mongoose.Types.ObjectId(idStr) });
+    }
+    return { $or: arr };
+  };
+
+  const fieldQuery = (field, id) => {
+    const idStr = id.toString();
+    const arr = [{ [field]: idStr }];
+    if (mongoose.Types.ObjectId.isValid(idStr)) {
+      arr.push({ [field]: new mongoose.Types.ObjectId(idStr) });
+    }
+    return { $or: arr };
+  };
+
+  if (role === 'Talent') {
+    // Delete talent applications
+    await db.collection('applications').deleteMany(fieldQuery('studentId', userId));
+    // Delete talent document
+    await db.collection('talent').deleteOne(idQuery(userId));
+  } else if (role === 'Company') {
+    // Find all jobs for this company
+    const jobs = await db.collection('jobs').find(fieldQuery('companyId', userId)).toArray();
+    const jobIds = jobs.map((j) => j._id.toString());
+    const jobObjectIds = jobs.map((j) => j._id);
+    const jobIdsList = [...jobIds, ...jobObjectIds];
+
+    // Delete applications for those jobs
+    await db.collection('applications').deleteMany({ jobId: { $in: jobIdsList } });
+    // Delete jobs
+    await db.collection('jobs').deleteMany(fieldQuery('companyId', userId));
+    // Delete company document
+    await db.collection('company').deleteOne(idQuery(userId));
+  }
+
+  // Delete user from authUsers
+  await User.deleteOne({ _id: user._id });
+
+  // Delete any OTPs for this email
+  const { OTP } = require('../models/OTP.model');
+  await OTP.deleteMany({ email });
+
+  logger.info('Profile and all related data deleted successfully', { userId, email, role });
+}
+
 module.exports = {
   register,
   verifyEmail,
@@ -243,4 +302,5 @@ module.exports = {
   forgotPassword,
   verifyPasswordResetOTP,
   resetPassword,
+  deleteProfile,
 };

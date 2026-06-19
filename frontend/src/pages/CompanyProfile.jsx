@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
 import { ProfileEditSkeleton } from "../components/Skeleton.jsx";
-import FormErrorBanner from "../components/FormErrorBanner.jsx";
+import { errorHandler } from "../lib/errorHandler.js";
 import { resolveLogoUrl } from "../lib/media.js";
 import { profileCache } from "../components/AuthenticatedNavbar.jsx";
 import {
@@ -13,7 +13,11 @@ import {
   IoCalendarOutline,
   IoPencilOutline,
   IoInformationCircleOutline,
+  IoMailOutline,
+  IoTrashOutline,
+  IoWarningOutline,
 } from "react-icons/io5";
+import Seo from "../components/Seo.jsx";
 
 const EMPTY_FORM = {
   companyName: "",
@@ -26,7 +30,7 @@ const EMPTY_FORM = {
 };
 
 export default function CompanyProfile() {
-  const { user } = useAuth();
+  const { user, requestDeleteProfile, verifyDeleteProfile } = useAuth();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
@@ -34,15 +38,66 @@ export default function CompanyProfile() {
   const [logoFile, setLogoFile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [imgError, setImgError] = useState(false);
+
+  // Delete profile verification state
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteStep, setDeleteStep] = useState(1);
+  const [deleteOtp, setDeleteOtp] = useState(Array(6).fill(""));
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   const companyLogoUrl = resolveLogoUrl(profile, profile?.data, user);
 
   useEffect(() => {
     setImgError(false);
   }, [companyLogoUrl]);
+
+  const handleOpenDeleteModal = () => {
+    setShowDeleteModal(true);
+    setDeleteStep(1);
+    setDeleteOtp(Array(6).fill(""));
+    setDeleteError("");
+  };
+
+  const handleSendDeleteOtp = async () => {
+    setDeleteLoading(true);
+    setDeleteError("");
+    try {
+      await requestDeleteProfile();
+      setDeleteStep(2);
+      errorHandler.success("Verification code sent to your registered email.");
+    } catch (err) {
+      setDeleteError(err.message || "Failed to send verification code. Please try again.");
+      errorHandler.handle(err);
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    const code = deleteOtp.join("");
+    if (code.length !== 6) {
+      setDeleteError("Verification code must be exactly 6 digits.");
+      return;
+    }
+    setDeleteLoading(true);
+    setDeleteError("");
+    try {
+      await verifyDeleteProfile(code);
+      if (profile?.id) {
+        profileCache.delete(profile.id);
+      }
+      errorHandler.success("Your profile and all data have been permanently deleted.");
+      setShowDeleteModal(false);
+      navigate("/", { replace: true });
+    } catch (err) {
+      setDeleteError(err.message || "Verification failed. Please try again.");
+      errorHandler.handle(err);
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
 
   const fetchProfile = async () => {
     try {
@@ -61,7 +116,7 @@ export default function CompanyProfile() {
     } catch (err) {
       const isNotFound = String(err?.message || "").includes("404");
       if (!isNotFound) {
-        setError(err.message || "Failed to load company profile");
+        errorHandler.handle(err, { fallbackMessage: "Failed to load company profile" });
       }
     } finally {
       setLoading(false);
@@ -82,8 +137,6 @@ export default function CompanyProfile() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-    setError("");
-    setSuccess("");
 
     try {
       const hasNewUrl = form.logoUrl && form.logoUrl.trim() !== "";
@@ -124,7 +177,7 @@ export default function CompanyProfile() {
         updatedProfile = await postRes.json();
       }
 
-      setSuccess("Profile updated successfully.");
+      errorHandler.success("Profile updated successfully.");
       setProfile(updatedProfile);
 
       // Update navbar cache map instantly
@@ -138,10 +191,9 @@ export default function CompanyProfile() {
 
       setTimeout(() => {
         setIsEditing(false);
-        setSuccess("");
       }, 600);
     } catch (err) {
-      setError(err.message || "Failed to update profile");
+      errorHandler.handle(err, { fallbackMessage: "Failed to update profile" });
     } finally {
       setSubmitting(false);
     }
@@ -151,13 +203,19 @@ export default function CompanyProfile() {
     "w-full px-3 py-2.5 bg-white/60 dark:bg-white/[0.03] border border-white/60 dark:border-white/[0.08] rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300 dark:focus:ring-emerald-500/20 dark:focus:border-emerald-500/40 transition-all text-sm";
 
   if (loading) {
-    return <ProfileEditSkeleton />;
+    return (
+      <>
+        <Seo title="InternNova | Profile" description="Update your company profile, branding, and team information." path="/company/profile" />
+        <ProfileEditSkeleton isCompany />
+      </>
+    );
   }
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
+      <Seo title="InternNova | Profile" description="Update your company profile, branding, and team information." path="/company/profile" />
       {/* ── HEADER ── */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
             {isEditing ? "Edit Company Profile" : "Company Profile"}
@@ -168,20 +226,18 @@ export default function CompanyProfile() {
               : "This is how applicants see your company information on job postings."}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
           <Link
             to="/dashboard/company"
-            className="text-sm font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
+            className="btn-secondary w-full sm:w-auto justify-center px-4 py-2 text-sm font-medium shrink-0 whitespace-nowrap text-center"
           >
             ← Back to Dashboard
           </Link>
           <button
             onClick={() => {
               setIsEditing(!isEditing);
-              setError("");
-              setSuccess("");
             }}
-            className={`flex items-center gap-1.5 px-4.5 py-2 text-sm font-semibold rounded-full border transition-all duration-300 ${
+            className={`flex items-center justify-center gap-1.5 px-4.5 py-2 text-sm font-semibold rounded-full border transition-all duration-300 w-full sm:w-auto ${
               isEditing
                 ? "btn-secondary"
                 : "btn-primary hover:scale-[1.02] active:scale-[0.98]"
@@ -204,12 +260,7 @@ export default function CompanyProfile() {
            EDIT MODE
            ───────────────────────────────────────────────────────────────── */
         <form onSubmit={handleSubmit} className="glass-card p-6 space-y-6" noValidate>
-          <FormErrorBanner message={error} onDismiss={() => setError("")} />
-          {success && (
-            <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-sm text-emerald-600 dark:text-emerald-400">
-              {success}
-            </div>
-          )}
+
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -322,11 +373,11 @@ export default function CompanyProfile() {
             />
           </div>
 
-          <div className="flex items-center gap-3 pt-4 border-t border-white/40 dark:border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row justify-center gap-3 pt-4 border-t border-white/40 dark:border-white/[0.06] w-full">
             <button
               type="submit"
               disabled={submitting}
-              className="btn-primary px-6 py-2.5 text-sm font-semibold disabled:opacity-60 hover:scale-[1.02] active:scale-[0.98]"
+              className="btn-primary w-full sm:w-auto justify-center px-6 py-2.5 text-sm font-semibold disabled:opacity-60 hover:scale-[1.02] active:scale-[0.98] text-center"
             >
               {submitting ? "Saving..." : "Save Profile"}
             </button>
@@ -334,10 +385,8 @@ export default function CompanyProfile() {
               type="button"
               onClick={() => {
                 setIsEditing(false);
-                setError("");
-                setSuccess("");
               }}
-              className="btn-secondary px-5 py-2.5 text-sm font-semibold"
+              className="btn-secondary w-full sm:w-auto justify-center px-5 py-2.5 text-sm font-semibold text-center"
             >
               Cancel
             </button>
@@ -405,7 +454,32 @@ export default function CompanyProfile() {
                     Founded: <strong>{profile?.foundedYear || "N/A"}</strong>
                   </span>
                 </div>
+
+                <div className="flex items-center gap-3 text-sm text-slate-650 dark:text-slate-300">
+                  <IoMailOutline className="w-5 h-5 text-slate-400 shrink-0" />
+                  <span>
+                    Email: <strong>{user?.email || "N/A"}</strong>
+                  </span>
+                </div>
               </div>
+            </div>
+
+            {/* Danger Zone Card */}
+            <div className="glass-panel p-6 border-red-500/20 dark:border-red-500/10 bg-red-500/[0.02]">
+              <h3 className="text-xs font-semibold text-red-500 dark:text-red-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                <IoTrashOutline className="text-red-500 w-4.5 h-4.5" />
+                Danger Zone
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+                Permanently delete your company profile, job postings, applications, and all associated data from InternNova. This action is irreversible.
+              </p>
+              <button
+                type="button"
+                onClick={handleOpenDeleteModal}
+                className="w-full justify-center px-4 py-2 text-xs font-semibold text-red-400 hover:text-white bg-red-500/10 hover:bg-red-500 border border-red-500/20 rounded-full transition-all duration-300 text-center"
+              >
+                Delete Profile
+              </button>
             </div>
 
           </div>
@@ -425,7 +499,7 @@ export default function CompanyProfile() {
                 </p>
               ) : (
                 <div className="py-8 text-center bg-black/5 dark:bg-white/5 rounded-2xl border border-dashed border-black/10 dark:border-white/10">
-                  <p className="text-xs text-slate-450 italic">No description added yet.</p>
+                  <p className="text-xs text-slate-500 italic">No description added yet.</p>
                   <button
                     onClick={() => setIsEditing(true)}
                     className="btn-primary mt-3 text-xs !px-4 !py-2 hover:scale-[1.02] active:scale-[0.98]"
@@ -438,6 +512,133 @@ export default function CompanyProfile() {
 
           </div>
 
+        </div>
+      )}
+
+      {/* ── DELETE PROFILE MODAL ── */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
+          <div className="glass-panel w-full max-w-md p-6 border-red-500/25 relative overflow-hidden shadow-2xl">
+            <h3 className="text-lg font-bold text-slate-55 flex items-center gap-2 mb-3">
+              <IoWarningOutline className="text-red-500 w-5.5 h-5.5 shrink-0" />
+              Delete Profile
+            </h3>
+            
+            {deleteStep === 1 ? (
+              <>
+                <p className="text-sm text-slate-300 leading-relaxed mb-4">
+                  Are you absolutely sure you want to delete your InternNova profile?
+                </p>
+                <div className="p-3.5 mb-5 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-300 leading-relaxed">
+                  <strong>Warning:</strong> This action is permanent and irreversible. All your data, including job postings, applications, preferences, and login credentials, will be permanently erased from our system.
+                </div>
+                
+                {deleteError && (
+                  <p className="text-xs text-red-400 mb-4 bg-red-500/10 border border-red-500/20 p-2.5 rounded-lg">
+                    {deleteError}
+                  </p>
+                )}
+
+                <div className="flex gap-3 justify-end pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowDeleteModal(false)}
+                    disabled={deleteLoading}
+                    className="btn-secondary text-sm px-4 py-2 rounded-full"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSendDeleteOtp}
+                    disabled={deleteLoading}
+                    className="btn-primary bg-red-600 hover:bg-red-500 text-white font-semibold text-sm px-5 py-2 rounded-full disabled:opacity-60 flex items-center gap-2"
+                  >
+                    {deleteLoading ? (
+                      <>
+                        <span className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                        Sending Code...
+                      </>
+                    ) : (
+                      "Send Verification Code"
+                    )}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="text-sm text-slate-300 leading-relaxed mb-4">
+                  We sent a 6-digit verification code to <strong className="text-slate-100">{user?.email}</strong>. Please enter the code below to authorize profile deletion.
+                </p>
+                
+                {deleteError && (
+                  <p className="text-xs text-red-400 mb-4 bg-red-500/10 border border-red-500/20 p-2.5 rounded-lg">
+                    {deleteError}
+                  </p>
+                )}
+
+                {/* 6 digit code inputs */}
+                <div className="flex justify-center gap-2 mb-6" dir="ltr">
+                  {deleteOtp.map((digit, i) => (
+                    <input
+                      key={i}
+                      id={`delete-otp-${i}`}
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={1}
+                      value={digit}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/[^0-9]/g, "");
+                        const updated = [...deleteOtp];
+                        updated[i] = val;
+                        setDeleteOtp(updated);
+                        
+                        // Auto focus next
+                        if (val && i < 5) {
+                          const nextInput = document.getElementById(`delete-otp-${i + 1}`);
+                          nextInput?.focus();
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Backspace" && !deleteOtp[i] && i > 0) {
+                          const prevInput = document.getElementById(`delete-otp-${i - 1}`);
+                          prevInput?.focus();
+                        }
+                      }}
+                      className="w-12 h-12 rounded-xl text-center text-lg font-bold bg-white/[0.04] border border-white/10 text-slate-100 focus:outline-none focus:border-[#9fe870] transition-colors"
+                    />
+                  ))}
+                </div>
+
+                <div className="flex gap-3 justify-end pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setDeleteStep(1)}
+                    disabled={deleteLoading}
+                    className="btn-secondary text-sm px-4 py-2 rounded-full"
+                  >
+                    Back
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleConfirmDelete}
+                    disabled={deleteLoading || deleteOtp.join("").length < 6}
+                    className="btn-primary bg-red-600 hover:bg-red-500 text-white font-semibold text-sm px-5 py-2 rounded-full disabled:opacity-60 flex items-center gap-2"
+                  >
+                    {deleteLoading ? (
+                      <>
+                        <span className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                        Deleting...
+                      </>
+                    ) : (
+                      "Verify & Delete Account"
+                    )}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       )}
     </div>
