@@ -200,6 +200,12 @@ export default function AuthenticatedNavbar() {
     () => cached?.displayName || user?.displayName || user?.name || user?.companyName || ""
   );
   const [avatarUrl, setAvatarUrl] = useState(() => cached?.avatarUrl || null);
+  const [mobileImgError, setMobileImgError] = useState(false);
+  const initial = user?.email?.[0]?.toUpperCase() ?? "?";
+
+  useEffect(() => {
+    setMobileImgError(false);
+  }, [avatarUrl]);
 
   const useLight = resolvedTheme !== "dark";
   const isCompany = user?.role?.toLowerCase() === "company";
@@ -341,30 +347,48 @@ export default function AuthenticatedNavbar() {
           <span className="hidden lg:inline-flex">
             <ThemeToggle />
           </span>
-          <UserDropdown
-            onLogout={handleLogout}
-            user={user}
-            light={useLight}
-            displayName={
-              displayName ||
-              user?.displayName ||
-              user?.name ||
-              user?.companyName ||
-              "User"
-            }
-            avatarUrl={avatarUrl}
-          />
+          <div className="hidden lg:block">
+            <UserDropdown
+              onLogout={handleLogout}
+              user={user}
+              light={useLight}
+              displayName={
+                displayName ||
+                user?.displayName ||
+                user?.name ||
+                user?.companyName ||
+                "User"
+              }
+              avatarUrl={avatarUrl}
+            />
+          </div>
           <button
-            className={`lg:hidden p-2 rounded-lg transition-colors ${useLight ? "hover:bg-white/60 text-slate-700" : "hover:bg-white/[0.06] text-slate-300"}`}
+            className={`lg:hidden flex items-center gap-1.5 rounded-full py-1 pl-1 pr-2.5 transition-all duration-300 border border-transparent ${
+              useLight 
+                ? "hover:bg-[#7cc84a]/5 hover:border-[#7cc84a]/25 text-slate-700" 
+                : "hover:bg-[#9fe870]/5 hover:border-[#9fe870]/25 text-slate-300"
+            }`}
             onClick={() => setMobileOpen((value) => !value)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
           >
-            {mobileOpen ? (
-              <IoClose className="w-5 h-5" />
+            {avatarUrl && !mobileImgError ? (
+              <img
+                src={avatarUrl}
+                alt={displayName || "User avatar"}
+                onError={() => setMobileImgError(true)}
+                className="h-8 w-8 rounded-full object-cover flex-shrink-0"
+              />
             ) : (
-              <IoMenu className="w-5 h-5" />
+              <span className="h-8 w-8 rounded-full bg-gradient-to-br from-[#c7f284] to-[#8bcf7a] flex items-center justify-center text-xs font-semibold text-slate-900 flex-shrink-0">
+                {initial}
+              </span>
             )}
+            <IoChevronDown
+              className={`w-3.5 h-3.5 transition-transform duration-200 flex-shrink-0 ${
+                mobileOpen ? "rotate-180" : ""
+              }`}
+            />
           </button>
         </div>
       </nav>
@@ -379,6 +403,50 @@ export default function AuthenticatedNavbar() {
           aria-label="Mobile navigation"
         >
           <div className="flex flex-col gap-1">
+            {/* User Profile Summary (Mobile View) */}
+            <div className={`flex items-center gap-3 px-3 py-2.5 mb-2 rounded-xl ${useLight ? "bg-slate-100/60 border border-slate-200/50" : "bg-white/[0.03] border border-white/[0.04]"}`}>
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={displayName || "User avatar"}
+                  className="h-10 w-10 rounded-full object-cover border border-white/10"
+                />
+              ) : (
+                <span className="h-10 w-10 rounded-full bg-gradient-to-br from-[#c7f284] to-[#8bcf7a] flex items-center justify-center text-sm font-semibold text-slate-900">
+                  {user?.email?.[0]?.toUpperCase() ?? "?"}
+                </span>
+              )}
+              <div className="min-w-0 flex-1">
+                <p className={`text-sm font-semibold truncate ${useLight ? "text-slate-800" : "text-slate-200"}`}>
+                  {displayName || "User"}
+                </p>
+                <p className={`text-xs ${useLight ? "text-slate-500" : "text-slate-400"} truncate`}>
+                  {user?.email}
+                </p>
+              </div>
+            </div>
+
+            {/* Profile Navigation Link (Mobile View) */}
+            <NavLink
+              to={isCompany ? "/company/profile" : "/profile"}
+              onClick={() => setMobileOpen(false)}
+              className={({ isActive }) =>
+                `px-4 py-2.5 text-sm font-medium transition-all duration-300 rounded-xl border mb-2 ${useLight
+                  ? isActive
+                    ? "text-slate-900 bg-[#7cc84a]/12 border-[#7cc84a]/20 shadow-sm"
+                    : "text-slate-600 border-transparent hover:text-slate-900 hover:bg-[#7cc84a]/5 hover:border-[#7cc84a]/25"
+                  : isActive
+                    ? "text-white bg-[#9fe870]/12 border-[#9fe870]/20 shadow-[0_0_12px_rgba(159,232,112,0.1)]"
+                    : "text-slate-300 border-transparent hover:text-white hover:bg-[#9fe870]/5 hover:border-[#9fe870]/25"
+                }`
+              }
+            >
+              <span className="flex items-center gap-2">
+                <IoPersonOutline className="w-4 h-4" />
+                {isCompany ? "Company Profile" : "My Profile"}
+              </span>
+            </NavLink>
+
             {navLinks.map(({ label, to }) => (
               <NavLink
                 key={to}

@@ -19,7 +19,7 @@ const midpoint = Math.ceil(companies.length / 2);
 const companiesRowOne = companies.slice(0, midpoint);
 const companiesRowTwo = companies.slice(midpoint);
 const logoCircleClassName =
-  "logo-circle group relative flex items-center justify-center w-32 h-32 rounded-full";
+  "logo-circle group relative flex items-center justify-center w-20 h-20 md:w-32 md:h-32 rounded-full";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -33,12 +33,12 @@ const Landing = () => {
       <Seo title="InternNova | Home" description="AI-powered internship matching platform. Find your dream internship or discover top early talent, faster." path="/" />
       <Navbar hideGuestCenterNav />
       <main className="grid grid-cols-1 lg:grid-cols-[1.2fr_1.1fr] gap-12 items-center pt-24">
+        {/* Desktop & Tablet Mockup Section (CardSwap) */}
         <section
-          className="flex justify-center order-first lg:order-last w-full animate-fade-in"
+          className="hidden md:flex justify-center lg:order-last w-full animate-fade-in"
           aria-hidden="true"
         >
-          {/* Desktop & Tablet Mockup Section (CardSwap) */}
-          <div className="hidden md:block relative w-full aspect-[4/3] lg:aspect-[20/15] bg-transparent overflow-visible">
+          <div className="relative w-full aspect-[4/3] lg:aspect-[20/15] bg-transparent overflow-visible">
             <div className="absolute inset-0 w-[100%] h-full flex items-center justify-center pt-16 pr-16">
               <CardSwap delay={3500} width="100%" height="auto">
                 {heroImages.map((src, idx) => (
@@ -53,11 +53,6 @@ const Landing = () => {
               </CardSwap>
             </div>
           </div>
-
-          {/* Mobile Mockup Section (Carousel) */}
-          <div className="block md:hidden w-full max-w-md px-2">
-            <MobileCarousel isDark={isDark} />
-          </div>
         </section>
         <section>
           <p className="uppercase tracking-[0.16em] text-[0.75rem] text-slate-500">
@@ -71,6 +66,11 @@ const Landing = () => {
             with a job post, generate an ATS-friendly version, and keep the
             final output grounded in the real profile.
           </p>
+
+          {/* Mobile Mockup Section (Carousel) */}
+          <div className="block md:hidden w-full max-w-md px-2 my-6">
+            <MobileCarousel isDark={isDark} />
+          </div>
 
           <div className="flex flex-wrap gap-3 my-7">
             <button
@@ -126,7 +126,7 @@ const Landing = () => {
                   className={logoCircleClassName}
                   title={company.name}
                 >
-                  <div className="logo-circle__media w-20 h-20 flex items-center justify-center p-2">
+                  <div className="logo-circle__media w-12 h-12 md:w-20 md:h-20 flex items-center justify-center p-2">
                     <img
                       src={company.logo}
                       alt={`${company.name} logo`}
@@ -166,7 +166,7 @@ const Landing = () => {
                   className={logoCircleClassName}
                   title={company.name}
                 >
-                  <div className="logo-circle__media w-20 h-20 flex items-center justify-center p-2">
+                  <div className="logo-circle__media w-12 h-12 md:w-20 md:h-20 flex items-center justify-center p-2">
                     <img
                       src={company.logo}
                       alt={`${company.name} logo`}
@@ -209,7 +209,7 @@ const Landing = () => {
                     className={logoCircleClassName}
                     title={company.name}
                   >
-                    <div className="logo-circle__media w-20 h-20 flex items-center justify-center p-2">
+                    <div className="logo-circle__media w-12 h-12 md:w-20 md:h-20 flex items-center justify-center p-2">
                       <img
                         src={company.logo}
                         alt={`${company.name} logo`}
@@ -249,7 +249,7 @@ const Landing = () => {
                     className={logoCircleClassName}
                     title={company.name}
                   >
-                    <div className="logo-circle__media w-20 h-20 flex items-center justify-center p-2">
+                    <div className="logo-circle__media w-12 h-12 md:w-20 md:h-20 flex items-center justify-center p-2">
                       <img
                         src={company.logo}
                         alt={`${company.name} logo`}

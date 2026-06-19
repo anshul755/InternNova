@@ -290,7 +290,7 @@ export default function ResumeGenerator() {
         </div>
 
         {/* Right Column: PDF Preview / PDF Download & Actions */}
-        <div className="glass-panel p-6 sm:p-7 flex flex-col h-full min-h-[500px]">
+        <div className="glass-panel p-6 sm:p-7 flex flex-col min-h-[760px]">
           <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-4 flex items-center justify-between">
             <span>Resume Preview</span>
             {pdfUrl && (
@@ -309,7 +309,7 @@ export default function ResumeGenerator() {
                 <iframe
                   title="Resume preview"
                   src={pdfUrl}
-                  className="w-full h-[460px] lg:h-[500px] border-none"
+                  className="w-full h-[600px] lg:h-[650px] border-none"
                 />
               </div>
 

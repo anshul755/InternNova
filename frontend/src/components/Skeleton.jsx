@@ -1012,69 +1012,132 @@ export const SavedJobsSkeleton = memo(function SavedJobsSkeleton() {
 });
 
 /* ─── ProfileEditSkeleton (Talent & Company) ───────────────────────────── */
-export const ProfileEditSkeleton = memo(function ProfileEditSkeleton() {
+export const ProfileEditSkeleton = memo(function ProfileEditSkeleton({ isCompany = false }) {
+  const containerClass = isCompany
+    ? "max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
+    : "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8";
+
   return (
-    <Box
-      role="status"
-      aria-busy="true"
-      aria-label="Loading profile editor"
-      sx={{ ...safeContainerSx, maxWidth: 896, mx: "auto", display: "grid", gap: 3, px: { xs: 2, sm: 3, lg: 4 }, py: 4 }}
-    >
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <PremiumSkeleton width={200} height={26} />
-        <PremiumSkeleton width={160} height={16} />
-      </Box>
+    <div role="status" aria-busy="true" aria-label="Loading profile" className={containerClass}>
+      {/* Header Block (Matches the title and buttons of My Profile page) */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+        <div className="w-full md:w-auto">
+          <PremiumSkeleton width={160} height={28} />
+          <PremiumSkeleton width={300} height={16} sx={{ mt: 1 }} />
+        </div>
+        <div className="flex flex-row gap-3 w-full md:w-auto">
+          <PremiumSkeleton width={150} height={38} sx={{ borderRadius: 99 }} />
+          <PremiumSkeleton width={120} height={38} sx={{ borderRadius: 99 }} />
+        </div>
+      </div>
 
-      <Card className="glass-card" elevation={0} sx={{ ...cardSafeSx, p: 3 }}>
-        <Stack spacing={3}>
-          <Box
-            sx={{
-              display: "grid",
-              gap: 2,
-              gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
-            }}
-          >
-            {Array.from({ length: 12 }).map((_, i) => (
-              <Box key={i}>
-                <PremiumSkeleton width="35%" height={12} sx={{ mb: 0.75 }} />
-                <PremiumSkeleton width="100%" height={38} sx={{ borderRadius: 2 }} />
-              </Box>
-            ))}
-          </Box>
+      {/* Main Profile Grid (Matches view mode layout) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Column: Core Info & Preferences */}
+        <div className="space-y-6 lg:col-span-1">
+          {/* Core Info Card */}
+          <div className="glass-panel p-6 text-center flex flex-col items-center">
+            <PremiumSkeleton
+              width={112}
+              height={112}
+              sx={{ borderRadius: "50%" }}
+            />
+            <PremiumSkeleton width="60%" height={20} sx={{ mt: 2 }} />
+            <PremiumSkeleton width="75%" height={16} sx={{ mt: 1.25 }} />
+            <PremiumSkeleton width="50%" height={14} sx={{ mt: 0.75 }} />
+            
+            <PremiumSkeleton width={100} height={24} sx={{ mt: 2.5, borderRadius: 99 }} />
+            
+            <div className="w-full border-t border-black/5 dark:border-white/5 mt-5 pt-5 flex flex-col gap-3 text-left">
+              <PremiumSkeleton width="80%" height={14} />
+              <PremiumSkeleton width="60%" height={14} />
+              
+              {/* Social Circles */}
+              <div className="flex gap-2 pt-2 justify-center">
+                <PremiumSkeleton width={36} height={36} sx={{ borderRadius: "50%" }} />
+                <PremiumSkeleton width={36} height={36} sx={{ borderRadius: "50%" }} />
+                <PremiumSkeleton width={36} height={36} sx={{ borderRadius: "50%" }} />
+              </div>
+            </div>
+          </div>
 
-          <Box>
-            <PremiumSkeleton width="10%" height={12} sx={{ mb: 0.75 }} />
-            <PremiumSkeleton width="100%" height={90} sx={{ borderRadius: 2 }} />
-          </Box>
+          {/* Preferences/Skills Card */}
+          <div className="glass-panel p-6 space-y-5">
+            <div>
+              <PremiumSkeleton width="30%" height={12} sx={{ mb: 2.5 }} />
+              <div className="flex flex-wrap gap-1.5">
+                <PremiumSkeleton width={60} height={22} sx={{ borderRadius: 99 }} />
+                <PremiumSkeleton width={75} height={22} sx={{ borderRadius: 99 }} />
+                <PremiumSkeleton width={65} height={22} sx={{ borderRadius: 99 }} />
+              </div>
+            </div>
 
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Card key={i} elevation={0} sx={{ ...cardSafeSx, p: 2.5 }}>
-              <Stack direction="row" spacing={1.5} sx={{ alignItems: "center", mb: 2 }}>
-                <PremiumSkeleton width={24} height={24} sx={{ borderRadius: 1.5 }} />
-                <PremiumSkeleton width={120} height={20} />
-              </Stack>
-              <PremiumSkeleton width="100%" height={48} sx={{ borderRadius: 2 }} />
-            </Card>
-          ))}
+            <div>
+              <PremiumSkeleton width="45%" height={12} sx={{ mb: 2.5 }} />
+              <div className="flex flex-wrap gap-1.5">
+                <PremiumSkeleton width={80} height={22} sx={{ borderRadius: 99 }} />
+                <PremiumSkeleton width={68} height={22} sx={{ borderRadius: 99 }} />
+              </div>
+            </div>
 
-          <Box sx={{ display: "grid", gap: 2, gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" } }}>
-            <Box>
-              <PremiumSkeleton width="20%" height={12} sx={{ mb: 0.75 }} />
-              <PremiumSkeleton width="100%" height={38} sx={{ borderRadius: 2 }} />
-            </Box>
-            <Box>
-              <PremiumSkeleton width="20%" height={12} sx={{ mb: 0.75 }} />
-              <PremiumSkeleton width="100%" height={38} sx={{ borderRadius: 2 }} />
-            </Box>
-          </Box>
+            <div>
+              <PremiumSkeleton width="45%" height={12} sx={{ mb: 2.5 }} />
+              <div className="flex flex-wrap gap-1.5">
+                <PremiumSkeleton width={72} height={22} sx={{ borderRadius: 99 }} />
+                <PremiumSkeleton width={84} height={22} sx={{ borderRadius: 99 }} />
+              </div>
+            </div>
+          </div>
+        </div>
 
-          <Stack direction="row" spacing={1.5} sx={{ pt: 1 }}>
-            <PremiumSkeleton width={120} height={40} sx={{ borderRadius: 99 }} />
-            <PremiumSkeleton width={80} height={40} sx={{ borderRadius: 99 }} />
-          </Stack>
-        </Stack>
-      </Card>
-    </Box>
+        {/* Right Column: Detailed Sections */}
+        <div className="space-y-6 lg:col-span-2">
+          {/* Biography Card */}
+          <div className="glass-panel p-6">
+            <PremiumSkeleton width="18%" height={18} sx={{ mb: 3 }} />
+            <PremiumSkeleton width="100%" height={14} />
+            <PremiumSkeleton width="35%" height={14} sx={{ mt: 1 }} />
+          </div>
+
+          {/* Experience Card */}
+          <div className="glass-panel p-6">
+            <PremiumSkeleton width="22%" height={18} sx={{ mb: 4 }} />
+            
+            <div className="space-y-6">
+              {[1, 2].map((idx) => (
+                <div key={idx} className="relative pl-6 before:absolute before:left-0 before:top-2 before:bottom-0 before:w-0.5 before:bg-slate-200 dark:before:bg-white/10">
+                  <div className="absolute left-[-3px] top-[7px] w-2 h-2 rounded-full bg-emerald-500 ring-4 ring-emerald-500/20" />
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                    <PremiumSkeleton width={240} height={16} />
+                    <PremiumSkeleton width={120} height={14} />
+                  </div>
+                  <div className="pl-3.5 display-flex flex-col gap-1 mt-2">
+                    <PremiumSkeleton width="85%" height={14} />
+                    <PremiumSkeleton width="60%" height={14} sx={{ mt: 1 }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Projects Card */}
+          <div className="glass-panel p-6">
+            <PremiumSkeleton width="18%" height={18} sx={{ mb: 4 }} />
+            <div className="grid gap-4 md:grid-cols-2">
+              {[1, 2].map((idx) => (
+                <div key={idx} className="p-4 bg-white/40 dark:bg-white/[0.02] border border-white/60 dark:border-white/[0.06] rounded-xl flex flex-col justify-between h-full">
+                  <div>
+                    <PremiumSkeleton width="60%" height={16} />
+                    <PremiumSkeleton width="94%" height={14} sx={{ mt: 2 }} />
+                    <PremiumSkeleton width="50%" height={14} sx={{ mt: 1 }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 });
 

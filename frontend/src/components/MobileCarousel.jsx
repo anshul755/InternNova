@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import { IoChevronBackOutline, IoChevronForwardOutline } from "react-icons/io5";
 
 const slides = [
   {
@@ -102,22 +101,9 @@ const MobileCarousel = ({ isDark = false }) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Premium Browser Mockup Container */}
+      {/* Premium Mockup Container */}
       <div className="w-full max-w-md mx-auto rounded-xl border border-slate-200/60 dark:border-slate-800/60 bg-white/40 dark:bg-slate-950/40 backdrop-blur-md shadow-2xl overflow-hidden transition-all duration-300">
         
-        {/* Browser Header Top Bar */}
-        <div className="flex items-center justify-between px-3 py-2.5 border-b border-slate-200/50 dark:border-slate-800/50 bg-white/20 dark:bg-slate-900/20 select-none">
-          <div className="flex items-center gap-1">
-            <div className="w-2 h-2 rounded-full bg-red-400/80 dark:bg-red-500/60" />
-            <div className="w-2 h-2 rounded-full bg-amber-400/80 dark:bg-amber-500/60" />
-            <div className="w-2 h-2 rounded-full bg-emerald-400/80 dark:bg-emerald-500/60" />
-          </div>
-          <div className="flex-1 max-w-[65%] mx-auto h-5 rounded-md bg-slate-100/60 dark:bg-slate-800/60 flex items-center justify-center px-2 border border-slate-200/30 dark:border-slate-700/30 text-[8.5px] text-slate-500/80 dark:text-slate-400/80 font-mono tracking-wide">
-            {images[activeIndex].route}
-          </div>
-          <div className="w-8" />
-        </div>
-
         {/* Mockup Screen Viewport */}
         <div 
           className="relative overflow-hidden aspect-[16/10.5] bg-slate-950"
@@ -127,8 +113,11 @@ const MobileCarousel = ({ isDark = false }) => {
         >
           {/* Slides Wrapper */}
           <div 
-            className="flex transition-transform duration-500 ease-out h-full"
-            style={{ transform: `translateX(-${activeIndex * 100}%)` }}
+            className="flex h-full"
+            style={{ 
+              transform: `translateX(-${activeIndex * 100}%)`,
+              transition: 'transform 650ms cubic-bezier(0.16, 1, 0.3, 1)'
+            }}
           >
             {images.map((img, idx) => (
               <div key={idx} className="w-full h-full flex-shrink-0 relative">
@@ -141,22 +130,6 @@ const MobileCarousel = ({ isDark = false }) => {
               </div>
             ))}
           </div>
-
-          {/* Navigation Controls (Simple overlays, touch friendly) */}
-          <button
-            onClick={handlePrev}
-            className="absolute left-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-7 h-7 rounded-full bg-white/80 dark:bg-slate-900/85 text-slate-800 dark:text-white shadow-lg border border-slate-200/40 dark:border-slate-800/40 backdrop-blur-sm opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-auto hover:scale-105 active:scale-95 cursor-pointer"
-            aria-label="Previous image"
-          >
-            <IoChevronBackOutline className="w-3.5 h-3.5" />
-          </button>
-          <button
-            onClick={handleNext}
-            className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-7 h-7 rounded-full bg-white/80 dark:bg-slate-900/85 text-slate-800 dark:text-white shadow-lg border border-slate-200/40 dark:border-slate-800/40 backdrop-blur-sm opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-auto hover:scale-105 active:scale-95 cursor-pointer"
-            aria-label="Next image"
-          >
-            <IoChevronForwardOutline className="w-3.5 h-3.5" />
-          </button>
         </div>
       </div>
 

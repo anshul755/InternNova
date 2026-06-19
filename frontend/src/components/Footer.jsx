@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useTheme } from "../lib/ThemeContext.jsx";
-import { IoLogoGithub, IoLogoLinkedin, IoLogoTwitter } from "react-icons/io5";
+import { IoLogoGithub, IoMail } from "react-icons/io5";
 
 export default function Footer() {
   const { user } = useAuth();
@@ -67,31 +67,20 @@ export default function Footer() {
             </p>
             <div className="flex items-center gap-4 mt-2">
               <a
-                href="https://github.com"
+                href="https://github.com/anshul755/InternNova"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-slate-500 hover:text-emerald-500 dark:hover:text-emerald-400 transition-all duration-200 hover:scale-110"
-                aria-label="GitHub"
+                aria-label="GitHub Repository"
               >
                 <IoLogoGithub size={20} />
               </a>
               <a
-                href="https://linkedin.com"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="mailto:internnova7@gmail.com"
                 className="text-slate-500 hover:text-emerald-500 dark:hover:text-emerald-400 transition-all duration-200 hover:scale-110"
-                aria-label="LinkedIn"
+                aria-label="Email Support"
               >
-                <IoLogoLinkedin size={20} />
-              </a>
-              <a
-                href="https://twitter.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-slate-500 hover:text-emerald-500 dark:hover:text-emerald-400 transition-all duration-200 hover:scale-110"
-                aria-label="Twitter"
-              >
-                <IoLogoTwitter size={20} />
+                <IoMail size={20} />
               </a>
             </div>
           </div>

@@ -206,7 +206,7 @@ export default function CompanyProfile() {
     return (
       <>
         <Seo title="InternNova | Profile" description="Update your company profile, branding, and team information." path="/company/profile" />
-        <ProfileEditSkeleton />
+        <ProfileEditSkeleton isCompany />
       </>
     );
   }
