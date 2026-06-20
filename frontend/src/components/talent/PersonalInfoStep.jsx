@@ -2,7 +2,6 @@ import React from "react";
 import { useFormContext } from "react-hook-form";
 import FieldError from "../FieldError.jsx";
 import SearchableSelect from "../SearchableSelect.jsx";
-import { Country, State, City } from "country-state-city";
 
 const PersonalInfoStep = () => {
   const {
@@ -16,36 +15,55 @@ const PersonalInfoStep = () => {
   const selectedState = watch("location_state");
   const selectedCity = watch("location_city");
 
+  const [db, setDb] = React.useState(null);
+
+  React.useEffect(() => {
+    let active = true;
+    import("country-state-city").then((csc) => {
+      if (active) {
+        setDb({
+          Country: csc.Country,
+          State: csc.State,
+          City: csc.City,
+        });
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const countryOptions = React.useMemo(() => {
-    return Country.getAllCountries().map((c) => ({
+    if (!db) return [];
+    return db.Country.getAllCountries().map((c) => ({
       value: c.isoCode,
       label: `${c.flag} ${c.name}`,
     }));
-  }, []);
+  }, [db]);
 
   const stateOptions = React.useMemo(() => {
-    if (!selectedCountry) return [];
-    return State.getStatesOfCountry(selectedCountry).map((s) => ({
+    if (!db || !selectedCountry) return [];
+    return db.State.getStatesOfCountry(selectedCountry).map((s) => ({
       value: s.isoCode,
       label: s.name,
     }));
-  }, [selectedCountry]);
+  }, [db, selectedCountry]);
 
   const cityOptions = React.useMemo(() => {
-    if (!selectedCountry) return [];
+    if (!db || !selectedCountry) return [];
     if (stateOptions.length > 0) {
       if (!selectedState) return [];
-      return City.getCitiesOfState(selectedCountry, selectedState).map((c) => ({
+      return db.City.getCitiesOfState(selectedCountry, selectedState).map((c) => ({
         value: c.name,
         label: c.name,
       }));
     } else {
-      return City.getCitiesOfCountry(selectedCountry).map((c) => ({
+      return db.City.getCitiesOfCountry(selectedCountry).map((c) => ({
         value: c.name,
         label: c.name,
       }));
     }
-  }, [selectedCountry, selectedState, stateOptions]);
+  }, [db, selectedCountry, selectedState, stateOptions]);
 
   const handleCountryChange = (val) => {
     setValue("location_country", val, { shouldValidate: true, shouldDirty: true });
@@ -56,7 +74,8 @@ const PersonalInfoStep = () => {
       setValue("location", "", { shouldValidate: true, shouldDirty: true });
       return;
     }
-    const countryObj = Country.getCountryByCode(val);
+    if (!db) return;
+    const countryObj = db.Country.getCountryByCode(val);
     const countryName = countryObj ? countryObj.name : "";
     setValue("location", countryName, { shouldValidate: true, shouldDirty: true });
   };
@@ -65,7 +84,8 @@ const PersonalInfoStep = () => {
     setValue("location_state", val, { shouldValidate: true, shouldDirty: true });
     setValue("location_city", "", { shouldValidate: true, shouldDirty: true });
 
-    const countryObj = Country.getCountryByCode(selectedCountry);
+    if (!db) return;
+    const countryObj = db.Country.getCountryByCode(selectedCountry);
     const countryName = countryObj ? countryObj.name : "";
 
     if (!val) {
@@ -73,7 +93,7 @@ const PersonalInfoStep = () => {
       return;
     }
 
-    const stateObj = State.getStateByCodeAndCountry(val, selectedCountry);
+    const stateObj = db.State.getStateByCodeAndCountry(val, selectedCountry);
     const stateName = stateObj ? stateObj.name : "";
 
     const parts = [stateName, countryName].filter(Boolean);
@@ -83,12 +103,13 @@ const PersonalInfoStep = () => {
   const handleCityChange = (val) => {
     setValue("location_city", val, { shouldValidate: true, shouldDirty: true });
 
-    const countryObj = Country.getCountryByCode(selectedCountry);
+    if (!db) return;
+    const countryObj = db.Country.getCountryByCode(selectedCountry);
     const countryName = countryObj ? countryObj.name : "";
 
     let stateName = "";
     if (selectedState) {
-      const stateObj = State.getStateByCodeAndCountry(selectedState, selectedCountry);
+      const stateObj = db.State.getStateByCodeAndCountry(selectedState, selectedCountry);
       stateName = stateObj ? stateObj.name : "";
     }
 
@@ -156,8 +177,9 @@ const PersonalInfoStep = () => {
               value={selectedCountry}
               onChange={handleCountryChange}
               options={countryOptions}
-              placeholder="Select Country"
+              placeholder={db ? "Select Country" : "Loading database..."}
               searchPlaceholder="Search Country..."
+              disabled={!db}
               className="w-full text-sm sm:text-base"
             />
           </div>
@@ -171,14 +193,16 @@ const PersonalInfoStep = () => {
               onChange={handleStateChange}
               options={stateOptions}
               placeholder={
-                selectedCountry
-                  ? stateOptions.length > 0
-                    ? "Select State"
-                    : "N/A (No states)"
-                  : "Select country first"
+                !db
+                  ? "Loading..."
+                  : selectedCountry
+                    ? stateOptions.length > 0
+                      ? "Select State"
+                      : "N/A (No states)"
+                    : "Select country first"
               }
               searchPlaceholder="Search State / Region..."
-              disabled={!selectedCountry || stateOptions.length === 0}
+              disabled={!db || !selectedCountry || stateOptions.length === 0}
               className="w-full text-sm sm:text-base"
             />
           </div>
@@ -192,16 +216,19 @@ const PersonalInfoStep = () => {
               onChange={handleCityChange}
               options={cityOptions}
               placeholder={
-                !selectedCountry
-                  ? "Select country first"
-                  : stateOptions.length > 0 && !selectedState
-                  ? "Select state first"
-                  : cityOptions.length > 0
-                  ? "Select City"
-                  : "N/A (No cities)"
+                !db
+                  ? "Loading..."
+                  : !selectedCountry
+                    ? "Select country first"
+                    : stateOptions.length > 0 && !selectedState
+                      ? "Select state first"
+                      : cityOptions.length > 0
+                        ? "Select City"
+                        : "N/A (No cities)"
               }
               searchPlaceholder="Search City..."
               disabled={
+                !db ||
                 !selectedCountry ||
                 (stateOptions.length > 0 && !selectedState) ||
                 cityOptions.length === 0

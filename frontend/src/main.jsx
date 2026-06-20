@@ -8,6 +8,7 @@ import { AlertProvider } from "./lib/AlertContext.jsx";
 import { CurrencyProvider } from "./lib/CurrencyContext.jsx";
 import { ThemeProvider } from "./lib/ThemeContext.jsx";
 import { SpeedInsights } from "@vercel/speed-insights/react";
+import { Analytics } from "@vercel/analytics/react";
 
 // Prevent number inputs from changing value on scroll
 document.addEventListener("wheel", (e) => {
@@ -40,6 +41,7 @@ createRoot(document.getElementById("root")).render(
             <AlertProvider>
               <App />
               <SpeedInsights />
+              <Analytics />
             </AlertProvider>
           </AuthProvider>
         </BrowserRouter>
