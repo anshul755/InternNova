@@ -996,29 +996,29 @@ export default function TalentProfile() {
 
       {/* ── DELETE PROFILE MODAL ── */}
       {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
-          <div className="glass-panel w-full max-w-md p-6 border-red-500/25 relative overflow-hidden shadow-2xl">
-            <h3 className="text-lg font-bold text-slate-50 flex items-center gap-2 mb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop animate-fade-in">
+          <div className="glass-panel w-full max-w-md p-6 sm:p-8 border-red-500/25 relative overflow-hidden shadow-2xl">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-50 flex items-center gap-2 mb-4">
               <IoWarningOutline className="text-red-500 w-5.5 h-5.5 shrink-0" />
               Delete Profile
             </h3>
             
             {deleteStep === 1 ? (
               <>
-                <p className="text-sm text-slate-300 leading-relaxed mb-4">
+                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
                   Are you absolutely sure you want to delete your InternNova profile?
                 </p>
-                <div className="p-3.5 mb-5 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-300 leading-relaxed">
+                <div className="p-3.5 mb-6 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-750 dark:text-red-300 leading-relaxed">
                   <strong>Warning:</strong> This action is permanent and irreversible. All your data, including application history, resume, preferences, and login credentials, will be permanently erased from our system.
                 </div>
                 
                 {deleteError && (
-                  <p className="text-xs text-red-400 mb-4 bg-red-500/10 border border-red-500/20 p-2.5 rounded-lg">
+                  <p className="text-xs text-red-650 dark:text-red-400 mb-4 bg-red-500/10 border border-red-500/20 p-2.5 rounded-lg">
                     {deleteError}
                   </p>
                 )}
 
-                <div className="flex gap-3 justify-end pt-2">
+                <div className="flex gap-3 justify-end pt-3 border-t border-black/5 dark:border-white/5">
                   <button
                     type="button"
                     onClick={() => setShowDeleteModal(false)}
@@ -1046,12 +1046,12 @@ export default function TalentProfile() {
               </>
             ) : (
               <>
-                <p className="text-sm text-slate-300 leading-relaxed mb-4">
-                  We sent a 6-digit verification code to <strong className="text-slate-100">{user?.email}</strong>. Please enter the code below to authorize profile deletion.
+                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
+                  We sent a 6-digit verification code to <strong className="text-slate-900 dark:text-slate-100">{user?.email}</strong>. Please enter the code below to authorize profile deletion.
                 </p>
                 
                 {deleteError && (
-                  <p className="text-xs text-red-400 mb-4 bg-red-500/10 border border-red-500/20 p-2.5 rounded-lg">
+                  <p className="text-xs text-red-650 dark:text-red-400 mb-4 bg-red-500/10 border border-red-500/20 p-2.5 rounded-lg">
                     {deleteError}
                   </p>
                 )}
@@ -1085,12 +1085,12 @@ export default function TalentProfile() {
                           prevInput?.focus();
                         }
                       }}
-                      className="w-12 h-12 rounded-xl text-center text-lg font-bold bg-white/[0.04] border border-white/10 text-slate-100 focus:outline-none focus:border-[#9fe870] transition-colors"
+                      className="w-12 h-12 rounded-xl text-center text-lg font-bold bg-white/60 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-[#9fe870] transition-colors"
                     />
                   ))}
                 </div>
 
-                <div className="flex gap-3 justify-end pt-2">
+                <div className="flex gap-3 justify-end pt-3 border-t border-black/5 dark:border-white/5">
                   <button
                     type="button"
                     onClick={() => setDeleteStep(1)}

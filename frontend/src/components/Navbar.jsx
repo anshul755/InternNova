@@ -82,7 +82,7 @@ export default function Navbar({ hideGuestCenterNav = false }) {
           </span>
           <Link
             to="/login"
-            className={`hidden sm:inline-flex items-center justify-center px-5 py-2 text-sm font-semibold rounded-full transition-all duration-300 border ${
+            className={`!hidden lg:!inline-flex items-center justify-center px-5 py-2 text-sm font-semibold rounded-full transition-all duration-300 border ${
               isLoginActive
                 ? "btn-primary border-transparent !px-5 !py-2"
                 : `border-transparent bg-transparent ${
@@ -96,7 +96,7 @@ export default function Navbar({ hideGuestCenterNav = false }) {
           </Link>
           <Link
             to="/register"
-            className={`hidden sm:inline-flex items-center justify-center px-5 py-2 text-sm font-semibold rounded-full transition-all duration-300 ${
+            className={`!hidden lg:!inline-flex items-center justify-center px-5 py-2 text-sm font-semibold rounded-full transition-all duration-300 ${
               isRegisterActive
                 ? "btn-primary border border-transparent !px-5 !py-2"
                 : `btn-secondary !px-5 !py-2 ${
@@ -129,14 +129,14 @@ export default function Navbar({ hideGuestCenterNav = false }) {
 
       {mobileOpen && (
         <div
-          className={`lg:hidden absolute top-full left-4 right-4 mt-2 rounded-xl p-4 shadow-xl animate-slide-down ${useLight
-            ? "bg-white/90 border border-slate-200 shadow-glass backdrop-blur-lg"
-            : "glass-panel border-white/[0.06]"
+          className={`lg:hidden absolute top-full left-4 right-4 mt-2 rounded-xl p-5 shadow-xl animate-slide-down ${useLight
+            ? "bg-white/95 border border-slate-200/80 shadow-glass backdrop-blur-lg"
+            : "glass-panel border-white/[0.08]"
             }`}
           role="navigation"
           aria-label="Mobile navigation"
         >
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-2">
             {landingLinks.map(({ label, href }) => (
               <a
                 key={href}
@@ -151,8 +151,8 @@ export default function Navbar({ hideGuestCenterNav = false }) {
               </a>
             ))}
 
-            <div className={`flex flex-col gap-2.5 mt-4 pt-4 border-t ${useLight ? "border-slate-200" : "border-white/[0.06]"}`}>
-              <div className="flex items-center justify-between px-4 py-1.5 mb-1.5">
+            <div className={`flex flex-col gap-3 mt-4 pt-4 border-t ${useLight ? "border-slate-200" : "border-white/[0.06]"}`}>
+              <div className="flex items-center justify-between px-4 py-1.5 mb-1">
                 <span className={`text-sm font-semibold ${useLight ? "text-slate-600" : "text-slate-300"}`}>
                   Theme Mode
                 </span>
@@ -160,7 +160,7 @@ export default function Navbar({ hideGuestCenterNav = false }) {
               </div>
               <Link
                 to="/login"
-                className={`w-full justify-center py-2.5 text-sm font-semibold text-center rounded-full transition-all duration-300 border ${
+                className={`w-full flex items-center justify-center py-2.5 text-sm font-semibold text-center rounded-full transition-all duration-300 border ${
                   isLoginActive
                     ? "btn-primary border-transparent !py-2.5"
                     : `border-transparent bg-transparent ${
@@ -175,7 +175,7 @@ export default function Navbar({ hideGuestCenterNav = false }) {
               </Link>
               <Link
                 to="/register"
-                className={`w-full justify-center py-2.5 text-sm font-semibold text-center transition-all duration-300 ${
+                className={`w-full flex items-center justify-center py-2.5 text-sm font-semibold text-center transition-all duration-300 ${
                   isRegisterActive
                     ? "btn-primary border border-transparent !py-2.5"
                     : `btn-secondary !py-2.5 ${

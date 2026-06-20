@@ -395,16 +395,16 @@ export default function AuthenticatedNavbar() {
 
       {mobileOpen && (
         <div
-          className={`lg:hidden absolute top-full left-4 right-4 mt-2 rounded-xl p-4 shadow-xl animate-slide-down ${useLight
-              ? "bg-white/90 border border-slate-200 shadow-glass backdrop-blur-lg"
-              : "glass-panel border-white/[0.06]"
+          className={`lg:hidden absolute top-full left-4 right-4 mt-2 rounded-xl p-5 shadow-xl animate-slide-down ${useLight
+              ? "bg-white/95 border border-slate-200/80 shadow-glass backdrop-blur-lg"
+              : "glass-panel border-white/[0.08]"
             }`}
           role="navigation"
           aria-label="Mobile navigation"
         >
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-2">
             {/* User Profile Summary (Mobile View) */}
-            <div className={`flex items-center gap-3 px-3 py-2.5 mb-2 rounded-xl ${useLight ? "bg-slate-100/60 border border-slate-200/50" : "bg-white/[0.03] border border-white/[0.04]"}`}>
+            <div className={`flex items-center gap-3 px-4 py-3 mb-3 rounded-xl ${useLight ? "bg-slate-100/60 border border-slate-200/50" : "bg-white/[0.03] border border-white/[0.04]"}`}>
               {avatarUrl ? (
                 <img
                   src={avatarUrl}
@@ -431,7 +431,7 @@ export default function AuthenticatedNavbar() {
               to={isCompany ? "/company/profile" : "/profile"}
               onClick={() => setMobileOpen(false)}
               className={({ isActive }) =>
-                `px-4 py-2.5 text-sm font-medium transition-all duration-300 rounded-xl border mb-2 ${useLight
+                `px-4 py-2.5 text-sm font-medium transition-all duration-300 rounded-xl border mb-1.5 ${useLight
                   ? isActive
                     ? "text-slate-900 bg-[#7cc84a]/12 border-[#7cc84a]/20 shadow-sm"
                     : "text-slate-600 border-transparent hover:text-slate-900 hover:bg-[#7cc84a]/5 hover:border-[#7cc84a]/25"
@@ -468,12 +468,12 @@ export default function AuthenticatedNavbar() {
             ))}
 
             {isTalent && (
-              <div className={`mt-1.5 pt-1.5 border-t ${useLight ? "border-slate-200" : "border-white/[0.06]"}`}>
+              <div className={`mt-2.5 pt-2.5 border-t ${useLight ? "border-slate-200" : "border-white/[0.06]"}`}>
                 <ResumeGeneratorButton compact light={useLight} />
               </div>
             )}
 
-            <div className={`mt-1.5 pt-1.5 border-t ${useLight ? "border-slate-200" : "border-white/[0.06]"} flex items-center justify-between px-4 py-1.5 mb-1.5`}>
+            <div className={`mt-2.5 pt-2.5 border-t ${useLight ? "border-slate-200" : "border-white/[0.06]"} flex items-center justify-between px-4 py-1.5 mb-1`}>
               <span className={`text-sm font-semibold ${useLight ? "text-slate-600" : "text-slate-300"}`}>
                 Theme Mode
               </span>
@@ -481,7 +481,7 @@ export default function AuthenticatedNavbar() {
             </div>
 
             <div
-              className={`mt-1.5 pt-1.5 border-t ${useLight ? "border-slate-200" : "border-white/[0.06]"}`}
+              className={`mt-2.5 pt-2.5 border-t ${useLight ? "border-slate-200" : "border-white/[0.06]"}`}
             >
               <button
                 onClick={() => {
