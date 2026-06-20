@@ -1,4 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap");
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -2245,5 +2244,40 @@ html:not([data-theme="dark"]) .bg-\[\#7cc84a\]\/20 {
 
 html:not([data-theme="dark"]) .\!text-\[\#7cc84a\] {
   color: #3b721c !important; /* Dark green for uppercase text label */
+}
+
+/* ── Modal Backdrop with Green Glow ── */
+.modal-backdrop {
+  background: radial-gradient(circle at center, rgba(168, 224, 99, 0.22) 0%, rgba(9, 15, 12, 0.82) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+html[data-theme="dark"] .modal-backdrop {
+  background: radial-gradient(circle at center, rgba(159, 232, 112, 0.18) 0%, rgba(3, 7, 5, 0.92) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* ── Responsive Toast Spacing & Padding ── */
+@media (max-width: 640px) {
+  .toast-item {
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  }
+  .toast-content {
+    padding: 0.875rem;
+    gap: 0.625rem;
+  }
+  .toast-icon-wrapper {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+  .toast-title {
+    font-size: 0.8125rem;
+  }
+  .toast-message {
+    font-size: 0.75rem;
+  }
 }
 

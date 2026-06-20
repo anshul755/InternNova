@@ -3,11 +3,11 @@ import { Routes, Route } from "react-router-dom";
 import AppLayout from "./components/AppLayout.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
 
-import Landing from "./pages/Landing.jsx";
-import Login from "./pages/Login.jsx";
-import RegisterChoice from "./pages/RegisterChoice.jsx";
-import JobListings from "./pages/JobListings.jsx";
-import JobDetails from "./pages/JobDetails.jsx";
+const Landing = lazy(() => import("./pages/Landing.jsx"));
+const Login = lazy(() => import("./pages/Login.jsx"));
+const RegisterChoice = lazy(() => import("./pages/RegisterChoice.jsx"));
+const JobListings = lazy(() => import("./pages/JobListings.jsx"));
+const JobDetails = lazy(() => import("./pages/JobDetails.jsx"));
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import RoleProtectedRoute from "./components/RoleProtectedRoute.jsx";
 const CompanyRegister = lazy(() => import("./pages/CompanyRegister.jsx"));

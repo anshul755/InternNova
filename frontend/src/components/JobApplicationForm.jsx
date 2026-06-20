@@ -143,7 +143,7 @@ const JobApplicationForm = ({ job, onSubmit, onCancel }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 pt-24" style={{ background: 'var(--app-overlay)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 pt-24 modal-backdrop animate-fade-in">
       <div className="glass-panel p-8 max-w-4xl w-full max-h-[calc(100vh-8rem)] overflow-y-auto">
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-[var(--app-text)] mb-2">

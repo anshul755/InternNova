@@ -10,16 +10,15 @@ InternNova is a production-grade, microservice-based portal connecting candidate
 
 We maintain complete production-grade documentation for requirements, specs, databases, and onboarding guides:
 
-* **[SRS (Software Requirements Specification)](file:///e:/WorkSpace/WebDev/InternNova/documents/srs.md)** — High-level functional requirements, security specifications, and microservice parameters.
-* **[User Stories](file:///e:/WorkSpace/WebDev/InternNova/documents/user_stories.md)** — Agile stories with explicit Acceptance Criteria for Talent, Company, and System actors.
-* **[Use Cases & UML Diagram](file:///e:/WorkSpace/WebDev/InternNova/documents/use_cases.md)** — Comprehensive Actor-System use cases and Mermaid diagrams.
-* **[System Architecture Overview](file:///e:/WorkSpace/WebDev/InternNova/documents/system_architecture_overview.md)** — Microservice layout, technologies, and system ports.
-* **[Database ER Diagram (ERD)](file:///e:/WorkSpace/WebDev/InternNova/documents/er_diagram.md)** — MongoDB collections, relationships, embedded structures, and enums.
-* **[Class Diagrams Specification](file:///e:/WorkSpace/WebDev/InternNova/documents/class_diagrams.md)** — Microservice class files, routes, and dependency models.
-* **[Sequence Diagrams Flow](file:///e:/WorkSpace/WebDev/InternNova/documents/sequence_diagrams.md)** — Sequence diagrams for authentication, application evaluation, resume tailoring, and deletion.
-* **[API Documentation Reference](file:///e:/WorkSpace/WebDev/InternNova/documents/api_documentation.md)** — Consolidated complete reference of all API routes, parameters, responses, and schemas.
-* **[OpenAPI Gateway Spec (YAML)](file:///e:/WorkSpace/WebDev/InternNova/documents/openapi.yaml)** — Formal OpenAPI 3.0 specification mapping API Gateway paths.
-* **[User Onboarding Guide](file:///e:/WorkSpace/WebDev/InternNova/user_guide.md)** — Interactive onboarding guides for Talent and Recruiter accounts.
+* **[SRS (Software Requirements Specification)](./documents/srs.md)** — High-level functional requirements, security specifications, and microservice parameters.
+* **[User Stories](./documents/user_stories.md)** — Agile stories with explicit Acceptance Criteria for Talent, Company, and System actors.
+* **[Use Cases & UML Diagram](./documents/use_cases.md)** — Comprehensive Actor-System use cases and Mermaid diagrams.
+* **[System Architecture Overview](./documents/system_architecture_overview.md)** — Microservice layout, technologies, and system ports.
+* **[Database ER Diagram (ERD)](./documents/er_diagram.md)** — MongoDB collections, relationships, embedded structures, and enums.
+* **[Class Diagrams Specification](./documents/class_diagrams.md)** — Microservice class files, routes, and dependency models.
+* **[Sequence Diagrams Flow](./documents/sequence_diagrams.md)** — Sequence diagrams for authentication, application evaluation, resume tailoring, and deletion.
+* **[API Documentation Reference](./documents/api_documentation.md)** — Consolidated complete reference of all API routes, parameters, responses, and schemas.
+* **[User Onboarding Guide](./user_guide.md)** — Interactive onboarding guides for Talent and Recruiter accounts.
 
 ---
 
@@ -44,6 +43,32 @@ The platform is designed around strict session security, microservice autonomy, 
 * **📄 AI LaTeX Resume Generator**: Tailored resume content generation compiled directly into PDF using LaTeX engines (`classic` or `modern` style templates).
 * **🗑️ Secure Account Deletion**: OTP-validated complete account and asset purge.
 * **📧 Automation & Email**: Daily CRON jobs to auto-close expired postings, and automated result dispatch loops emailing candidates on publication.
+
+---
+
+## 🚀 Future Features Roadmap
+
+**🤖 Personalized AI Assistants (Chatbots)**
+* **Student Career Coach Copilot:** Acts as a personal mentor to iteratively refine student resumes, prepare for interviews, and find tailored internships via chat.
+* **Recruiter Hiring Copilot:** Helps employers instantly draft compelling job descriptions, summarize candidate profiles, and generate custom interview questions.
+
+**🧠 Advanced AI Features**
+* **AI Mock Interviews:** Provides an interactive text or voice environment for students to practice interviews and receive instant, constructive feedback.
+* **Skill Gap Analysis & Upskilling:** Automatically compares a student's resume against their desired internship to highlight missing skills and recommend specific courses.
+* **Automated Cover Letter Generation:** A one-click feature that generates highly tailored cover letters matching the exact tone and requirements of the target internship.
+* **Smart Job Matching:** Proactively suggests the most relevant internships to students and highlights the best-fit candidates to recruiters based on deep profile analysis.
+
+**💼 Core Platform Features**
+* **Real-time Messaging System:** An in-app chat system allowing recruiters and candidates to communicate directly, speeding up the hiring process.
+* **Video Pitches / Resumes:** Enables students to upload a short, 1-minute video pitch to showcase their personality and stand out to employers.
+* **Automated Interview Scheduling:** A built-in calendar tool allowing candidates to select available time slots directly from a recruiter's schedule to eliminate back-and-forth.
+* **Recruiter Analytics Dashboard:** Provides companies with comprehensive insights into job posting views, application drop-off rates, and applicant pool quality.
+* **Company Reviews & Ratings:** A transparent system where past interns can leave authentic reviews and rate their workplace experiences to help future candidates.
+
+**📱 User Experience Enhancements**
+* **Progressive Web App (Mobile Installable):** Allows users to save the web app directly to their mobile home screens for native access and push notifications.
+* **Dark Mode Theme:** A sleek, user-selectable dark mode toggle designed to reduce eye strain during late-night internship hunting sessions.
+* **Enhanced Accessibility:** Ensures the platform is fully inclusive and navigable for all candidates, featuring screen reader support and high-contrast viewing options.
 
 ---
 
@@ -80,12 +105,12 @@ The platform is designed around strict session security, microservice autonomy, 
 
 Below is an overview of the core directories in this repository:
 
-* **[api-gateway/](file:///e:/WorkSpace/WebDev/InternNova/api-gateway)**: Handles unified entry routing, CORS configurations, rate-limiting, and parses access cookies to headers.
-* **[auth-service/](file:///e:/WorkSpace/WebDev/InternNova/auth-service)**: Manages registrations, OTP verifications, login parameters (auto-locks after 5 failures), JWT refresh loops, and secure account deletions.
-* **[core-service/](file:///e:/WorkSpace/WebDev/InternNova/core-service)**: Spring Boot project managing talent profiles, company hubs, jobs boards, applications states, mail notification dispatches, and daily status expiration CRON jobs.
-* **[ai-service/](file:///e:/WorkSpace/WebDev/InternNova/ai-service)**: Python FastAPI service managing resume parsing, fake resume checks using Groq LLM pipelines, and LaTeX PDF compiling.
-* **[frontend/](file:///e:/WorkSpace/WebDev/InternNova/frontend)**: React client application containing visitor landing pages, recruiter settings panels, and candidate CV workspaces.
-* **[documents/](file:///e:/WorkSpace/WebDev/InternNova/documents)**: Unified documentation repository containing requirements specifications, API schemas, and sequence flow diagrams.
+* **[api-gateway/](./api-gateway)**: Handles unified entry routing, CORS configurations, rate-limiting, and parses access cookies to headers.
+* **[auth-service/](./auth-service)**: Manages registrations, OTP verifications, login parameters (auto-locks after 5 failures), JWT refresh loops, and secure account deletions.
+* **[core-service/](./core-service)**: Spring Boot project managing talent profiles, company hubs, jobs boards, applications states, mail notification dispatches, and daily status expiration CRON jobs.
+* **[ai-service/](./ai-service)**: Python FastAPI service managing resume parsing, fake resume checks using Groq LLM pipelines, and LaTeX PDF compiling.
+* **[frontend/](./frontend)**: React client application containing visitor landing pages, recruiter settings panels, and candidate CV workspaces.
+* **[documents/](./documents)**: Unified documentation repository containing requirements specifications, API schemas, and sequence flow diagrams.
 
 ---
 
