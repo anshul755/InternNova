@@ -1,12 +1,17 @@
 r"""LaTeX template builders.
 
-Two registered styles, both authored as a single self-contained `.tex` for `pdflatex`
-+ stock TeX Live packages (LaTeX.Online compiles one file, so no custom `.cls`):
+Two registered styles, both authored as a single self-contained `.tex` for `xelatex`
++ stock TeX Live packages (fontspec, geometry, xcolor, enumitem, titlesec, paracol,
+hyperref, lato):
 
   - classic : Trey Hunner "Medium Length Professional CV" recreated by inlining the
               resume.cls macros (\name/\address/rSection/rSubsection) onto `article`.
-  - modern  : the `deedy-resume-openfont` look recreated with a two-column minipage
-              layout, Lato typeface, and colored section headers (no fontspec/XeLaTeX).
+  - modern  : the `deedy-resume-openfont` look recreated with a two-column paracol
+              layout, Lato typeface via fontspec, and colored section headers.
+
+Both templates use `fontspec` (XeLaTeX-native) instead of the pdflatex-only
+`fontenc`/`inputenc` packages. This matches the production engine (`xelatex`) set in
+the Dockerfile and docker-compose.
 
 Each builder takes the deterministic `ContactInfo` plus the LLM-written `ResumeContent`
 and returns a complete `.tex` string. Every field is passed through `esc()` / `esc_url()`
@@ -112,8 +117,9 @@ def _split_name(full: str) -> tuple:
 # ── classic — Trey Hunner resume.cls, inlined onto article ────────────────────
 
 _CLASSIC_PREAMBLE = r"""\documentclass[11pt,a4paper]{article}
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
+% XeLaTeX is Unicode-native: fontenc/inputenc must not be loaded under xelatex.
+% fontspec replaces them and enables full UTF-8 / OpenType support.
+\usepackage{fontspec}
 \usepackage[left=0.45in,top=0.35in,right=0.45in,bottom=0.35in]{geometry}
 \usepackage{array}
 \usepackage{enumitem}
@@ -242,11 +248,20 @@ def build_classic(contact: ContactInfo, content: ResumeContent) -> str:
 # ── modern — deedy-resume-openfont look, recreated for pdflatex ───────────────
 
 _MODERN_PREAMBLE = r"""\documentclass[a4paper]{article}
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
+% XeLaTeX is Unicode-native: fontenc/inputenc are not needed and must not be loaded.
+% fontspec provides font management; helvet is the fallback if Lato is unavailable.
+\usepackage{fontspec}
 \usepackage[left=0.55in,top=0.5in,right=0.55in,bottom=0.5in]{geometry}
-\usepackage[default]{lato}
-\renewcommand{\familydefault}{\sfdefault}
+% Lato via fontspec (system OTF/TTF installed by `fonts-lato` or texlive-fonts-extra).
+% IfFontExistsTF lets us fall back gracefully to Helvetica if Lato is not installed.
+\usepackage{ifthen}
+\IfFontExistsTF{Lato}{
+  \setmainfont{Lato}
+  \setsansfont{Lato}
+}{
+  \usepackage{helvet}
+  \renewcommand{\familydefault}{\sfdefault}
+}
 \usepackage{xcolor}
 \usepackage{enumitem}
 \usepackage{titlesec}
